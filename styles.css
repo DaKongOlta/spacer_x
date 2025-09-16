@@ -1,0 +1,32 @@
+
+/* Base */
+*{box-sizing:border-box}
+body{margin:0;background:#0b0f17;color:#e6edf3;font-family:Arial,Helvetica,sans-serif}
+header{padding:16px 0;text-align:center}
+h1{font-family:'Orbitron',sans-serif;margin:0;font-size:32px;letter-spacing:.06em;color:#64ffda}
+main{width:100%;max-width:1200px;margin:0 auto;padding:10px}
+button,select{background:#101827;color:#e6edf3;border:1px solid #2a3441;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer}
+button:hover{background:#162235}
+.screen{display:none}
+.screen.active{display:block}
+.menu{display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;min-height:70vh}
+.raceLayout{display:grid;grid-template-columns:1fr 320px;gap:12px;align-items:start}
+.canvasWrap{position:relative;border:1px solid #1f2a37;border-radius:14px;overflow:hidden}
+.minimap{position:absolute;right:8px;top:8px;border:1px solid #2a3441;border-radius:8px;background:#0b0f17a0}
+.flag{position:absolute;left:50%;top:10px;transform:translateX(-50%);padding:6px 12px;border-radius:10px;font-weight:800}
+.flag.green{background:#064e3b;color:#a7f3d0;border:1px solid #10b981}
+.flag.yellow{background:#78350f;color:#fde68a;border:1px solid #f59e0b}
+.flag.sc{background:#111827;color:#93c5fd;border:1px dashed #60a5fa}
+.flag.hidden{display:none}
+.top3{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);background:#0b1220d0;border:1px solid #243049;border-radius:10px;padding:6px 10px;font-size:13px}
+.ticker{position:absolute;left:0;bottom:0;width:100%;padding:6px 10px;background:#070b13d0;border-top:1px solid #1e293b;font-size:12px;white-space:nowrap;overflow:hidden}
+.sidebar{display:flex;flex-direction:column;gap:10px}
+.optionsRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0}
+.telemetry{background:#0d1524;border:1px solid #1e293b;border-radius:12px;padding:8px}
+.telemetry ul{list-style:none;margin:0;padding:0;max-height:420px;overflow:auto;font-size:13px}
+.statsRow{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;opacity:.85}
+.controls{display:flex;flex-wrap:wrap;gap:8px}
+.results{white-space:pre-wrap;background:#0d1524;border:1px solid #1e293b;border-radius:12px;padding:8px;min-height:90px}
+.posFlash{animation:flash .45s ease}
+@keyframes flash{0%{background:#052e2b}100%{background:transparent}}
+.gapPlus{color:#ef4444}.gapMinus{color:#10b981}

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPACER‑X</title>
+  <link href="https://fonts.googleapis.com/css?family=Orbitron:400,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header><h1>SPACER‑X</h1></header>
+  <main>
+    <!-- Hauptmenü -->
+    <section id="mainMenu" class="screen active menu">
+      <button id="newRaceBtn">Schnelles Rennen</button>
+      <button id="grandPrixBtn">Grand Prix (5 Rennen)</button>
+      <button id="teamsBtn">Teams &amp; Fahrer</button>
+      <button id="settingsBtn">Einstellungen</button>
+    </section>
+
+    <!-- Rennbildschirm -->
+    <section id="raceScreen" class="screen">
+      <div class="raceLayout">
+        <div class="canvasWrap">
+          <canvas id="raceCanvas" width="900" height="600"></canvas>
+          <canvas id="miniMapCanvas" width="200" height="140" class="minimap"></canvas>
+          <div id="raceFlag" class="flag hidden">GREEN FLAG</div>
+          <div id="top3Banner" class="top3 hidden"></div>
+          <div id="highlightTicker" class="ticker"></div>
+        </div>
+        <aside class="sidebar">
+          <div class="optionsRow">
+            <label>KI:
+              <select id="aiDifficulty">
+                <option value="easy">Easy</option>
+                <option value="normal" selected>Normal</option>
+                <option value="hard">Hard</option>
+              </select>
+            </label>
+            <label>Start:
+              <select id="startProc">
+                <option value="standing">Standing</option>
+                <option value="staggered">Staggered</option>
+              </select>
+            </label>
+          </div>
+          <div class="telemetry">
+            <div class="statsRow"><span id="lapInfoLabel">Runde:</span><span id="raceTimeLabel">Rennzeit:</span></div>
+            <ul id="telemetryList"></ul>
+          </div>
+          <div class="controls">
+            <button id="startRaceBtn">Rennen starten</button>
+            <button id="pauseRaceBtn" disabled>Pause</button>
+            <button id="replayRaceBtn" style="display:none;">Replay</button>
+            <button id="nextRaceBtn" style="display:none;">Nächstes Rennen</button>
+            <button id="backToMenuFromRace">Zum Hauptmenü</button>
+          </div>
+          <pre id="resultsLabel" class="results"></pre>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Teams/Fahrer -->
+    <section id="teamsScreen" class="screen">
+      <h2>Teams &amp; Fahrer</h2>
+      <div id="teamsList"></div>
+      <button id="backToMenuFromTeams">Zum Hauptmenü</button>
+    </section>
+
+    <!-- Einstellungen -->
+    <section id="settingsScreen" class="screen">
+      <h2>Einstellungen</h2>
+      <p>Zoom Effekt:
+        <select id="zoomSetting">
+          <option value="on" selected>On</option>
+          <option value="off">Off</option>
+        </select>
+      </p>
+      <p>Strecke:
+        <select id="trackType">
+          <option value="oval" selected>Oval</option>
+          <option value="wavy">Wavy Oval</option>
+          <option value="fig8">Figure Eight</option>
+        </select>
+      </p>
+      <p>Runden:
+        <select id="lapsSetting">
+          <option value="10">10</option>
+          <option value="15" selected>15</option>
+          <option value="25">25</option>
+        </select>
+      </p>
+      <button id="backToMenuFromSettings">Zum Hauptmenü</button>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
