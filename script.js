@@ -484,6 +484,8 @@
 
   const SECTOR_SPLITS = [0, 1 / 3, 2 / 3, 1];
   const sectorFeed = [];
+  const liveTickerEvents = [];
+  const cautionOrderMap = new Map();
   const lapRecords = {
     fastestLap: { time: Infinity, driver: null, team: null, number: null },
     bestSectors: [
@@ -535,6 +537,9 @@
   const top3Banner = document.getElementById('top3Banner');
   const raceFlag = document.getElementById('raceFlag');
   const highlightTicker = document.getElementById('highlightTicker');
+  const leaderboardHud = document.getElementById('leaderboardHud');
+  const leaderboardList = leaderboardHud?.querySelector('ol');
+  const liveTickerList = document.getElementById('liveTickerList');
   const sessionInfo = document.getElementById('sessionInfo');
   const leaderGapHud = document.getElementById('leaderGapHud');
   const leaderGapLabel = leaderGapHud?.querySelector('.label');
@@ -618,6 +623,8 @@
     toggleFocusPanel.checked = uiSettings.showFocusPanel;
   }
   applyUiSettings();
+  resetLiveTicker();
+  updateLeaderboardHud([]);
 
   let raceSettings = loadRaceSettings();
   if (trackTypeSelect && raceSettings.track) {
@@ -1521,10 +1528,23 @@
         }
       }
 
-      if (racePhase === 'SAFETY' && leader && !this.finished) {
-        const gap = computeAngularGap(leader, this);
-        if (gap > 0.02) {
-          speed *= 1.18;
+      if (!this.finished && (racePhase === 'YELLOW' || racePhase === 'SAFETY' || racePhase === 'RESTART')) {
+        const ahead = cautionOrderMap.get(this.id);
+        let reference = null;
+        if (ahead && ahead !== this && !ahead.finished) {
+          reference = ahead;
+        } else if (leader && leader !== this) {
+          reference = leader;
+        }
+        if (reference) {
+          const gap = computeAngularGap(reference, this);
+          const target = racePhase === 'RESTART' ? 0.16 : racePhase === 'SAFETY' ? 0.22 : 0.26;
+          if (gap > target) {
+            const catchBoost = clamp((gap - target) * 3, 0.12, 2.4);
+            speed *= 1 + catchBoost * 0.22;
+          } else if (gap < target * 0.45) {
+            speed *= 0.82;
+          }
         }
       }
 
@@ -1690,15 +1710,59 @@
     fastestLapLabel.innerHTML = `<span class=\"highlight\">FL</span> #${record.number} ${record.driver} ${formatTime(record.time)}`;
   }
 
+  function formatTickerStamp() {
+    if (!isFinite(raceTime) || raceTime <= 0) return '--:--';
+    return `${raceTime.toFixed(1)}s`;
+  }
+
+  function updateLiveTicker() {
+    if (!liveTickerList) return;
+    liveTickerList.innerHTML = '';
+    if (liveTickerEvents.length === 0) {
+      const li = document.createElement('li');
+      li.classList.add('empty');
+      li.textContent = 'Warten auf Meldungen...';
+      liveTickerList.appendChild(li);
+      return;
+    }
+    const frag = document.createDocumentFragment();
+    liveTickerEvents.forEach(entry => {
+      const li = document.createElement('li');
+      li.classList.add(entry.type || 'info');
+      const stamp = document.createElement('span');
+      stamp.className = 'stamp';
+      stamp.textContent = entry.stamp || '--:--';
+      const message = document.createElement('span');
+      message.className = 'message';
+      message.textContent = entry.message;
+      li.appendChild(stamp);
+      li.appendChild(message);
+      frag.appendChild(li);
+    });
+    liveTickerList.appendChild(frag);
+  }
+
+  function resetLiveTicker() {
+    liveTickerEvents.length = 0;
+    updateLiveTicker();
+  }
+
   function pushTicker(msg, type) {
-    if (!highlightTicker) return;
     let tag = '🏁';
     if (type === 'yellow') tag = '🟨';
     else if (type === 'sc') tag = '🚨';
     else if (type === 'pb') tag = '⏱️';
     else if (type === 'fl') tag = '🔥';
     else if (type === 'info') tag = 'ℹ️';
-    highlightTicker.textContent = `${tag} ${msg}`;
+    if (highlightTicker) {
+      highlightTicker.textContent = `${tag} ${msg}`;
+    }
+    const entryType = type || 'info';
+    liveTickerEvents.unshift({ message: msg, type: entryType, stamp: formatTickerStamp() });
+    if (liveTickerEvents.length > 12) {
+      liveTickerEvents.pop();
+    }
+    updateLiveTicker();
   }
 
   function logRaceControl(message, level = 'info') {
@@ -2083,16 +2147,69 @@
     });
   }
 
-  function drawScene() {
+  function drawScene(orderOverride = null) {
     drawTrack();
     drawCars();
     drawMiniMap();
-    const order = cars.slice().sort(sortByRacePosition);
+    const order = Array.isArray(orderOverride) && orderOverride.length ? orderOverride : cars.slice().sort(sortByRacePosition);
     const text = order.slice(0, 3).map((car, idx) => `${idx + 1}. #${car.racingNumber} ${car.driver}`).join('   ');
     if (text) {
       top3Banner.textContent = text;
       top3Banner.classList.remove('hidden');
+    } else {
+      top3Banner.textContent = '';
+      top3Banner.classList.add('hidden');
     }
+    updateLeaderboardHud(order);
+  }
+
+  function updateLeaderboardHud(order) {
+    if (!leaderboardHud || !leaderboardList) return;
+    if (!Array.isArray(order) || order.length === 0) {
+      leaderboardHud.classList.add('hidden');
+      leaderboardList.innerHTML = '';
+      return;
+    }
+    const leader = order[0];
+    if (!leader) {
+      leaderboardHud.classList.add('hidden');
+      leaderboardList.innerHTML = '';
+      return;
+    }
+    const frag = document.createDocumentFragment();
+    const limit = Math.min(order.length, 6);
+    for (let i = 0; i < limit; i++) {
+      const car = order[i];
+      if (!car) continue;
+      const li = document.createElement('li');
+      if (i === 0) li.classList.add('leader');
+      if (i > 0) {
+        const duelGap = Math.abs(computeTimeGap(order[i - 1], car));
+        if (duelGap < 0.45) {
+          li.classList.add('charge');
+        }
+      }
+      const rawGap = leader === car ? 0 : Math.abs(computeTimeGap(leader, car));
+      const gapText = i === 0 ? 'Leader' : `+${formatGap(rawGap)}s`;
+      li.innerHTML = `
+        <span class="pos">${i + 1}</span>
+        <span class="driver"><strong style="color:${car.color}">#${car.racingNumber}</strong> ${car.driver}</span>
+        <span class="gap">${gapText}</span>
+      `;
+      const info = document.createElement('span');
+      info.className = 'team';
+      const lapText = formatTime(car.lastLapTime);
+      if (i === 0 && lapText !== '--') {
+        info.textContent = `${car.team} • LL ${lapText}`;
+      } else {
+        info.textContent = car.team;
+      }
+      li.appendChild(info);
+      frag.appendChild(li);
+    }
+    leaderboardList.innerHTML = '';
+    leaderboardList.appendChild(frag);
+    leaderboardHud.classList.remove('hidden');
   }
 
   function sortByRacePosition(a, b) {
@@ -2628,6 +2745,8 @@
     if (leaderGapFill) leaderGapFill.style.width = '0%';
     if (leaderGapHud) leaderGapHud.classList.remove('leader', 'positive', 'negative', 'tight');
     highlightTicker.textContent = '';
+    resetLiveTicker();
+    updateLeaderboardHud([]);
     resultsLabel.textContent = '';
     replayRaceBtn.style.display = 'none';
     if (nextRaceBtn) nextRaceBtn.style.display = 'none';
@@ -2691,11 +2810,20 @@
 
     tickPhase();
 
-    const leader = cars.slice().sort(sortByRacePosition).find(car => !car.finished) || cars[0] || null;
+    const snapshotOrder = cars.slice().sort(sortByRacePosition);
+    cautionOrderMap.clear();
+    for (let i = 1; i < snapshotOrder.length; i++) {
+      const car = snapshotOrder[i];
+      const ahead = snapshotOrder[i - 1];
+      if (car && ahead) {
+        cautionOrderMap.set(car.id, ahead);
+      }
+    }
+    const leader = snapshotOrder.find(car => !car.finished) || snapshotOrder[0] || null;
     cars.forEach(car => car.update(dt, leader));
 
-    drawScene();
     const orderAfter = cars.slice().sort(sortByRacePosition);
+    drawScene(orderAfter);
     updateTelemetry(orderAfter);
     updateSessionInfo();
 
@@ -2751,6 +2879,7 @@
     updateCameraHud([]);
     lastTelemetryOrder = order;
     updateFocusPanel(order);
+    updateLeaderboardHud(order);
     logRaceControl('Rennen beendet – Ergebnisse verfügbar', 'success');
     auditRaceFlow('finish', {
       winner: order[0]?.driver || null,
@@ -3531,6 +3660,8 @@
     resultsLabel.textContent = '';
     leaderGapHud?.classList.add('hidden');
     updateCameraHud([]);
+    updateLeaderboardHud([]);
+    resetLiveTicker();
     resetRaceControlLog();
     showScreen(mainMenu);
     currentMode = 'quick';
