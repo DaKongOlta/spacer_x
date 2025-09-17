@@ -1028,13 +1028,15 @@
   let totalLaps = parseInt(lapsSetting?.value || String(raceSettings.laps || 15), 10);
   let aiLevel = aiDifficulty?.value || raceSettings.ai || 'normal';
   let currentWeather = weatherSetting?.value || raceSettings.weather || 'clear';
+  let startProcedureMode = startProc?.value || raceSettings.startProc || 'standing';
   let activeTrackTraits = getTrackTraits(currentTrackType);
   let currentVisualTheme = null;
   let lastTelemetryOrder = [];
   const raceControlEvents = [];
-  const phaseStats = { yellow: 0, safety: 0, restart: 0 };
+  const phaseStats = { yellow: 0, safety: 0, restart: 0, formation: 0 };
   const phaseTimeline = [];
   const flowAudit = [];
+  const leaderboardGapHistory = new Map();
 
   trackTypeSelect?.addEventListener('change', () => {
     currentTrackType = trackTypeSelect.value;
@@ -1058,6 +1060,7 @@
   });
   startProc?.addEventListener('change', () => {
     raceSettings.startProc = startProc.value;
+    startProcedureMode = startProc.value;
     persistRaceSettings();
     updateEventBriefing();
   });
@@ -1130,6 +1133,9 @@
   let racePhaseNext = null;
   let racePhaseMeta = {};
   let previousPhase = 'IDLE';
+  let raceClockOffset = 0;
+  let raceClockArmed = false;
+  let formationActive = false;
   let lastFrame = 0;
   let currentMode = 'quick';
   let focusDriverId = null;
@@ -1624,7 +1630,33 @@
     }, 1000);
   }
 
-  function beginRaceCountdown() {
+  function beginFormationLap() {
+    if (formationActive) return;
+    formationActive = true;
+    countdownRunning = false;
+    if (countdownTimer) {
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+    }
+    setRacePhase('FORMATION', 12, { name: 'COUNTDOWN' }, { procedure: 'rolling' });
+    top3Banner.textContent = 'Formation Lap';
+    top3Banner.classList.remove('hidden');
+    logRaceControl('Formation Lap aktiviert (Rolling Start)', 'info');
+    pushTicker('Formation Lap – Rolling Start', 'info');
+    raceActive = true;
+    isPaused = false;
+    setPauseButtonState(true, 'Pause');
+    requestAnimationFrame(time => {
+      lastFrame = time;
+      requestAnimationFrame(gameLoop);
+    });
+  }
+
+  function beginRaceCountdown(force = false) {
+    if (!force && startProcedureMode === 'rolling' && !formationActive) {
+      beginFormationLap();
+      return;
+    }
     if (countdownRunning) return;
     if (gridIntroInterval) {
       clearInterval(gridIntroInterval);
@@ -1641,7 +1673,7 @@
       countdownTimer = null;
     }
     countdownRunning = true;
-    const countdown = [3, 2, 1, 'GO'];
+    const countdown = startProcedureMode === 'staggered' ? [4, 3, 2, 1, 'GO'] : [3, 2, 1, 'GO'];
     let idx = 0;
     auditRaceFlow('countdown', { steps: countdown.length });
     const runCountdown = () => {
@@ -1869,39 +1901,41 @@
         speed -= Math.random() * 0.8;
       }
 
-      this.tireWear = clamp(
-        this.tireWear + dt * (0.035 + this.risk * 0.025) * (traits.wearRate || 1) * (this.profile.wear || 1),
-        0,
-        1.2
-      );
-      const wearPenalty = this.tireWear * 0.6;
-      speed -= wearPenalty;
+      if (raceClockArmed) {
+        this.tireWear = clamp(
+          this.tireWear + dt * (0.035 + this.risk * 0.025) * (traits.wearRate || 1) * (this.profile.wear || 1),
+          0,
+          1.2
+        );
+        const wearPenalty = this.tireWear * 0.6;
+        speed -= wearPenalty;
 
-      this.systemIntegrity = clamp(
-        this.systemIntegrity - dt * (0.004 + this.risk * 0.003) * (traits.wearRate || 1) / Math.max(0.75, this.profile.systems || 1),
-        0.35,
-        1.15
-      );
-      const systemPenalty = (1.05 - this.systemIntegrity) * 1.4;
-      if (systemPenalty > 0) {
-        speed -= systemPenalty;
+        this.systemIntegrity = clamp(
+          this.systemIntegrity - dt * (0.004 + this.risk * 0.003) * (traits.wearRate || 1) / Math.max(0.75, this.profile.systems || 1),
+          0.35,
+          1.15
+        );
+        const systemPenalty = (1.05 - this.systemIntegrity) * 1.4;
+        if (systemPenalty > 0) {
+          speed -= systemPenalty;
+        }
+
+        if (!this.wearSignals.tire && this.tireWear > 0.62) {
+          logRaceControl(`#${this.racingNumber} ${this.driver}: Reifenverschleiß steigt`, 'warn');
+          this.wearSignals.tire = true;
+        }
+        if (!this.wearSignals.system && this.systemIntegrity < 0.62) {
+          logRaceControl(`#${this.racingNumber} ${this.driver}: Systeme unter Beobachtung`, 'warn');
+          this.wearSignals.system = true;
+        }
+        if (!this.wearSignals.critical && this.systemIntegrity < 0.45) {
+          this.speedVariance -= 0.2;
+          logRaceControl(`#${this.racingNumber} ${this.driver}: Leistungsverlust`, 'alert');
+          this.wearSignals.critical = true;
+        }
       }
 
-      if (!this.wearSignals.tire && this.tireWear > 0.62) {
-        logRaceControl(`#${this.racingNumber} ${this.driver}: Reifenverschleiß steigt`, 'warn');
-        this.wearSignals.tire = true;
-      }
-      if (!this.wearSignals.system && this.systemIntegrity < 0.62) {
-        logRaceControl(`#${this.racingNumber} ${this.driver}: Systeme unter Beobachtung`, 'warn');
-        this.wearSignals.system = true;
-      }
-      if (!this.wearSignals.critical && this.systemIntegrity < 0.45) {
-        this.speedVariance -= 0.2;
-        logRaceControl(`#${this.racingNumber} ${this.driver}: Leistungsverlust`, 'alert');
-        this.wearSignals.critical = true;
-      }
-
-      if (!this.pitted && this.lap === this.pitLap && this.progress < 0.2) {
+      if (raceClockArmed && !this.pitted && this.lap === this.pitLap && this.progress < 0.2) {
         this.pitTimer += dt;
         speed *= 0.52;
         if (!this.wearSignals.pitCall) {
@@ -1919,7 +1953,7 @@
         }
       }
 
-      if (!this.finished && (racePhase === 'YELLOW' || racePhase === 'SAFETY' || racePhase === 'RESTART')) {
+      if (!this.finished && (racePhase === 'YELLOW' || racePhase === 'SAFETY' || racePhase === 'RESTART' || racePhase === 'FORMATION')) {
         const ahead = cautionOrderMap.get(this.id);
         let reference = null;
         if (ahead && ahead !== this && !ahead.finished) {
@@ -1929,7 +1963,10 @@
         }
         if (reference) {
           const gap = computeAngularGap(reference, this);
-          const target = racePhase === 'RESTART' ? 0.16 : racePhase === 'SAFETY' ? 0.22 : 0.26;
+          let target = 0.26;
+          if (racePhase === 'RESTART') target = 0.16;
+          else if (racePhase === 'SAFETY') target = 0.22;
+          else if (racePhase === 'FORMATION') target = 0.2;
           if (gap > target) {
             const catchBoost = clamp((gap - target) * 3, 0.12, 2.4);
             speed *= 1 + catchBoost * 0.22;
@@ -1951,11 +1988,15 @@
 
       if (this.progress >= Math.PI * 2) {
         this.progress -= Math.PI * 2;
-        this.lap += 1;
+        if (raceClockArmed) {
+          this.lap += 1;
+        }
       }
 
       const currNorm = (this.lap - 1) + this.progress / (Math.PI * 2);
-      handleSectorProgress(this, prevNorm, currNorm, dt);
+      if (raceClockArmed) {
+        handleSectorProgress(this, prevNorm, currNorm, dt);
+      }
 
       const pos = this.getPosition();
       this.trail.push({ x: pos.x, y: pos.y });
@@ -2101,9 +2142,15 @@
     fastestLapLabel.innerHTML = `<span class=\"highlight\">FL</span> #${record.number} ${record.driver} ${formatTime(record.time)}`;
   }
 
+  function getEffectiveRaceTime() {
+    const value = Math.max(0, raceTime - raceClockOffset);
+    return Number.isFinite(value) ? value : 0;
+  }
+
   function formatTickerStamp() {
-    if (!isFinite(raceTime) || raceTime <= 0) return '--:--';
-    return `${raceTime.toFixed(1)}s`;
+    const time = getEffectiveRaceTime();
+    if (!isFinite(time) || time <= 0) return '--:--';
+    return `${time.toFixed(1)}s`;
   }
 
   function updateLiveTicker() {
@@ -2157,7 +2204,10 @@
   }
 
   function logRaceControl(message, level = 'info') {
-    const stampValue = isFinite(raceTime) && raceTime > 0 ? `${Math.floor(raceTime).toString().padStart(3, '0')}s` : '---';
+    const displayTime = getEffectiveRaceTime();
+    const stampValue = isFinite(displayTime) && displayTime > 0
+      ? `${Math.floor(displayTime).toString().padStart(3, '0')}s`
+      : '---';
     raceControlEvents.unshift({ message, level, stamp: stampValue });
     if (raceControlEvents.length > 14) {
       raceControlEvents.pop();
@@ -2228,6 +2278,8 @@
         return 0.55;
       case 'RESTART':
         return 0.82;
+      case 'FORMATION':
+        return 0.6;
       case 'COUNTDOWN':
       case 'FINISHED':
       case 'IDLE':
@@ -2296,9 +2348,31 @@
       next: next?.name || null,
       source: meta?.source || null
     });
+    if (name === 'FORMATION') {
+      formationActive = true;
+    }
     announcePhase(name, meta);
     updateFlag();
     updateSessionInfo();
+    if (name === 'COUNTDOWN' && previousPhase === 'FORMATION') {
+      formationActive = false;
+      raceActive = false;
+      isPaused = false;
+      setPauseButtonState(false, 'Pause');
+      if (!countdownRunning) {
+        beginRaceCountdown(true);
+      }
+    } else if (name === 'GREEN' && !raceClockArmed) {
+      raceClockOffset = raceTime;
+      raceClockArmed = true;
+      cars.forEach(car => {
+        car.currentLapStartTime = raceTime;
+        car.lastSectorTimestamp = raceTime;
+        car.currentLapSectors = [];
+        car.nextSectorIndex = 1;
+        car.nextSectorNormalized = SECTOR_SPLITS[1];
+      });
+    }
   }
 
   function extendPhase(extraSeconds) {
@@ -2315,7 +2389,7 @@
       } else {
         setRacePhase('GREEN');
       }
-    } else if (racePhase === 'RESTART' || racePhase === 'YELLOW' || racePhase === 'SAFETY') {
+    } else if (racePhase === 'RESTART' || racePhase === 'YELLOW' || racePhase === 'SAFETY' || racePhase === 'FORMATION') {
       updateSessionInfo();
     }
   }
@@ -2338,6 +2412,8 @@
       phaseStats.restart += 1;
       pushTicker('Restart-Prozedur läuft', 'info');
       logRaceControl('Restart Vorbereitung', 'info');
+    } else if (name === 'FORMATION') {
+      phaseStats.formation += 1;
     }
   }
 
@@ -2365,6 +2441,11 @@
         raceFlag.textContent = 'RESTART';
         raceFlag.classList.remove('hidden');
         raceFlag.classList.add('restart');
+        break;
+      case 'FORMATION':
+        raceFlag.textContent = 'FORMATION LAP';
+        raceFlag.classList.remove('hidden');
+        raceFlag.classList.add('yellow');
         break;
       case 'COUNTDOWN':
         raceFlag.textContent = 'GRID HOLD';
@@ -2394,6 +2475,9 @@
     } else if (racePhase === 'RESTART') {
       const remain = racePhaseEndsAt === Infinity ? '' : ` in ${Math.max(0, Math.ceil(racePhaseEndsAt - raceTime))}s`;
       text = `Restart${remain}`;
+    } else if (racePhase === 'FORMATION') {
+      const remain = racePhaseEndsAt === Infinity ? '' : ` ${Math.max(0, Math.ceil(racePhaseEndsAt - raceTime))}s`;
+      text = `Formation${remain}`;
     } else if (racePhase === 'FINISHED') {
       text = 'Rennen beendet';
     } else if (racePhase === 'IDLE') {
@@ -2527,7 +2611,28 @@
     mm.closePath();
     mm.stroke();
 
+    const sectorAngles = SECTOR_SPLITS.slice(1, SECTOR_SPLITS.length - 1);
+    mm.lineWidth = 1.5;
+    sectorAngles.forEach((split, idx) => {
+      const angle = split * Math.PI * 2;
+      const pt = track.geometry(angle);
+      const sx = pt.x * scale + ox;
+      const sy = pt.y * scale + oy;
+      mm.strokeStyle = `${theme.lane || '#64748b'}66`;
+      mm.beginPath();
+      mm.arc(sx, sy, 9, 0, Math.PI * 2);
+      mm.stroke();
+      mm.fillStyle = '#cbd5f5';
+      mm.font = '9px Orbitron, Arial';
+      mm.textAlign = 'center';
+      mm.textBaseline = 'middle';
+      mm.fillText(`S${idx + 1}`, sx, sy);
+    });
+
     const order = (Array.isArray(carList) ? carList.slice() : Array.from(carList)).sort(sortByRacePosition);
+    const leaderId = order[0]?.id ?? null;
+    let leaderPoint = null;
+    let focusPoint = null;
     order.forEach((car, idx) => {
       const pos = typeof car.getPosition === 'function' ? car.getPosition() : { x: car.x ?? 0, y: car.y ?? 0 };
       const x = pos.x * scale + ox;
@@ -2536,7 +2641,27 @@
       mm.beginPath();
       mm.arc(x, y, idx === 0 ? 4 : 3, 0, Math.PI * 2);
       mm.fill();
+      if (idx === 0) {
+        leaderPoint = { x, y };
+      }
+      if (focusDriverId && car.id === focusDriverId) {
+        focusPoint = { x, y };
+      }
     });
+    if (leaderPoint) {
+      mm.strokeStyle = '#facc15';
+      mm.lineWidth = 2;
+      mm.beginPath();
+      mm.arc(leaderPoint.x, leaderPoint.y, 6, 0, Math.PI * 2);
+      mm.stroke();
+    }
+    if (focusPoint && (!leaderId || focusDriverId !== leaderId)) {
+      mm.strokeStyle = '#38bdf8';
+      mm.lineWidth = 1.5;
+      mm.beginPath();
+      mm.arc(focusPoint.x, focusPoint.y, 7.5, 0, Math.PI * 2);
+      mm.stroke();
+    }
   }
 
   function drawScene(orderOverride = null, carList = cars) {
@@ -2561,16 +2686,19 @@
     if (!Array.isArray(order) || order.length === 0) {
       leaderboardHud.classList.add('hidden');
       leaderboardList.innerHTML = '';
+      leaderboardGapHistory.clear();
       return;
     }
     const leader = order[0];
     if (!leader) {
       leaderboardHud.classList.add('hidden');
       leaderboardList.innerHTML = '';
+      leaderboardGapHistory.clear();
       return;
     }
     const frag = document.createDocumentFragment();
     const limit = Math.min(order.length, 6);
+    const nextGapHistory = new Map();
     for (let i = 0; i < limit; i++) {
       const car = order[i];
       if (!car) continue;
@@ -2584,10 +2712,24 @@
       }
       const rawGap = leader === car ? 0 : Math.abs(computeTimeGap(leader, car));
       const gapText = i === 0 ? 'Leader' : `+${formatGap(rawGap)}s`;
+      const prevGap = leaderboardGapHistory.get(car.id);
+      let trendText = '';
+      let trendClass = '';
+      if (prevGap != null) {
+        const delta = prevGap - rawGap;
+        if (Math.abs(delta) >= 0.03) {
+          const closing = delta > 0;
+          trendClass = closing ? 'gain' : 'loss';
+          trendText = `${closing ? '▼' : '▲'}${formatGap(Math.abs(delta))}s`;
+          li.classList.add(closing ? 'gain' : 'loss');
+        }
+      }
+      const trendHtml = trendText ? `<span class="trend ${trendClass}">${trendText}</span>` : '';
       li.innerHTML = `
         <span class="pos">${i + 1}</span>
         <span class="driver"><strong style="color:${car.color}">#${car.racingNumber}</strong> ${car.driver}</span>
         <span class="gap">${gapText}</span>
+        ${trendHtml}
       `;
       const info = document.createElement('span');
       info.className = 'team';
@@ -2599,10 +2741,15 @@
       }
       li.appendChild(info);
       frag.appendChild(li);
+      nextGapHistory.set(car.id, rawGap);
     }
     leaderboardList.innerHTML = '';
     leaderboardList.appendChild(frag);
     leaderboardHud.classList.remove('hidden');
+    leaderboardGapHistory.clear();
+    nextGapHistory.forEach((value, key) => {
+      leaderboardGapHistory.set(key, value);
+    });
   }
 
   function sortByRacePosition(a, b) {
@@ -2709,7 +2856,7 @@
     telemetryList.innerHTML = '';
     if (!Array.isArray(order) || order.length === 0) {
       lapInfoLabel.textContent = `Runde: 1 / ${totalLaps}`;
-      raceTimeLabel.textContent = `Rennzeit: ${raceTime.toFixed(1)} s`;
+      raceTimeLabel.textContent = `Rennzeit: ${getEffectiveRaceTime().toFixed(1)} s`;
       updateLeaderGap(order || []);
       updateFocusPanel(order || []);
       updateCameraHud(order || []);
@@ -2752,7 +2899,7 @@
       telemetryList.appendChild(li);
     });
     lapInfoLabel.textContent = `Runde: ${Math.min(leader.lap, totalLaps)} / ${totalLaps}`;
-    raceTimeLabel.textContent = `Rennzeit: ${raceTime.toFixed(1)} s`;
+    raceTimeLabel.textContent = `Rennzeit: ${getEffectiveRaceTime().toFixed(1)} s`;
     updateLeaderGap(order);
     lastTelemetryOrder = order.slice();
     updateFocusPanel(order);
@@ -2966,6 +3113,8 @@
         return 'Restart';
       case 'COUNTDOWN':
         return 'Countdown';
+      case 'FORMATION':
+        return 'Formation';
       default:
         return phase;
     }
@@ -3013,7 +3162,7 @@
     }
     const pitCount = cars.filter(car => car.pitted).length;
     const incidentCount = raceControlEvents.filter(entry => entry.level === 'warn' || entry.level === 'alert').length;
-    text += `Boxenstopps: ${pitCount} | Gelb: ${phaseStats.yellow} | Safety: ${phaseStats.safety} | Restarts: ${phaseStats.restart}\n`;
+    text += `Boxenstopps: ${pitCount} | Formation: ${phaseStats.formation} | Gelb: ${phaseStats.yellow} | Safety: ${phaseStats.safety} | Restarts: ${phaseStats.restart}\n`;
     const phaseSummary = summarizePhaseTimeline();
     if (phaseSummary) {
       text += `Phasen: ${phaseSummary}\n`;
@@ -3125,6 +3274,9 @@
     raceActive = false;
     isPaused = false;
     raceTime = 0;
+    raceClockOffset = 0;
+    raceClockArmed = false;
+    formationActive = false;
     focusDriverId = null;
     lastFrame = performance.now();
     phaseTimeline.length = 0;
@@ -3161,10 +3313,13 @@
     phaseStats.yellow = 0;
     phaseStats.safety = 0;
     phaseStats.restart = 0;
+    phaseStats.formation = 0;
+    leaderboardGapHistory.clear();
+    startProcedureMode = startProc?.value || startProcedureMode || 'standing';
     auditRaceFlow('start', { mode: currentMode, track: currentTrackType, laps: totalLaps });
     createField();
     prepareReplayMeta();
-    applyGridPositions(startProc?.value || 'standing');
+    applyGridPositions(startProcedureMode);
     rebuildMini();
     setRacePhase('COUNTDOWN');
     top3Banner.classList.remove('hidden');
@@ -3238,6 +3393,7 @@
     hideGridIntro();
     raceActive = false;
     isPaused = false;
+    formationActive = false;
     setRacePhase('FINISHED');
     finalizePhaseTimeline(raceTime);
     updateFlag();
@@ -4055,6 +4211,9 @@
     isPaused = false;
     countdownRunning = false;
     recordingReplay = false;
+    formationActive = false;
+    raceClockArmed = false;
+    raceClockOffset = 0;
     hideGridIntro();
     if (countdownTimer) {
       clearInterval(countdownTimer);
@@ -4067,6 +4226,7 @@
     leaderGapHud?.classList.add('hidden');
     updateCameraHud([]);
     updateLeaderboardHud([]);
+    leaderboardGapHistory.clear();
     resetLiveTicker();
     resetRaceControlLog();
     hidePodiumOverlay(true);
