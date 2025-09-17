@@ -505,6 +505,7 @@
 
   const newRaceBtn = document.getElementById('newRaceBtn');
   const grandPrixBtn = document.getElementById('grandPrixBtn');
+  const resetGpBtn = document.getElementById('resetGpBtn');
   const managerBtn = document.getElementById('managerBtn');
   const bettingBtn = document.getElementById('bettingBtn');
   const teamsBtn = document.getElementById('teamsBtn');
@@ -2525,15 +2526,19 @@
     if (gpActive) {
       gpAccumulate(order);
       gpRaceIndex += 1;
-      let text = resultsLabel.textContent;
-      text += gpStandingsText();
-      if (gpRaceIndex < GP_RACES) {
-        nextRaceBtn.style.display = 'inline-block';
+      gpActive = gpRaceIndex < GP_RACES;
+      gpSave();
+      let text = `${resultsLabel.textContent}\n\n${gpStandingsText()}`;
+      if (gpActive) {
+        const upcomingTrackId = gpTrackRotation[gpRaceIndex % gpTrackRotation.length];
+        const upcomingLabel = trackCatalog[upcomingTrackId]?.label || upcomingTrackId;
+        text += `\n\nNächstes Rennen: ${upcomingLabel} (Rennen ${gpRaceIndex + 1}/${GP_RACES})`;
+        if (nextRaceBtn) nextRaceBtn.style.display = 'inline-block';
       } else {
-        gpActive = false;
-        text += '\nGP abgeschlossen.';
+        text += '\n\nGP abgeschlossen.';
+        if (nextRaceBtn) nextRaceBtn.style.display = 'none';
       }
-      resultsLabel.textContent = text;
+      resultsLabel.textContent = text.trim();
     }
     if (currentMode === 'manager') {
       applyManagerRewards(order);
@@ -2547,12 +2552,9 @@
     logRaceControl('Rennen beendet – Ergebnisse verfügbar', 'success');
   }
 
-  function gpReset() {
-    gpActive = true;
-    gpRaceIndex = 0;
-    gpTable.clear();
-    gpSave();
-    currentTrackType = gpTrackRotation[0];
+  function syncRaceSetupForTrack(trackId) {
+    if (!trackId) return;
+    currentTrackType = trackId;
     if (trackTypeSelect) {
       trackTypeSelect.value = currentTrackType;
     }
@@ -2563,6 +2565,14 @@
     refreshOddsTable();
   }
 
+  function gpReset() {
+    gpActive = true;
+    gpRaceIndex = 0;
+    gpTable.clear();
+    gpSave();
+    syncRaceSetupForTrack(gpTrackRotation[0]);
+  }
+
   function gpAccumulate(order) {
     order.forEach((car, idx) => {
       if (!gpTable.has(car.driver)) {
@@ -2571,16 +2581,88 @@
       const pts = GP_POINTS[idx] || 0;
       gpTable.get(car.driver).points += pts;
     });
-    gpSave();
   }
 
   function gpStandingsText() {
     const arr = Array.from(gpTable.values()).sort((a, b) => b.points - a.points);
-    let text = `\nGP Zwischenstand nach Rennen ${gpRaceIndex}/${GP_RACES}:\n`;
+    const completedRaces = Math.min(gpRaceIndex, GP_RACES);
+    const heading = gpRaceIndex >= GP_RACES && arr.length
+      ? `GP Endstand (${GP_RACES} Rennen):`
+      : `GP Zwischenstand nach Rennen ${completedRaces}/${GP_RACES}:`;
+    let text = `${heading}\n`;
     arr.slice(0, 10).forEach((entry, idx) => {
       text += `${idx + 1}. #${entry.number} ${entry.driver} (${entry.team}) – ${entry.points} P\n`;
     });
-    return text;
+    return text.trimEnd();
+  }
+
+  function formatGpStatusText() {
+    const entryCount = gpTable.size;
+    const hasProgress = entryCount > 0 && gpRaceIndex < GP_RACES;
+    const isFinished = entryCount > 0 && gpRaceIndex >= GP_RACES;
+    if (isFinished) {
+      return `${gpStandingsText()}\nGP abgeschlossen.`.trim();
+    }
+    if (hasProgress) {
+      const upcomingTrackId = gpTrackRotation[gpRaceIndex % gpTrackRotation.length];
+      const upcomingLabel = trackCatalog[upcomingTrackId]?.label || upcomingTrackId;
+      return `${gpStandingsText()}\nNächstes Rennen: ${upcomingLabel} (Rennen ${gpRaceIndex + 1}/${GP_RACES})`.trim();
+    }
+    const firstTrackId = gpTrackRotation[0];
+    const firstLabel = trackCatalog[firstTrackId]?.label || firstTrackId;
+    return `Grand Prix vorbereitet – Auftakt auf ${firstLabel}.`;
+  }
+
+  function prepareGpLobbyState({ fromResume = false } = {}) {
+    hideGridIntro();
+    if (countdownTimer) {
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+    }
+    countdownRunning = false;
+    raceActive = false;
+    isPaused = false;
+    setRacePhase('IDLE');
+    if (sessionInfo) {
+      sessionInfo.classList.add('hidden');
+      sessionInfo.textContent = '';
+    }
+    if (pauseRaceBtn) {
+      pauseRaceBtn.textContent = 'Pause';
+      pauseRaceBtn.disabled = true;
+    }
+    if (startRaceBtn) {
+      startRaceBtn.disabled = false;
+    }
+    if (replayRaceBtn) {
+      replayRaceBtn.style.display = 'none';
+    }
+    leaderGapHud?.classList.add('hidden');
+    if (highlightTicker) {
+      highlightTicker.textContent = '';
+    }
+    if (top3Banner) {
+      top3Banner.textContent = '';
+      top3Banner.classList.add('hidden');
+    }
+    resetRaceControlLog();
+    const trackIndex = gpRaceIndex < GP_RACES ? gpRaceIndex : GP_RACES - 1;
+    const trackId = gpTrackRotation[trackIndex % gpTrackRotation.length];
+    syncRaceSetupForTrack(trackId);
+    if (resultsLabel) {
+      resultsLabel.textContent = formatGpStatusText();
+    }
+    if (nextRaceBtn) {
+      if (gpRaceIndex > 0 && gpRaceIndex < GP_RACES && gpTable.size > 0) {
+        nextRaceBtn.style.display = 'inline-block';
+      } else {
+        nextRaceBtn.style.display = 'none';
+      }
+    }
+    gpActive = gpRaceIndex < GP_RACES && (gpTable.size > 0 || gpRaceIndex === 0);
+    if (fromResume && gpRaceIndex >= GP_RACES) {
+      gpActive = false;
+    }
   }
 
   function gpSave() {
@@ -2597,10 +2679,11 @@
       const raw = localStorage.getItem(STORAGE_KEYS.gp);
       if (!raw) return;
       const obj = JSON.parse(raw);
-      gpRaceIndex = obj.gpRaceIndex || 0;
+      gpRaceIndex = Math.min(Math.max(obj.gpRaceIndex || 0, 0), GP_RACES);
       gpTable.clear();
       (obj.data || []).forEach(([key, value]) => gpTable.set(key, value));
-      gpActive = gpRaceIndex > 0 && gpRaceIndex < GP_RACES;
+      const hasEntries = gpTable.size > 0;
+      gpActive = gpRaceIndex < GP_RACES && hasEntries;
     } catch (err) {
       console.warn('gp load failed', err);
     }
@@ -3175,7 +3258,29 @@
 
   grandPrixBtn?.addEventListener('click', () => {
     currentMode = 'gp';
+    const hasEntries = gpTable.size > 0;
+    const canResume = hasEntries && gpRaceIndex < GP_RACES;
+    const finished = hasEntries && gpRaceIndex >= GP_RACES;
+    if (canResume || finished) {
+      prepareGpLobbyState({ fromResume: true });
+    } else {
+      gpReset();
+      prepareGpLobbyState();
+    }
+    showScreen(raceScreen);
+  });
+
+  resetGpBtn?.addEventListener('click', () => {
+    const hasEntries = gpTable.size > 0;
+    if (hasEntries) {
+      const confirmReset = confirm('Aktuellen Grand Prix wirklich zurücksetzen? Fortschritt geht verloren.');
+      if (!confirmReset) {
+        return;
+      }
+    }
+    currentMode = 'gp';
     gpReset();
+    prepareGpLobbyState();
     showScreen(raceScreen);
   });
 
