@@ -1858,6 +1858,8 @@
       this.crashCooldown = 0;
       this.pitted = false;
       this.pitTimer = 0;
+      this.pitting = false;
+      this.pitHoldProgress = null;
       this.pitLap = Math.max(2, Math.floor(totalLaps * (0.45 + Math.random() * 0.18)));
       this.currentLapStartTime = 0;
       this.lastSectorTimestamp = 0;
@@ -1940,25 +1942,38 @@
         }
       }
 
-      if (raceClockArmed && !this.pitted && this.lap === this.pitLap && this.progress < 0.2) {
-        this.pitTimer += dt;
-        speed *= 0.52;
-        if (!this.wearSignals.pitCall) {
-          logRaceControl(`#${this.racingNumber} ${this.driver}: Boxenstopp`, 'info');
-          this.wearSignals.pitCall = true;
+      let freezeForPit = false;
+      if (raceClockArmed && !this.pitted) {
+        const approachingPit = this.lap === this.pitLap && this.progress < 0.2;
+        if (approachingPit && !this.pitting) {
+          this.pitting = true;
+          this.pitTimer = 0;
+          this.pitHoldProgress = this.progress;
+          if (!this.wearSignals.pitCall) {
+            logRaceControl(`#${this.racingNumber} ${this.driver}: Boxenstopp`, 'info');
+            this.wearSignals.pitCall = true;
+          }
         }
-        if (this.pitTimer > 5.5) {
-          this.pitted = true;
-          this.tireWear = Math.max(0, this.tireWear - 0.4);
-          this.systemIntegrity = Math.min(1.05, this.systemIntegrity + 0.12);
-          if (!this.wearSignals.pitClear) {
-            logRaceControl(`#${this.racingNumber} ${this.driver}: verlässt die Box`, 'success');
-            this.wearSignals.pitClear = true;
+        if (this.pitting) {
+          this.pitTimer += dt;
+          if (this.pitTimer >= 5.5) {
+            this.pitting = false;
+            this.pitted = true;
+            this.pitTimer = 0;
+            this.pitHoldProgress = null;
+            this.tireWear = Math.max(0, this.tireWear - 0.4);
+            this.systemIntegrity = Math.min(1.05, this.systemIntegrity + 0.12);
+            if (!this.wearSignals.pitClear) {
+              logRaceControl(`#${this.racingNumber} ${this.driver}: verlässt die Box`, 'success');
+              this.wearSignals.pitClear = true;
+            }
+          } else {
+            freezeForPit = true;
           }
         }
       }
 
-      if (!this.finished && (racePhase === 'YELLOW' || racePhase === 'SAFETY' || racePhase === 'RESTART' || racePhase === 'FORMATION')) {
+      if (!freezeForPit && !this.finished && (racePhase === 'YELLOW' || racePhase === 'SAFETY' || racePhase === 'RESTART' || racePhase === 'FORMATION')) {
         const ahead = cautionOrderMap.get(this.id);
         let reference = null;
         if (ahead && ahead !== this && !ahead.finished) {
@@ -1981,7 +1996,13 @@
         }
       }
 
-      speed = Math.max(3.5, speed);
+      if (freezeForPit) {
+        speed = 0;
+        this.progress = this.pitHoldProgress ?? this.progress;
+      }
+
+      const minSpeed = freezeForPit ? 0 : 3.5;
+      speed = Math.max(minSpeed, speed);
       const phaseFactor = getPhaseSpeedFactor();
       speed *= phaseFactor;
 
