@@ -561,6 +561,27 @@
   const gridIntroDismiss = document.getElementById('gridIntroDismiss');
   const gridIntroTimer = document.getElementById('gridIntroTimer');
 
+  function setStartButtonState(enabled, label = 'Rennen starten') {
+    if (!startRaceBtn) return;
+    startRaceBtn.disabled = !enabled;
+    if (label) {
+      startRaceBtn.textContent = label;
+    }
+  }
+
+  function setPauseButtonState(enabled, label = 'Pause') {
+    if (!pauseRaceBtn) return;
+    pauseRaceBtn.disabled = !enabled;
+    if (label) {
+      pauseRaceBtn.textContent = label;
+    }
+  }
+
+  function resetRaceControls() {
+    setPauseButtonState(false, 'Pause');
+    setStartButtonState(true, 'Rennen starten');
+  }
+
   const zoomSetting = document.getElementById('zoomSetting');
   const trackTypeSelect = document.getElementById('trackType');
   const lapsSetting = document.getElementById('lapsSetting');
@@ -625,6 +646,7 @@
   applyUiSettings();
   resetLiveTicker();
   updateLeaderboardHud([]);
+  resetRaceControls();
 
   let raceSettings = loadRaceSettings();
   if (trackTypeSelect && raceSettings.track) {
@@ -1288,8 +1310,7 @@
         setRacePhase('GREEN');
         raceActive = true;
         isPaused = false;
-        pauseRaceBtn.disabled = false;
-        pauseRaceBtn.textContent = 'Pause';
+        setPauseButtonState(true, 'Pause');
         requestAnimationFrame(time => {
           lastFrame = time;
           requestAnimationFrame(gameLoop);
@@ -2750,9 +2771,8 @@
     resultsLabel.textContent = '';
     replayRaceBtn.style.display = 'none';
     if (nextRaceBtn) nextRaceBtn.style.display = 'none';
-    startRaceBtn.disabled = true;
-    pauseRaceBtn.disabled = true;
-    pauseRaceBtn.textContent = 'Pause';
+    setStartButtonState(false);
+    setPauseButtonState(false, 'Pause');
     racePhaseMeta = {};
     resetRaceControlLog();
     const track = trackCatalog[currentTrackType] || trackCatalog.oval;
@@ -2783,7 +2803,7 @@
     if (!isPaused) {
       isPaused = true;
       raceActive = false;
-      pauseRaceBtn.textContent = 'Fortsetzen';
+      setPauseButtonState(true, 'Fortsetzen');
       sessionInfo.textContent = 'Pause';
       sessionInfo.classList.remove('hidden');
       logRaceControl('Rennen pausiert', 'info');
@@ -2791,7 +2811,7 @@
     } else {
       isPaused = false;
       raceActive = true;
-      pauseRaceBtn.textContent = 'Pause';
+      setPauseButtonState(true, 'Pause');
       sessionInfo.classList.add('hidden');
       logRaceControl('Rennen fortgesetzt', 'info');
       auditRaceFlow('pause', { paused: false });
@@ -2843,9 +2863,7 @@
     finalizePhaseTimeline(raceTime);
     updateFlag();
     updateSessionInfo();
-    pauseRaceBtn.textContent = 'Pause';
-    pauseRaceBtn.disabled = true;
-    startRaceBtn.disabled = false;
+    resetRaceControls();
     if (countdownTimer) {
       clearInterval(countdownTimer);
       countdownTimer = null;
@@ -3654,9 +3672,7 @@
     }
     setRacePhase('IDLE');
     top3Banner.textContent = '';
-    pauseRaceBtn.textContent = 'Pause';
-    pauseRaceBtn.disabled = true;
-    startRaceBtn.disabled = false;
+    resetRaceControls();
     resultsLabel.textContent = '';
     leaderGapHud?.classList.add('hidden');
     updateCameraHud([]);
