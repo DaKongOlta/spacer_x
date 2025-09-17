@@ -393,6 +393,13 @@
       console.warn('manager state save failed', err);
     }
   }
+  if (toggleRaceControl) {
+    toggleRaceControl.checked = uiSettings.showRaceControl;
+  }
+  if (toggleFocusPanel) {
+    toggleFocusPanel.checked = uiSettings.showFocusPanel;
+  }
+  applyUiSettings();
 
   function ensureFreeAgentPool() {
     if (!managerState || !managerState.teams) return;
@@ -980,7 +987,6 @@
   const codexGarage = document.getElementById('codexGarage');
   const raceArchive = document.getElementById('raceArchive');
   const hallOfFame = document.getElementById('hallOfFame');
-
   const uiSettings = loadUiSettings();
   if (zoomSetting && uiSettings.zoom) {
     zoomSetting.value = uiSettings.zoom;
@@ -1532,23 +1538,22 @@
 
   function computeProjectedPace(car) {
     if (!car) return 0;
-    const base = (car.baseSpeed || 12) * 10;
-    const consist = (car.consist || 0.6) * 24;
-    const intel = (car.intel || 0.6) * 18;
-    const risk = (1 - (car.risk || 0.3)) * 14;
+    const base = (car.baseSpeed ?? 12) * 10;
+    const consist = (car.consist ?? 0.6) * 24;
+    const intel = (car.intel ?? 0.6) * 18;
+    const risk = (1 - (car.risk ?? 0.3)) * 14;
     const moraleSource = car.contract?.morale ?? car.morale ?? 0.5;
     const morale = (moraleSource - 0.5) * 20;
     const profileStraight = car.profile?.straight ?? 1;
     const profileCorner = car.profile?.corner ?? 1;
     const profileScore = ((profileStraight + profileCorner) / 2) * 16;
-    const chassis = car.chassis || defaultChassisSpec;
-    const chassisPerformance = ((chassis.engine || 1) + (chassis.aero || 1) + (chassis.boost || 1)) / 3 * 14;
-    const chassisReliability = ((chassis.systems || 1) + (chassis.stability || 1)) / 2 * 12;
+    const chassis = car.chassis ? defaultChassisSpec;
+    const chassisPerformance = ((chassis.engine ?? 1) + (chassis.aero ?? 1) + (chassis.boost ?? 1)) / 3 * 14;
+    const chassisReliability = ((chassis.systems ?? 1) + (chassis.stability ?? 1)) / 2 * 12;
     const grip = (activeTrackTraits.surfaceGrip ?? 1) * 6;
-    const form = (car.form || 0) * 40;
+    const form = (car.form ?? 0) * 40;
     return base + consist + intel + risk + morale + profileScore + grip + form + chassisPerformance + chassisReliability;
   }
-
   function renderGridIntro(cars) {
     if (!gridIntroOverlay || !gridIntroList || !Array.isArray(cars) || cars.length === 0) {
       return false;
@@ -4280,7 +4285,6 @@
     updateLeaderGap(lastTelemetryOrder);
     updateFocusPanel(lastTelemetryOrder);
     updateCameraHud(lastTelemetryOrder);
-  });
 
   gridIntroDismiss?.addEventListener('click', () => beginRaceCountdown());
 
