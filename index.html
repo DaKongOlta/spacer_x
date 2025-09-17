@@ -71,6 +71,13 @@
               </footer>
             </div>
           </div>
+          <div id="podiumOverlay" class="podiumOverlay hidden" aria-hidden="true">
+            <div class="podiumInner">
+              <h3>Siegerehrung</h3>
+              <ol id="podiumList" class="podiumList"></ol>
+              <button id="podiumCloseBtn" type="button">Zurück zur Kontrolle</button>
+            </div>
+          </div>
           <div id="highlightTicker" class="ticker"></div>
         </div>
         <aside class="sidebar">
@@ -129,6 +136,20 @@
             <button id="replayRaceBtn" style="display:none;">Replay</button>
             <button id="nextRaceBtn" style="display:none;">Nächstes Rennen</button>
             <button id="backToMenuFromRace">Zum Hauptmenü</button>
+          </div>
+          <div id="replayControls" class="replayControls hidden" aria-hidden="true">
+            <button id="replayPlayPause" type="button" class="replayToggle" aria-label="Replay abspielen">▶︎</button>
+            <input id="replayScrubber" type="range" min="0" max="1" value="0" step="1" aria-label="Replay Position">
+            <span id="replayTimeLabel" class="replayTime">0,0s / 0,0s</span>
+            <label class="replaySpeedLabel">Tempo
+              <select id="replaySpeed">
+                <option value="0.5">0,5×</option>
+                <option value="0.75">0,75×</option>
+                <option value="1" selected>1×</option>
+                <option value="1.5">1,5×</option>
+                <option value="2">2×</option>
+              </select>
+            </label>
           </div>
           <pre id="resultsLabel" class="results"></pre>
         </aside>

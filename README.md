@@ -22,6 +22,7 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 14 Strecken (u. a. Atlas Skywa
 - 24 Fahrer inklusive Free-Agent-Pool, Manager-Transfermarkt und teambezogenen Chassis-Profilen mit zufällig gerollten Fahrzeug-Stats
 - Manager-Modus mit Wochen-Simulation, Vertragsverwaltung, Upgrades, Export/Import (JSON) sowie persistenter Chassis-Anzeige
 - Dynamische Wetterprofile (klar/bewölkt/sturm/nacht) mit Event-Briefing, sendefähigem HUD und gespeicherten Rennen-Settings
+- TV-Replay mit Zeitachse, Geschwindigkeitswahl und sofortigem Wiedereinstieg in jede Rennphase inklusive Sieg-Podium-Overlay
 - Live-Leaderboard-Overlay auf dem Canvas plus Meldungs-Panel mit Zeitstempeln für Überholungen, Flaggen und Specials
 - Codex & Archiv: Lore-Einträge, Team-Garage, Hall-of-Fame und automatisches Rennarchiv mit Schnellzugriff auf Siege & Fastest Laps
 - Live-Gap-HUD mit Delta-Bar, Phasen-Timeline im Ergebnisbericht sowie `window.spacerxDiagnostics` für Race-Control-Diagnosen
