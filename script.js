@@ -3325,6 +3325,9 @@
     resultsLabel.textContent = '';
     replayRaceBtn.style.display = 'none';
     if (nextRaceBtn) nextRaceBtn.style.display = 'none';
+    if (currentMode === 'gp' && gpActive) {
+      prepareGrandPrixRound();
+    }
     setStartButtonState(false);
     setPauseButtonState(false, 'Pause');
     racePhaseMeta = {};
