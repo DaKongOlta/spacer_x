@@ -1398,6 +1398,8 @@
       this.crashCooldown = 0;
       this.pitted = false;
       this.pitTimer = 0;
+      this.inPitLane = false;
+      this.pitEntryProgress = null;
       this.pitLap = Math.max(2, Math.floor(totalLaps * (0.45 + Math.random() * 0.18)));
       this.currentLapStartTime = 0;
       this.lastSectorTimestamp = 0;
@@ -1478,20 +1480,31 @@
         this.wearSignals.critical = true;
       }
 
-      if (!this.pitted && this.lap === this.pitLap && this.progress < 0.2) {
-        this.pitTimer += dt;
-        speed *= 0.52;
-        if (!this.wearSignals.pitCall) {
-          logRaceControl(`#${this.racingNumber} ${this.driver}: Boxenstopp`, 'info');
-          this.wearSignals.pitCall = true;
+      let pitHold = false;
+      if (!this.pitted) {
+        if (!this.inPitLane && this.lap === this.pitLap && this.progress < 0.2) {
+          this.inPitLane = true;
+          this.pitEntryProgress = this.progress;
+          if (!this.wearSignals.pitCall) {
+            logRaceControl(`#${this.racingNumber} ${this.driver}: Boxenstopp`, 'info');
+            this.wearSignals.pitCall = true;
+          }
         }
-        if (this.pitTimer > 5.5) {
-          this.pitted = true;
-          this.tireWear = Math.max(0, this.tireWear - 0.4);
-          this.systemIntegrity = Math.min(1.05, this.systemIntegrity + 0.12);
-          if (!this.wearSignals.pitClear) {
-            logRaceControl(`#${this.racingNumber} ${this.driver}: verlässt die Box`, 'success');
-            this.wearSignals.pitClear = true;
+        if (this.inPitLane) {
+          pitHold = true;
+          this.pitTimer += dt;
+          speed *= 0.52;
+          if (this.pitTimer > 5.5) {
+            this.pitted = true;
+            this.inPitLane = false;
+            this.pitTimer = 0;
+            this.tireWear = Math.max(0, this.tireWear - 0.4);
+            this.systemIntegrity = Math.min(1.05, this.systemIntegrity + 0.12);
+            if (!this.wearSignals.pitClear) {
+              logRaceControl(`#${this.racingNumber} ${this.driver}: verlässt die Box`, 'success');
+              this.wearSignals.pitClear = true;
+            }
+            this.pitEntryProgress = null;
           }
         }
       }
@@ -1510,8 +1523,11 @@
       this.currentSpeed = Math.max(0, speed * 32);
       this.peakSpeed = Math.max(this.peakSpeed, this.currentSpeed);
 
-      const dprog = speed * dt * 0.33;
+      const dprog = pitHold ? 0 : speed * dt * 0.33;
       this.progress += dprog;
+      if (pitHold && this.pitEntryProgress !== null) {
+        this.progress = this.pitEntryProgress;
+      }
 
       if (this.progress >= Math.PI * 2) {
         this.progress -= Math.PI * 2;
