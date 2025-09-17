@@ -31,7 +31,6 @@
       <div class="menuActions">
         <button id="newRaceBtn" class="primary">Schnelles Rennen</button>
         <button id="grandPrixBtn">Grand Prix (5 Rennen)</button>
-        <button id="resetGpBtn">Neuen GP starten</button>
         <button id="managerBtn">Team Karriere</button>
         <button id="bettingBtn">Race Betting Challenge</button>
         <button id="teamsBtn">Teams &amp; Fahrer</button>
@@ -48,7 +47,16 @@
           <canvas id="miniMapCanvas" width="200" height="140" class="minimap"></canvas>
           <div id="raceFlag" class="flag hidden">GREEN FLAG</div>
           <div id="sessionInfo" class="sessionBanner hidden"></div>
-          <div id="leaderGapHud" class="gapHud hidden"></div>
+          <div id="leaderGapHud" class="gapHud hidden">
+            <div class="label">Focus</div>
+            <div class="delta">--</div>
+            <div class="gapBar"><span class="fill"></span></div>
+          </div>
+          <div id="cameraHud" class="cameraHud hidden" aria-live="polite"></div>
+          <div id="leaderboardHud" class="leaderboardHud hidden" aria-live="polite">
+            <div class="leaderboardTitle">Leaderboard</div>
+            <ol></ol>
+          </div>
           <div id="top3Banner" class="top3 hidden"></div>
           <div id="gridIntro" class="gridIntro hidden" aria-hidden="true">
             <div class="gridIntroCard">
@@ -61,6 +69,13 @@
                 <button id="gridIntroDismiss" type="button">Countdown starten</button>
                 <div class="autoHint">Auto-Start in <span id="gridIntroTimer">4</span>s</div>
               </footer>
+            </div>
+          </div>
+          <div id="podiumOverlay" class="podiumOverlay hidden" aria-hidden="true">
+            <div class="podiumInner">
+              <h3>Siegerehrung</h3>
+              <ol id="podiumList" class="podiumList"></ol>
+              <button id="podiumCloseBtn" type="button">Zurück zur Kontrolle</button>
             </div>
           </div>
           <div id="highlightTicker" class="ticker"></div>
@@ -107,6 +122,10 @@
             <ul id="sectorWidget" class="sectorWidget"></ul>
             <div id="fastestLapLabel" class="fastestLap"></div>
           </div>
+          <div class="liveTickerPanel">
+            <div class="liveTickerHeader">Live Meldungen</div>
+            <ul id="liveTickerList" class="liveTickerList"></ul>
+          </div>
           <div id="raceControlPanel" class="raceControlPanel">
             <div class="rcHeader">Race Control</div>
             <ul id="raceControlLog" class="raceControlLog"></ul>
@@ -117,6 +136,20 @@
             <button id="replayRaceBtn" style="display:none;">Replay</button>
             <button id="nextRaceBtn" style="display:none;">Nächstes Rennen</button>
             <button id="backToMenuFromRace">Zum Hauptmenü</button>
+          </div>
+          <div id="replayControls" class="replayControls hidden" aria-hidden="true">
+            <button id="replayPlayPause" type="button" class="replayToggle" aria-label="Replay abspielen">▶︎</button>
+            <input id="replayScrubber" type="range" min="0" max="1" value="0" step="1" aria-label="Replay Position">
+            <span id="replayTimeLabel" class="replayTime">0,0s / 0,0s</span>
+            <label class="replaySpeedLabel">Tempo
+              <select id="replaySpeed">
+                <option value="0.5">0,5×</option>
+                <option value="0.75">0,75×</option>
+                <option value="1" selected>1×</option>
+                <option value="1.5">1,5×</option>
+                <option value="2">2×</option>
+              </select>
+            </label>
           </div>
           <pre id="resultsLabel" class="results"></pre>
         </aside>
@@ -268,6 +301,14 @@
         <label><input type="checkbox" id="toggleRaceControl" checked> Race-Control Protokoll</label>
         <label><input type="checkbox" id="toggleFocusPanel" checked> Fahrerfokus</label>
         <label><input type="checkbox" id="toggleMiniMap" checked> Mini-Map</label>
+        <label>Broadcast Kamera:
+          <select id="cameraSetting">
+            <option value="auto" selected>Broadcast Auto</option>
+            <option value="leader">Leader Cam</option>
+            <option value="battle">Battle Pack</option>
+            <option value="manual">Manuell</option>
+          </select>
+        </label>
       </div>
       <button id="backToMenuFromSettings">Zum Hauptmenü</button>
     </section>

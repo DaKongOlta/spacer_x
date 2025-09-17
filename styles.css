@@ -42,6 +42,32 @@ button:hover{background:#162235}
 .gapHud .delta{font-weight:700}
 .gapHud.positive .delta{color:#ef4444}
 .gapHud.negative .delta{color:#22c55e}
+.gapHud.leader .delta{color:#facc15}
+.gapHud.tight .delta{color:#f97316}
+.gapHud .gapBar{position:relative;height:6px;border-radius:999px;background:#111827;overflow:hidden}
+.gapHud .gapBar .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#22c55e 0%,#ef4444 100%);transition:width .2s ease}
+.gapHud.negative .gapBar .fill{background:linear-gradient(90deg,#38bdf8 0%,#22c55e 100%)}
+.gapHud.leader .gapBar .fill{background:#facc15}
+.cameraHud{position:absolute;right:12px;top:160px;background:#070b13d0;border:1px solid #1e293b;border-radius:12px;padding:6px 10px;font-size:11px;display:flex;flex-direction:column;gap:4px;min-width:140px;text-transform:uppercase;letter-spacing:.06em}
+.cameraHud .mode{opacity:.75;font-size:10px}
+.cameraHud .target{font-size:12px;font-weight:700;color:#f8fafc}
+.cameraHud.hidden{display:none}
+.leaderboardHud{position:absolute;top:12px;right:220px;width:190px;background:#070b13d0;border:1px solid #1e293b;border-radius:12px;padding:8px 10px;display:flex;flex-direction:column;gap:6px;font-size:11px;backdrop-filter:blur(6px)}
+.leaderboardHud.hidden{display:none}
+.leaderboardHud .leaderboardTitle{text-transform:uppercase;letter-spacing:.08em;color:#38bdf8;font-size:10px;opacity:.85}
+.leaderboardHud ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+.leaderboardHud li{display:grid;grid-template-columns:24px 1fr;gap:6px;background:#0f172acc;border:1px solid #1e293b;border-radius:10px;padding:4px 6px;font-size:11px;align-items:center}
+.leaderboardHud li .pos{font-weight:600;opacity:.75}
+.leaderboardHud li .driver{font-weight:600;letter-spacing:.02em}
+.leaderboardHud li .gap{font-variant-numeric:tabular-nums;font-size:11px;justify-self:end}
+.leaderboardHud li .trend{font-variant-numeric:tabular-nums;font-size:10px;justify-self:end;opacity:.75}
+.leaderboardHud li .trend.gain{color:#4ade80}
+.leaderboardHud li .trend.loss{color:#f87171}
+.leaderboardHud li .team{font-size:10px;opacity:.65;grid-column:1/-1}
+.leaderboardHud li.leader{border-color:#38bdf8}
+.leaderboardHud li.charge{border-color:#f97316}
+.leaderboardHud li.gain{border-color:#22c55e}
+.leaderboardHud li.loss{border-color:#f87171}
 .splitsPanel{background:#0d1524;border:1px solid #1e293b;border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:6px}
 .splitsHeader{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#38bdf8}
 .sectorWidget{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;max-height:140px;overflow:auto;font-size:12px}
@@ -69,6 +95,20 @@ button:hover{background:#162235}
 .gridIntroFooter button{background:#38bdf8;border:none;color:#020617;font-weight:600;border-radius:999px;padding:6px 16px;cursor:pointer;font-size:12px;letter-spacing:.04em;text-transform:uppercase}
 .gridIntroFooter button:hover{background:#7dd3fc}
 .gridIntroFooter .autoHint{opacity:.8}
+.podiumOverlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#050912cc;backdrop-filter:blur(10px);z-index:5;transition:opacity .3s ease,visibility .3s ease;padding:24px}
+.podiumOverlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.podiumInner{background:#0b1220f2;border:1px solid #1e293b;border-radius:18px;padding:26px 28px;max-width:440px;width:100%;box-shadow:0 30px 68px -40px #000;text-align:center}
+.podiumInner h3{margin:0 0 18px;font-size:18px;letter-spacing:.14em;text-transform:uppercase;color:#38bdf8}
+.podiumList{margin:0 0 18px;padding:0;list-style:none;display:flex;flex-direction:column;gap:12px}
+.podiumList li{display:flex;align-items:center;justify-content:space-between;background:#0f172a;border:1px solid #1e293b;border-radius:14px;padding:10px 14px;color:#f8fafc;gap:12px}
+.podiumList li .meta{display:flex;flex-direction:column;align-items:flex-start;gap:4px;font-size:13px}
+.podiumList li .meta span{opacity:.78;font-size:11px}
+.podiumList li .pos{font-size:18px;font-weight:700;letter-spacing:.08em;min-width:32px;text-align:left}
+.podiumList li.gold{border-color:#facc15;background:linear-gradient(135deg,rgba(250,204,21,.18),rgba(15,23,42,.95))}
+.podiumList li.silver{border-color:#e2e8f0;background:linear-gradient(135deg,rgba(226,232,240,.12),rgba(15,23,42,.95))}
+.podiumList li.bronze{border-color:#f97316;background:linear-gradient(135deg,rgba(249,115,22,.15),rgba(15,23,42,.95))}
+#podiumCloseBtn{background:#38bdf8;border:none;color:#020617;font-weight:600;padding:8px 20px;border-radius:999px;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;font-size:12px}
+#podiumCloseBtn:hover{background:#7dd3fc}
 .ticker{position:absolute;left:0;bottom:0;width:100%;padding:6px 10px;background:#070b13d0;border-top:1px solid #1e293b;font-size:12px;white-space:nowrap;overflow:hidden}
 .sidebar{display:flex;flex-direction:column;gap:10px}
 .optionsRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0}
@@ -97,6 +137,19 @@ button:hover{background:#162235}
 .telemetry li .statusBadge{font-size:10px;margin-left:6px;padding:2px 6px;border-radius:6px;background:#1e293b}
 .telemetry li .statusBadge.hot{background:#7f1d1d;color:#fecaca}
 .telemetry li .statusBadge.cool{background:#064e3b;color:#bbf7d0}
+.liveTickerPanel{background:#0d1524;border:1px solid #1e293b;border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:6px}
+.liveTickerHeader{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#38bdf8}
+.liveTickerList{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;max-height:160px;overflow:auto;font-size:11px}
+.liveTickerList li{display:flex;justify-content:space-between;gap:8px;background:#0f172acc;border:1px solid #1e293b;border-radius:8px;padding:4px 6px}
+.liveTickerList li .stamp{opacity:.6;font-variant-numeric:tabular-nums}
+.liveTickerList li .message{flex:1}
+.liveTickerList li.empty{justify-content:center;color:#64748b;font-style:italic}
+.liveTickerList li.yellow{border-color:#f59e0b;color:#facc15}
+.liveTickerList li.sc{border-color:#7dd3fc;color:#bfdbfe}
+.liveTickerList li.fl{border-color:#f97316;color:#fdba74}
+.liveTickerList li.pb{border-color:#22c55e;color:#86efac}
+.liveTickerList li.finish{border-color:#38bdf8;color:#bae6fd}
+.liveTickerList li.alert{border-color:#f87171;color:#fecaca}
 .focusPanel{background:#0d1524;border:1px solid #1e293b;border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px;transition:opacity .3s ease}
 .focusPanel.inactive{opacity:.6}
 .focusPanel.isHidden{display:none}
@@ -122,6 +175,15 @@ button:hover{background:#162235}
 .raceControlLog li.success{border-color:#22c55e;color:#bbf7d0}
 .statsRow{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;opacity:.85}
 .controls{display:flex;flex-wrap:wrap;gap:8px}
+.replayControls{margin-top:12px;display:flex;align-items:center;gap:12px;background:#0b1220;border:1px solid #1e293b;border-radius:12px;padding:10px 12px;font-size:12px;box-shadow:0 20px 38px -40px #000;color:#e2e8f0}
+.replayControls.hidden{display:none}
+.replayControls .replayToggle{background:#38bdf8;border:none;color:#020617;font-weight:700;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s ease}
+.replayControls .replayToggle:hover{background:#7dd3fc}
+.replayControls input[type=range]{flex:1;accent-color:#38bdf8;height:4px}
+.replayControls .replayTime{min-width:120px;text-align:center;font-variant-numeric:tabular-nums;font-size:12px;color:#94a3b8}
+.replayControls .replaySpeedLabel{display:flex;align-items-center;gap:6px;font-size:12px;color:#cbd5f5}
+.replayControls select{background:#0f172a;border:1px solid #1f2937;color:#e2e8f0;border-radius:8px;padding:4px 8px;font-size:12px}
+.replayControls select:focus{outline:1px solid #38bdf8;outline-offset:1px}
 .results{white-space:pre-wrap;background:#0d1524;border:1px solid #1e293b;border-radius:12px;padding:8px;min-height:90px}
 .posFlash{animation:flash .45s ease}
 @keyframes flash{0%{background:#052e2b}100%{background:transparent}}

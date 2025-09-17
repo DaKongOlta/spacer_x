@@ -17,8 +17,14 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 14 Strecken (u. a. Atlas Skywa
 
 ## Features (Stand)
 - 14 Tracks inklusive Atlas Skyway, Fracture Belt und Lumen Cascades; TV‑UI (Top‑3, Ticker, Mini‑Map) & Grid-Briefing; Grand Prix (5 Rennen, Punkte, localStorage)
+- Dynamische Broadcast-Kamera mit Auto-, Leader-, Battle- und Manual-Modus samt Overlay, Fokus-HUD und Speicherung der Präferenz
 - Flags: Green/Yellow/Safety + Field‑Bunching + Restart + detaillierte Rennzusammenfassung (Fastest Lap, Sektor-Rekorde, Phasen)
+- Rolling-Start-Formation-Lap mit Countdown-Reintegration, dynamischem Race-Clock-Offset und Gap-Trends im Leaderboard
 - 24 Fahrer inklusive Free-Agent-Pool, Manager-Transfermarkt und teambezogenen Chassis-Profilen mit zufällig gerollten Fahrzeug-Stats
 - Manager-Modus mit Wochen-Simulation, Vertragsverwaltung, Upgrades, Export/Import (JSON) sowie persistenter Chassis-Anzeige
 - Dynamische Wetterprofile (klar/bewölkt/sturm/nacht) mit Event-Briefing, sendefähigem HUD und gespeicherten Rennen-Settings
+- TV-Replay mit Zeitachse, Geschwindigkeitswahl und sofortigem Wiedereinstieg in jede Rennphase inklusive Sieg-Podium-Overlay
+- Live-Leaderboard-Overlay auf dem Canvas plus Meldungs-Panel mit Zeitstempeln für Überholungen, Flaggen und Specials
+- Mini-Map mit markierten Sektoren, Leader-Halo und Fokus-Ring für klarere TV-Analyse
 - Codex & Archiv: Lore-Einträge, Team-Garage, Hall-of-Fame und automatisches Rennarchiv mit Schnellzugriff auf Siege & Fastest Laps
+- Live-Gap-HUD mit Delta-Bar, Phasen-Timeline im Ergebnisbericht sowie `window.spacerxDiagnostics` für Race-Control-Diagnosen

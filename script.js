@@ -239,6 +239,14 @@
     return value >= 10 ? value.toFixed(1) : value.toFixed(2);
   }
 
+  function formatSecondsLabel(value) {
+    if (!isFinite(value) || value < 0) return '0,0s';
+    if (value >= 60) {
+      return `${formatTime(value).replace('.', ',')}s`;
+    }
+    return `${value.toFixed(1).replace('.', ',')}s`;
+  }
+
   function formatCurrency(value) {
     return `${Math.round(value).toLocaleString('de-DE')} Cr`;
   }
@@ -385,6 +393,13 @@
       console.warn('manager state save failed', err);
     }
   }
+  if (toggleRaceControl) {
+    toggleRaceControl.checked = uiSettings.showRaceControl;
+  }
+  if (toggleFocusPanel) {
+    toggleFocusPanel.checked = uiSettings.showFocusPanel;
+  }
+  applyUiSettings();
 
   function ensureFreeAgentPool() {
     if (!managerState || !managerState.teams) return;
@@ -484,6 +499,8 @@
 
   const SECTOR_SPLITS = [0, 1 / 3, 2 / 3, 1];
   const sectorFeed = [];
+  const liveTickerEvents = [];
+  const cautionOrderMap = new Map();
   const lapRecords = {
     fastestLap: { time: Infinity, driver: null, team: null, number: null },
     bestSectors: [
@@ -505,7 +522,6 @@
 
   const newRaceBtn = document.getElementById('newRaceBtn');
   const grandPrixBtn = document.getElementById('grandPrixBtn');
-  const resetGpBtn = document.getElementById('resetGpBtn');
   const managerBtn = document.getElementById('managerBtn');
   const bettingBtn = document.getElementById('bettingBtn');
   const teamsBtn = document.getElementById('teamsBtn');
@@ -536,8 +552,15 @@
   const top3Banner = document.getElementById('top3Banner');
   const raceFlag = document.getElementById('raceFlag');
   const highlightTicker = document.getElementById('highlightTicker');
+  const leaderboardHud = document.getElementById('leaderboardHud');
+  const leaderboardList = leaderboardHud?.querySelector('ol');
+  const liveTickerList = document.getElementById('liveTickerList');
   const sessionInfo = document.getElementById('sessionInfo');
   const leaderGapHud = document.getElementById('leaderGapHud');
+  const leaderGapLabel = leaderGapHud?.querySelector('.label');
+  const leaderGapDelta = leaderGapHud?.querySelector('.delta');
+  const leaderGapFill = leaderGapHud?.querySelector('.gapBar .fill');
+  const cameraHud = document.getElementById('cameraHud');
   const sectorWidget = document.getElementById('sectorWidget');
   const fastestLapLabel = document.getElementById('fastestLapLabel');
   const focusDriverPanel = document.getElementById('focusDriverPanel');
@@ -552,6 +575,373 @@
   const gridIntroMeta = document.getElementById('gridIntroMeta');
   const gridIntroDismiss = document.getElementById('gridIntroDismiss');
   const gridIntroTimer = document.getElementById('gridIntroTimer');
+  const replayControls = document.getElementById('replayControls');
+  const replayPlayPauseBtn = document.getElementById('replayPlayPause');
+  const replayScrubber = document.getElementById('replayScrubber');
+  const replayTimeLabel = document.getElementById('replayTimeLabel');
+  const replaySpeedSelect = document.getElementById('replaySpeed');
+  const podiumOverlay = document.getElementById('podiumOverlay');
+  const podiumList = document.getElementById('podiumList');
+  const podiumCloseBtn = document.getElementById('podiumCloseBtn');
+
+  function setStartButtonState(enabled, label = 'Rennen starten') {
+    if (!startRaceBtn) return;
+    startRaceBtn.disabled = !enabled;
+    if (label) {
+      startRaceBtn.textContent = label;
+    }
+  }
+
+  function setPauseButtonState(enabled, label = 'Pause') {
+    if (!pauseRaceBtn) return;
+    pauseRaceBtn.disabled = !enabled;
+    if (label) {
+      pauseRaceBtn.textContent = label;
+    }
+  }
+
+  function resetRaceControls() {
+    setPauseButtonState(false, 'Pause');
+    setStartButtonState(true, 'Rennen starten');
+    if (replayRaceBtn) {
+      replayRaceBtn.style.display = 'none';
+      replayRaceBtn.textContent = 'Replay';
+    }
+    if (replayControls) {
+      replayControls.classList.add('hidden');
+      replayControls.setAttribute('aria-hidden', 'true');
+    }
+  }
+
+  function hidePodiumOverlay(clear = false) {
+    if (podiumOverlay) {
+      podiumOverlay.classList.add('hidden');
+      podiumOverlay.setAttribute('aria-hidden', 'true');
+    }
+    if (podiumTimer) {
+      clearTimeout(podiumTimer);
+      podiumTimer = null;
+    }
+    if (clear && podiumList) {
+      podiumList.innerHTML = '';
+    }
+  }
+
+  function showPodium(order) {
+    if (!podiumOverlay || !podiumList) return;
+    podiumList.innerHTML = '';
+    if (!Array.isArray(order) || order.length === 0) {
+      hidePodiumOverlay(true);
+      return;
+    }
+    const leader = order[0];
+    const medals = ['gold', 'silver', 'bronze'];
+    const frag = document.createDocumentFragment();
+    order.slice(0, 3).forEach((car, idx) => {
+      if (!car) return;
+      const li = document.createElement('li');
+      if (medals[idx]) li.classList.add(medals[idx]);
+      const pos = document.createElement('span');
+      pos.className = 'pos';
+      pos.textContent = `${idx + 1}.`;
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      const name = document.createElement('strong');
+      name.textContent = `#${car.racingNumber} ${car.driver}`;
+      name.style.color = car.color;
+      const team = document.createElement('span');
+      team.textContent = car.team;
+      const detail = document.createElement('span');
+      if (idx === 0) {
+        detail.textContent = car.finishTime != null ? `Gesamt: ${formatTime(car.finishTime)}` : 'Gesamt: --';
+      } else if (leader && leader.finishTime != null && car.finishTime != null) {
+        const gap = Math.max(0, car.finishTime - leader.finishTime);
+        detail.textContent = `Gap: +${formatGap(gap)}s`;
+      } else {
+        detail.textContent = 'Gap: --';
+      }
+      meta.appendChild(name);
+      meta.appendChild(team);
+      meta.appendChild(detail);
+      li.appendChild(pos);
+      li.appendChild(meta);
+      frag.appendChild(li);
+    });
+    podiumList.appendChild(frag);
+    podiumOverlay.classList.remove('hidden');
+    podiumOverlay.setAttribute('aria-hidden', 'false');
+    if (podiumTimer) clearTimeout(podiumTimer);
+    podiumTimer = setTimeout(() => hidePodiumOverlay(false), 8000);
+  }
+
+  function stopReplay(resetView = true) {
+    if (replayRafId) {
+      cancelAnimationFrame(replayRafId);
+      replayRafId = 0;
+    }
+    replayActive = false;
+    replayPlaying = false;
+    replayAccumulator = 0;
+    replayLastTimestamp = 0;
+    if (replayControls) {
+      replayControls.classList.add('hidden');
+      replayControls.setAttribute('aria-hidden', 'true');
+    }
+    if (replayPlayPauseBtn) {
+      replayPlayPauseBtn.textContent = '▶︎';
+      replayPlayPauseBtn.setAttribute('aria-label', 'Replay abspielen');
+    }
+    if (replayRaceBtn) {
+      replayRaceBtn.textContent = 'Replay ansehen';
+    }
+    if (sessionInfo && replaySessionInfoCache) {
+      sessionInfo.textContent = replaySessionInfoCache.text || '';
+      sessionInfo.classList.toggle('hidden', replaySessionInfoCache.hidden);
+      replaySessionInfoCache = null;
+    }
+    if (resetView) {
+      drawScene();
+      updateSessionInfo();
+    }
+  }
+
+  function clearReplayData() {
+    stopReplay(false);
+    replayBuffer.length = 0;
+    replayMeta = new Map();
+    replayCarState = new Map();
+    replayCursor = 0;
+    replayAccumulator = 0;
+    replayAppliedIndex = -1;
+    replayTotalDuration = 0;
+    if (replayScrubber) {
+      replayScrubber.value = '0';
+      replayScrubber.max = '1';
+    }
+    if (replayTimeLabel) {
+      replayTimeLabel.textContent = '0,0s / 0,0s';
+    }
+  }
+
+  function prepareReplayMeta() {
+    replayMeta = new Map();
+    cars.forEach(car => {
+      replayMeta.set(car.id, {
+        id: car.id,
+        driver: car.driver,
+        team: car.team,
+        racingNumber: car.racingNumber,
+        color: car.color,
+        baseSpeed: car.baseSpeed,
+        profile: car.profile,
+        bodyGeometry: car.bodyGeometry || defaultChassisSpec.geometry
+      });
+    });
+  }
+
+  function projectReplayFrame(frame, resetTrails = false) {
+    if (!frame) return;
+    frame.cars.forEach(entry => {
+      const meta = replayMeta.get(entry.id);
+      if (!meta) return;
+      let state = replayCarState.get(entry.id);
+      if (!state || resetTrails) {
+        state = {
+          id: meta.id,
+          driver: meta.driver,
+          team: meta.team,
+          racingNumber: meta.racingNumber,
+          color: meta.color,
+          baseSpeed: meta.baseSpeed,
+          profile: meta.profile,
+          bodyGeometry: meta.bodyGeometry,
+          trail: []
+        };
+        replayCarState.set(entry.id, state);
+      }
+      if (resetTrails && state.trail) {
+        state.trail.length = 0;
+      }
+      state.x = entry.x;
+      state.y = entry.y;
+      state.angle = entry.angle;
+      state.lap = entry.lap;
+      state.progress = entry.progress;
+      state.finishTime = entry.finishTime;
+      state.finished = entry.finished;
+      state.lastLapTime = entry.lastLapTime;
+      state.bestLapTime = entry.bestLapTime;
+      state.currentSpeed = entry.currentSpeed;
+      if (!state.trail) state.trail = [];
+      state.trail.push({ x: entry.x, y: entry.y });
+      if (state.trail.length > 48) state.trail.shift();
+      state.getPosition = () => ({ x: state.x, y: state.y, angle: state.angle || 0 });
+    });
+  }
+
+  function renderReplayFrame(frame) {
+    if (!frame) return;
+    const carsForRender = Array.from(replayCarState.values());
+    const order = frame.order
+      .map(id => replayCarState.get(id))
+      .filter(Boolean);
+    drawScene(order, carsForRender);
+    if (replayActive && sessionInfo) {
+      const label = frame.phase ? `Replay · ${frame.phase}` : 'Replay';
+      sessionInfo.textContent = label;
+      sessionInfo.classList.remove('hidden');
+    }
+  }
+
+  function updateReplayUi() {
+    if (replayScrubber) {
+      replayScrubber.value = String(replayCursor);
+    }
+    if (replayTimeLabel) {
+      const currentTime = replayBuffer[replayCursor]?.time ?? 0;
+      replayTimeLabel.textContent = `${formatSecondsLabel(currentTime)} / ${formatSecondsLabel(replayTotalDuration)}`;
+    }
+  }
+
+  function applyReplayFrame(index, forceReset = false) {
+    if (!replayBuffer.length) return;
+    if (index < 0) index = 0;
+    if (index >= replayBuffer.length) index = replayBuffer.length - 1;
+    if (forceReset || index < replayAppliedIndex) {
+      replayCarState = new Map();
+      replayAppliedIndex = -1;
+    }
+    for (let i = Math.max(0, replayAppliedIndex + 1); i <= index; i++) {
+      const frame = replayBuffer[i];
+      projectReplayFrame(frame, i === 0 && (forceReset || replayAppliedIndex < 0));
+      replayAppliedIndex = i;
+    }
+    replayCursor = index;
+    renderReplayFrame(replayBuffer[index]);
+    updateReplayUi();
+  }
+
+  function setReplayPlaying(active) {
+    replayPlaying = !!active;
+    if (replayPlayPauseBtn) {
+      if (replayPlaying) {
+        replayPlayPauseBtn.textContent = '❚❚';
+        replayPlayPauseBtn.setAttribute('aria-label', 'Replay pausieren');
+      } else {
+        replayPlayPauseBtn.textContent = '▶︎';
+        replayPlayPauseBtn.setAttribute('aria-label', 'Replay abspielen');
+      }
+    }
+    if (replayPlaying) {
+      replayLastTimestamp = 0;
+      replayRafId = requestAnimationFrame(stepReplay);
+    } else if (replayRafId) {
+      cancelAnimationFrame(replayRafId);
+      replayRafId = 0;
+    }
+  }
+
+  function beginReplaySession() {
+    if (!replayBuffer.length) {
+      alert('Kein Replay verfügbar.');
+      return;
+    }
+    if (replayActive) {
+      stopReplay(true);
+      return;
+    }
+    hidePodiumOverlay(false);
+    replayActive = true;
+    replayAccumulator = 0;
+    replayLastTimestamp = 0;
+    replayAppliedIndex = -1;
+    replayCarState = new Map();
+    if (replayControls) {
+      replayControls.classList.remove('hidden');
+      replayControls.setAttribute('aria-hidden', 'false');
+    }
+    if (replayRaceBtn) {
+      replayRaceBtn.textContent = 'Replay stoppen';
+    }
+    if (replaySpeedSelect) {
+      replaySpeedSelect.value = replaySpeed.toString();
+    }
+    if (replayScrubber) {
+      replayScrubber.max = String(Math.max(1, replayBuffer.length - 1));
+      replayScrubber.value = '0';
+    }
+    if (sessionInfo) {
+      replaySessionInfoCache = {
+        text: sessionInfo.textContent,
+        hidden: sessionInfo.classList.contains('hidden')
+      };
+    }
+    leaderGapHud?.classList.add('hidden');
+    updateCameraHud([]);
+    applyReplayFrame(0, true);
+    setReplayPlaying(true);
+  }
+
+  function stepReplay(timestamp) {
+    if (!replayActive || !replayPlaying) return;
+    if (!replayLastTimestamp) replayLastTimestamp = timestamp;
+    const elapsed = (timestamp - replayLastTimestamp) / 1000;
+    replayLastTimestamp = timestamp;
+    replayAccumulator += elapsed * replaySpeed;
+    while (replayCursor < replayBuffer.length - 1) {
+      const nextFrame = replayBuffer[replayCursor + 1];
+      const frameDt = Math.max(0.016, nextFrame?.dt || 0.016);
+      if (replayAccumulator < frameDt) break;
+      replayAccumulator -= frameDt;
+      replayCursor += 1;
+      applyReplayFrame(replayCursor);
+    }
+    if (replayCursor >= replayBuffer.length - 1) {
+      setReplayPlaying(false);
+      return;
+    }
+    if (replayPlaying) {
+      replayRafId = requestAnimationFrame(stepReplay);
+    }
+  }
+
+  function captureReplayFrame(order, dt, phaseOverride = null) {
+    if (!recordingReplay) return;
+    const safeOrder = Array.isArray(order) && order.length ? order : cars.slice().sort(sortByRacePosition);
+    const frame = {
+      time: Number(raceTime.toFixed(4)),
+      dt: Math.max(0.016, dt || 0.016),
+      phase: phaseOverride || racePhase,
+      order: safeOrder.map(car => car.id),
+      cars: cars.map(car => {
+        const pos = car.getPosition();
+        return {
+          id: car.id,
+          x: pos.x,
+          y: pos.y,
+          angle: pos.angle || 0,
+          lap: car.lap,
+          progress: car.progress,
+          finishTime: car.finishTime,
+          finished: car.finished,
+          lastLapTime: car.lastLapTime,
+          bestLapTime: car.bestLapTime,
+          currentSpeed: car.currentSpeed
+        };
+      })
+    };
+    replayBuffer.push(frame);
+    replayTotalDuration = frame.time;
+    if (replayBuffer.length > MAX_REPLAY_FRAMES) {
+      replayBuffer.shift();
+      if (replayAppliedIndex >= 0) {
+        replayAppliedIndex = Math.max(-1, replayAppliedIndex - 1);
+      }
+      if (replayCursor > 0) {
+        replayCursor = Math.max(0, replayCursor - 1);
+      }
+    }
+  }
 
   const zoomSetting = document.getElementById('zoomSetting');
   const trackTypeSelect = document.getElementById('trackType');
@@ -562,6 +952,7 @@
   const toggleRaceControl = document.getElementById('toggleRaceControl');
   const toggleFocusPanel = document.getElementById('toggleFocusPanel');
   const toggleMiniMap = document.getElementById('toggleMiniMap');
+  const cameraSetting = document.getElementById('cameraSetting');
   const eventBriefing = document.getElementById('eventBriefing');
   const eventTrackLabel = document.getElementById('eventTrackLabel');
   const eventWeatherLabel = document.getElementById('eventWeatherLabel');
@@ -596,10 +987,12 @@
   const codexGarage = document.getElementById('codexGarage');
   const raceArchive = document.getElementById('raceArchive');
   const hallOfFame = document.getElementById('hallOfFame');
-
   const uiSettings = loadUiSettings();
   if (zoomSetting && uiSettings.zoom) {
     zoomSetting.value = uiSettings.zoom;
+  }
+  if (cameraSetting) {
+    cameraSetting.value = uiSettings.cameraMode || 'auto';
   }
   if (toggleMiniMap) {
     toggleMiniMap.checked = uiSettings.showMiniMap;
@@ -611,6 +1004,9 @@
     toggleFocusPanel.checked = uiSettings.showFocusPanel;
   }
   applyUiSettings();
+  resetLiveTicker();
+  updateLeaderboardHud([]);
+  resetRaceControls();
 
   let raceSettings = loadRaceSettings();
   if (trackTypeSelect && raceSettings.track) {
@@ -638,11 +1034,15 @@
   let totalLaps = parseInt(lapsSetting?.value || String(raceSettings.laps || 15), 10);
   let aiLevel = aiDifficulty?.value || raceSettings.ai || 'normal';
   let currentWeather = weatherSetting?.value || raceSettings.weather || 'clear';
+  let startProcedureMode = startProc?.value || raceSettings.startProc || 'standing';
   let activeTrackTraits = getTrackTraits(currentTrackType);
   let currentVisualTheme = null;
   let lastTelemetryOrder = [];
   const raceControlEvents = [];
-  const phaseStats = { yellow: 0, safety: 0, restart: 0 };
+  const phaseStats = { yellow: 0, safety: 0, restart: 0, formation: 0 };
+  const phaseTimeline = [];
+  const flowAudit = [];
+  const leaderboardGapHistory = new Map();
 
   trackTypeSelect?.addEventListener('change', () => {
     currentTrackType = trackTypeSelect.value;
@@ -666,6 +1066,7 @@
   });
   startProc?.addEventListener('change', () => {
     raceSettings.startProc = startProc.value;
+    startProcedureMode = startProc.value;
     persistRaceSettings();
     updateEventBriefing();
   });
@@ -697,8 +1098,34 @@
     persistUiSettings();
     updateFocusPanel(lastTelemetryOrder);
   });
+  cameraSetting?.addEventListener('change', () => {
+    uiSettings.cameraMode = cameraSetting.value;
+    if (uiSettings.cameraMode !== 'manual') {
+      focusDriverId = null;
+    }
+    persistUiSettings();
+    applyCameraLogic(lastTelemetryOrder);
+    updateLeaderGap(lastTelemetryOrder);
+    updateFocusPanel(lastTelemetryOrder);
+    updateCameraHud(lastTelemetryOrder);
+  });
 
+  const MAX_REPLAY_FRAMES = 60 * 60 * 6;
   const cars = [];
+  const replayBuffer = [];
+  let recordingReplay = false;
+  let replayMeta = new Map();
+  let replayCarState = new Map();
+  let replayActive = false;
+  let replayPlaying = false;
+  let replayCursor = 0;
+  let replayAccumulator = 0;
+  let replayLastTimestamp = 0;
+  let replayTotalDuration = 0;
+  let replayRafId = 0;
+  let replayAppliedIndex = -1;
+  let replaySpeed = 1;
+  let replaySessionInfoCache = null;
   let raceActive = false;
   let isPaused = false;
   let raceTime = 0;
@@ -706,11 +1133,15 @@
   let countdownRunning = false;
   let gridIntroInterval = null;
   let gridIntroCountdown = 0;
+  let podiumTimer = null;
   let racePhase = 'IDLE';
   let racePhaseEndsAt = Infinity;
   let racePhaseNext = null;
   let racePhaseMeta = {};
   let previousPhase = 'IDLE';
+  let raceClockOffset = 0;
+  let raceClockArmed = false;
+  let formationActive = false;
   let lastFrame = 0;
   let currentMode = 'quick';
   let focusDriverId = null;
@@ -1107,23 +1538,22 @@
 
   function computeProjectedPace(car) {
     if (!car) return 0;
-    const base = (car.baseSpeed || 12) * 10;
-    const consist = (car.consist || 0.6) * 24;
-    const intel = (car.intel || 0.6) * 18;
-    const risk = (1 - (car.risk || 0.3)) * 14;
+    const base = (car.baseSpeed ?? 12) * 10;
+    const consist = (car.consist ?? 0.6) * 24;
+    const intel = (car.intel ?? 0.6) * 18;
+    const risk = (1 - (car.risk ?? 0.3)) * 14;
     const moraleSource = car.contract?.morale ?? car.morale ?? 0.5;
     const morale = (moraleSource - 0.5) * 20;
     const profileStraight = car.profile?.straight ?? 1;
     const profileCorner = car.profile?.corner ?? 1;
     const profileScore = ((profileStraight + profileCorner) / 2) * 16;
-    const chassis = car.chassis || defaultChassisSpec;
-    const chassisPerformance = ((chassis.engine || 1) + (chassis.aero || 1) + (chassis.boost || 1)) / 3 * 14;
-    const chassisReliability = ((chassis.systems || 1) + (chassis.stability || 1)) / 2 * 12;
+    const chassis = car.chassis ? defaultChassisSpec;
+    const chassisPerformance = ((chassis.engine ?? 1) + (chassis.aero ?? 1) + (chassis.boost ?? 1)) / 3 * 14;
+    const chassisReliability = ((chassis.systems ?? 1) + (chassis.stability ?? 1)) / 2 * 12;
     const grip = (activeTrackTraits.surfaceGrip ?? 1) * 6;
-    const form = (car.form || 0) * 40;
+    const form = (car.form ?? 0) * 40;
     return base + consist + intel + risk + morale + profileScore + grip + form + chassisPerformance + chassisReliability;
   }
-
   function renderGridIntro(cars) {
     if (!gridIntroOverlay || !gridIntroList || !Array.isArray(cars) || cars.length === 0) {
       return false;
@@ -1194,6 +1624,7 @@
     gridIntroOverlay.setAttribute('aria-hidden', 'false');
     gridIntroCountdown = 4;
     updateGridIntroCountdownDisplay();
+    auditRaceFlow('gridIntro', { field: cars?.length || 0 });
     gridIntroInterval = setInterval(() => {
       gridIntroCountdown -= 1;
       if (gridIntroCountdown <= 0) {
@@ -1204,7 +1635,33 @@
     }, 1000);
   }
 
-  function beginRaceCountdown() {
+  function beginFormationLap() {
+    if (formationActive) return;
+    formationActive = true;
+    countdownRunning = false;
+    if (countdownTimer) {
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+    }
+    setRacePhase('FORMATION', 12, { name: 'COUNTDOWN' }, { procedure: 'rolling' });
+    top3Banner.textContent = 'Formation Lap';
+    top3Banner.classList.remove('hidden');
+    logRaceControl('Formation Lap aktiviert (Rolling Start)', 'info');
+    pushTicker('Formation Lap – Rolling Start', 'info');
+    raceActive = true;
+    isPaused = false;
+    setPauseButtonState(true, 'Pause');
+    requestAnimationFrame(time => {
+      lastFrame = time;
+      requestAnimationFrame(gameLoop);
+    });
+  }
+
+  function beginRaceCountdown(force = false) {
+    if (!force && startProcedureMode === 'rolling' && !formationActive) {
+      beginFormationLap();
+      return;
+    }
     if (countdownRunning) return;
     if (gridIntroInterval) {
       clearInterval(gridIntroInterval);
@@ -1221,8 +1678,9 @@
       countdownTimer = null;
     }
     countdownRunning = true;
-    const countdown = [3, 2, 1, 'GO'];
+    const countdown = startProcedureMode === 'staggered' ? [4, 3, 2, 1, 'GO'] : [3, 2, 1, 'GO'];
     let idx = 0;
+    auditRaceFlow('countdown', { steps: countdown.length });
     const runCountdown = () => {
       if (!countdownRunning) {
         return;
@@ -1259,8 +1717,7 @@
         setRacePhase('GREEN');
         raceActive = true;
         isPaused = false;
-        pauseRaceBtn.disabled = false;
-        pauseRaceBtn.textContent = 'Pause';
+        setPauseButtonState(true, 'Pause');
         requestAnimationFrame(time => {
           lastFrame = time;
           requestAnimationFrame(gameLoop);
@@ -1286,7 +1743,8 @@
   }
 
   function loadUiSettings() {
-    const defaults = { zoom: 'on', showMiniMap: true, showRaceControl: true, showFocusPanel: true };
+    const defaults = { zoom: 'on', showMiniMap: true, showRaceControl: true, showFocusPanel: true, cameraMode: 'auto' };
+    const cameraModes = new Set(['auto', 'leader', 'battle', 'manual']);
     try {
       const raw = localStorage.getItem(STORAGE_KEYS.ui);
       if (!raw) return { ...defaults };
@@ -1295,7 +1753,8 @@
         zoom: parsed.zoom === 'off' ? 'off' : 'on',
         showMiniMap: parsed.showMiniMap !== false,
         showRaceControl: parsed.showRaceControl !== false,
-        showFocusPanel: parsed.showFocusPanel !== false
+        showFocusPanel: parsed.showFocusPanel !== false,
+        cameraMode: cameraModes.has(parsed.cameraMode) ? parsed.cameraMode : defaults.cameraMode
       };
     } catch (err) {
       console.warn('ui settings load failed', err);
@@ -1399,8 +1858,6 @@
       this.crashCooldown = 0;
       this.pitted = false;
       this.pitTimer = 0;
-      this.inPitLane = false;
-      this.pitEntryProgress = null;
       this.pitLap = Math.max(2, Math.floor(totalLaps * (0.45 + Math.random() * 0.18)));
       this.currentLapStartTime = 0;
       this.lastSectorTimestamp = 0;
@@ -1449,71 +1906,78 @@
         speed -= Math.random() * 0.8;
       }
 
-      this.tireWear = clamp(
-        this.tireWear + dt * (0.035 + this.risk * 0.025) * (traits.wearRate || 1) * (this.profile.wear || 1),
-        0,
-        1.2
-      );
-      const wearPenalty = this.tireWear * 0.6;
-      speed -= wearPenalty;
+      if (raceClockArmed) {
+        this.tireWear = clamp(
+          this.tireWear + dt * (0.035 + this.risk * 0.025) * (traits.wearRate || 1) * (this.profile.wear || 1),
+          0,
+          1.2
+        );
+        const wearPenalty = this.tireWear * 0.6;
+        speed -= wearPenalty;
 
-      this.systemIntegrity = clamp(
-        this.systemIntegrity - dt * (0.004 + this.risk * 0.003) * (traits.wearRate || 1) / Math.max(0.75, this.profile.systems || 1),
-        0.35,
-        1.15
-      );
-      const systemPenalty = (1.05 - this.systemIntegrity) * 1.4;
-      if (systemPenalty > 0) {
-        speed -= systemPenalty;
-      }
-
-      if (!this.wearSignals.tire && this.tireWear > 0.62) {
-        logRaceControl(`#${this.racingNumber} ${this.driver}: Reifenverschleiß steigt`, 'warn');
-        this.wearSignals.tire = true;
-      }
-      if (!this.wearSignals.system && this.systemIntegrity < 0.62) {
-        logRaceControl(`#${this.racingNumber} ${this.driver}: Systeme unter Beobachtung`, 'warn');
-        this.wearSignals.system = true;
-      }
-      if (!this.wearSignals.critical && this.systemIntegrity < 0.45) {
-        this.speedVariance -= 0.2;
-        logRaceControl(`#${this.racingNumber} ${this.driver}: Leistungsverlust`, 'alert');
-        this.wearSignals.critical = true;
-      }
-
-      let pitHold = false;
-      if (!this.pitted) {
-        if (!this.inPitLane && this.lap === this.pitLap && this.progress < 0.2) {
-          this.inPitLane = true;
-          this.pitEntryProgress = this.progress;
-          if (!this.wearSignals.pitCall) {
-            logRaceControl(`#${this.racingNumber} ${this.driver}: Boxenstopp`, 'info');
-            this.wearSignals.pitCall = true;
-          }
+        this.systemIntegrity = clamp(
+          this.systemIntegrity - dt * (0.004 + this.risk * 0.003) * (traits.wearRate || 1) / Math.max(0.75, this.profile.systems || 1),
+          0.35,
+          1.15
+        );
+        const systemPenalty = (1.05 - this.systemIntegrity) * 1.4;
+        if (systemPenalty > 0) {
+          speed -= systemPenalty;
         }
-        if (this.inPitLane) {
-          pitHold = true;
-          this.pitTimer += dt;
-          speed *= 0.52;
-          if (this.pitTimer > 5.5) {
-            this.pitted = true;
-            this.inPitLane = false;
-            this.pitTimer = 0;
-            this.tireWear = Math.max(0, this.tireWear - 0.4);
-            this.systemIntegrity = Math.min(1.05, this.systemIntegrity + 0.12);
-            if (!this.wearSignals.pitClear) {
-              logRaceControl(`#${this.racingNumber} ${this.driver}: verlässt die Box`, 'success');
-              this.wearSignals.pitClear = true;
-            }
-            this.pitEntryProgress = null;
+
+        if (!this.wearSignals.tire && this.tireWear > 0.62) {
+          logRaceControl(`#${this.racingNumber} ${this.driver}: Reifenverschleiß steigt`, 'warn');
+          this.wearSignals.tire = true;
+        }
+        if (!this.wearSignals.system && this.systemIntegrity < 0.62) {
+          logRaceControl(`#${this.racingNumber} ${this.driver}: Systeme unter Beobachtung`, 'warn');
+          this.wearSignals.system = true;
+        }
+        if (!this.wearSignals.critical && this.systemIntegrity < 0.45) {
+          this.speedVariance -= 0.2;
+          logRaceControl(`#${this.racingNumber} ${this.driver}: Leistungsverlust`, 'alert');
+          this.wearSignals.critical = true;
+        }
+      }
+
+      if (raceClockArmed && !this.pitted && this.lap === this.pitLap && this.progress < 0.2) {
+        this.pitTimer += dt;
+        speed *= 0.52;
+        if (!this.wearSignals.pitCall) {
+          logRaceControl(`#${this.racingNumber} ${this.driver}: Boxenstopp`, 'info');
+          this.wearSignals.pitCall = true;
+        }
+        if (this.pitTimer > 5.5) {
+          this.pitted = true;
+          this.tireWear = Math.max(0, this.tireWear - 0.4);
+          this.systemIntegrity = Math.min(1.05, this.systemIntegrity + 0.12);
+          if (!this.wearSignals.pitClear) {
+            logRaceControl(`#${this.racingNumber} ${this.driver}: verlässt die Box`, 'success');
+            this.wearSignals.pitClear = true;
           }
         }
       }
 
-      if (racePhase === 'SAFETY' && leader && !this.finished) {
-        const gap = computeAngularGap(leader, this);
-        if (gap > 0.02) {
-          speed *= 1.18;
+      if (!this.finished && (racePhase === 'YELLOW' || racePhase === 'SAFETY' || racePhase === 'RESTART' || racePhase === 'FORMATION')) {
+        const ahead = cautionOrderMap.get(this.id);
+        let reference = null;
+        if (ahead && ahead !== this && !ahead.finished) {
+          reference = ahead;
+        } else if (leader && leader !== this) {
+          reference = leader;
+        }
+        if (reference) {
+          const gap = computeAngularGap(reference, this);
+          let target = 0.26;
+          if (racePhase === 'RESTART') target = 0.16;
+          else if (racePhase === 'SAFETY') target = 0.22;
+          else if (racePhase === 'FORMATION') target = 0.2;
+          if (gap > target) {
+            const catchBoost = clamp((gap - target) * 3, 0.12, 2.4);
+            speed *= 1 + catchBoost * 0.22;
+          } else if (gap < target * 0.45) {
+            speed *= 0.82;
+          }
         }
       }
 
@@ -1524,19 +1988,20 @@
       this.currentSpeed = Math.max(0, speed * 32);
       this.peakSpeed = Math.max(this.peakSpeed, this.currentSpeed);
 
-      const dprog = pitHold ? 0 : speed * dt * 0.33;
+      const dprog = speed * dt * 0.33;
       this.progress += dprog;
-      if (pitHold && this.pitEntryProgress !== null) {
-        this.progress = this.pitEntryProgress;
-      }
 
       if (this.progress >= Math.PI * 2) {
         this.progress -= Math.PI * 2;
-        this.lap += 1;
+        if (raceClockArmed) {
+          this.lap += 1;
+        }
       }
 
       const currNorm = (this.lap - 1) + this.progress / (Math.PI * 2);
-      handleSectorProgress(this, prevNorm, currNorm, dt);
+      if (raceClockArmed) {
+        handleSectorProgress(this, prevNorm, currNorm, dt);
+      }
 
       const pos = this.getPosition();
       this.trail.push({ x: pos.x, y: pos.y });
@@ -1682,19 +2147,72 @@
     fastestLapLabel.innerHTML = `<span class=\"highlight\">FL</span> #${record.number} ${record.driver} ${formatTime(record.time)}`;
   }
 
+  function getEffectiveRaceTime() {
+    const value = Math.max(0, raceTime - raceClockOffset);
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  function formatTickerStamp() {
+    const time = getEffectiveRaceTime();
+    if (!isFinite(time) || time <= 0) return '--:--';
+    return `${time.toFixed(1)}s`;
+  }
+
+  function updateLiveTicker() {
+    if (!liveTickerList) return;
+    liveTickerList.innerHTML = '';
+    if (liveTickerEvents.length === 0) {
+      const li = document.createElement('li');
+      li.classList.add('empty');
+      li.textContent = 'Warten auf Meldungen...';
+      liveTickerList.appendChild(li);
+      return;
+    }
+    const frag = document.createDocumentFragment();
+    liveTickerEvents.forEach(entry => {
+      const li = document.createElement('li');
+      li.classList.add(entry.type || 'info');
+      const stamp = document.createElement('span');
+      stamp.className = 'stamp';
+      stamp.textContent = entry.stamp || '--:--';
+      const message = document.createElement('span');
+      message.className = 'message';
+      message.textContent = entry.message;
+      li.appendChild(stamp);
+      li.appendChild(message);
+      frag.appendChild(li);
+    });
+    liveTickerList.appendChild(frag);
+  }
+
+  function resetLiveTicker() {
+    liveTickerEvents.length = 0;
+    updateLiveTicker();
+  }
+
   function pushTicker(msg, type) {
-    if (!highlightTicker) return;
     let tag = '🏁';
     if (type === 'yellow') tag = '🟨';
     else if (type === 'sc') tag = '🚨';
     else if (type === 'pb') tag = '⏱️';
     else if (type === 'fl') tag = '🔥';
     else if (type === 'info') tag = 'ℹ️';
-    highlightTicker.textContent = `${tag} ${msg}`;
+    if (highlightTicker) {
+      highlightTicker.textContent = `${tag} ${msg}`;
+    }
+    const entryType = type || 'info';
+    liveTickerEvents.unshift({ message: msg, type: entryType, stamp: formatTickerStamp() });
+    if (liveTickerEvents.length > 12) {
+      liveTickerEvents.pop();
+    }
+    updateLiveTicker();
   }
 
   function logRaceControl(message, level = 'info') {
-    const stampValue = isFinite(raceTime) && raceTime > 0 ? `${Math.floor(raceTime).toString().padStart(3, '0')}s` : '---';
+    const displayTime = getEffectiveRaceTime();
+    const stampValue = isFinite(displayTime) && displayTime > 0
+      ? `${Math.floor(displayTime).toString().padStart(3, '0')}s`
+      : '---';
     raceControlEvents.unshift({ message, level, stamp: stampValue });
     if (raceControlEvents.length > 14) {
       raceControlEvents.pop();
@@ -1718,6 +2236,43 @@
     updateRaceControlLog();
   }
 
+  function finalizePhaseTimeline(endTime = raceTime) {
+    const entry = phaseTimeline[phaseTimeline.length - 1];
+    if (!entry || entry.end != null) return;
+    entry.end = endTime;
+    entry.duration = Math.max(0, endTime - entry.start);
+  }
+
+  function pushPhaseTimeline(name, meta) {
+    const entry = {
+      phase: name,
+      start: raceTime,
+      meta: meta && typeof meta === 'object' ? { ...meta } : undefined,
+      end: null,
+      duration: 0
+    };
+    phaseTimeline.push(entry);
+    if (phaseTimeline.length > 40) {
+      phaseTimeline.shift();
+    }
+  }
+
+  function auditRaceFlow(event, details) {
+    const snapshot = {
+      event,
+      phase: racePhase,
+      raceTime: Number(raceTime.toFixed(3)),
+      timestamp: Date.now()
+    };
+    if (details && typeof details === 'object') {
+      snapshot.details = { ...details };
+    }
+    flowAudit.push(snapshot);
+    if (flowAudit.length > 80) {
+      flowAudit.shift();
+    }
+  }
+
   function getPhaseSpeedFactor() {
     switch (racePhase) {
       case 'GREEN':
@@ -1728,6 +2283,8 @@
         return 0.55;
       case 'RESTART':
         return 0.82;
+      case 'FORMATION':
+        return 0.6;
       case 'COUNTDOWN':
       case 'FINISHED':
       case 'IDLE':
@@ -1783,14 +2340,44 @@
   }
 
   function setRacePhase(name, duration = null, next = null, meta = {}) {
+    finalizePhaseTimeline(raceTime);
     previousPhase = racePhase;
     racePhase = name;
     racePhaseMeta = meta || {};
     racePhaseNext = next || null;
     racePhaseEndsAt = duration == null ? Infinity : raceTime + duration;
+    pushPhaseTimeline(name, racePhaseMeta);
+    auditRaceFlow('phase', {
+      phase: name,
+      duration,
+      next: next?.name || null,
+      source: meta?.source || null
+    });
+    if (name === 'FORMATION') {
+      formationActive = true;
+    }
     announcePhase(name, meta);
     updateFlag();
     updateSessionInfo();
+    if (name === 'COUNTDOWN' && previousPhase === 'FORMATION') {
+      formationActive = false;
+      raceActive = false;
+      isPaused = false;
+      setPauseButtonState(false, 'Pause');
+      if (!countdownRunning) {
+        beginRaceCountdown(true);
+      }
+    } else if (name === 'GREEN' && !raceClockArmed) {
+      raceClockOffset = raceTime;
+      raceClockArmed = true;
+      cars.forEach(car => {
+        car.currentLapStartTime = raceTime;
+        car.lastSectorTimestamp = raceTime;
+        car.currentLapSectors = [];
+        car.nextSectorIndex = 1;
+        car.nextSectorNormalized = SECTOR_SPLITS[1];
+      });
+    }
   }
 
   function extendPhase(extraSeconds) {
@@ -1807,7 +2394,7 @@
       } else {
         setRacePhase('GREEN');
       }
-    } else if (racePhase === 'RESTART' || racePhase === 'YELLOW' || racePhase === 'SAFETY') {
+    } else if (racePhase === 'RESTART' || racePhase === 'YELLOW' || racePhase === 'SAFETY' || racePhase === 'FORMATION') {
       updateSessionInfo();
     }
   }
@@ -1830,6 +2417,8 @@
       phaseStats.restart += 1;
       pushTicker('Restart-Prozedur läuft', 'info');
       logRaceControl('Restart Vorbereitung', 'info');
+    } else if (name === 'FORMATION') {
+      phaseStats.formation += 1;
     }
   }
 
@@ -1857,6 +2446,11 @@
         raceFlag.textContent = 'RESTART';
         raceFlag.classList.remove('hidden');
         raceFlag.classList.add('restart');
+        break;
+      case 'FORMATION':
+        raceFlag.textContent = 'FORMATION LAP';
+        raceFlag.classList.remove('hidden');
+        raceFlag.classList.add('yellow');
         break;
       case 'COUNTDOWN':
         raceFlag.textContent = 'GRID HOLD';
@@ -1886,6 +2480,9 @@
     } else if (racePhase === 'RESTART') {
       const remain = racePhaseEndsAt === Infinity ? '' : ` in ${Math.max(0, Math.ceil(racePhaseEndsAt - raceTime))}s`;
       text = `Restart${remain}`;
+    } else if (racePhase === 'FORMATION') {
+      const remain = racePhaseEndsAt === Infinity ? '' : ` ${Math.max(0, Math.ceil(racePhaseEndsAt - raceTime))}s`;
+      text = `Formation${remain}`;
     } else if (racePhase === 'FINISHED') {
       text = 'Rennen beendet';
     } else if (racePhase === 'IDLE') {
@@ -1944,13 +2541,14 @@
     ctx2.closePath();
   }
 
-  function drawCars() {
-    cars.forEach(car => {
-      const pos = car.getPosition();
+  function drawCars(carList = cars) {
+    carList.forEach(car => {
+      const pos = typeof car.getPosition === 'function' ? car.getPosition() : { x: car.x ?? 0, y: car.y ?? 0, angle: car.angle ?? 0 };
+      const trail = Array.isArray(car.trail) ? car.trail : [];
       ctx.strokeStyle = `${car.color}55`;
       ctx.lineWidth = 2;
       ctx.beginPath();
-      car.trail.forEach((pt, idx) => {
+      trail.forEach((pt, idx) => {
         if (idx === 0) ctx.moveTo(pt.x, pt.y);
         else ctx.lineTo(pt.x, pt.y);
       });
@@ -1960,7 +2558,7 @@
       ctx.translate(pos.x, pos.y);
       ctx.rotate(pos.angle);
       ctx.fillStyle = car.color;
-      const geo = car.bodyGeometry || defaultChassisSpec.geometry;
+      const geo = car.bodyGeometry || car.geometry || defaultChassisSpec.geometry;
       const bodyLength = geo?.length ?? 28;
       const bodyWidth = geo?.width ?? 16;
       const nose = geo?.nose ?? 6;
@@ -1977,7 +2575,7 @@
       ctx.font = '10px Arial';
       ctx.textAlign = 'center';
       ctx.fillText(car.racingNumber, 0, 3);
-      if (car.id === focusDriverId) {
+      if (car.id === focusDriverId && !replayActive) {
         ctx.strokeStyle = '#facc15';
         ctx.lineWidth = 2;
         roundRect(ctx, -halfL - 2, -halfW - 2, bodyLength + 4, bodyWidth + 4, Math.min(8, halfW + 2));
@@ -1987,7 +2585,7 @@
     });
   }
 
-  function drawMiniMap() {
+  function drawMiniMap(carList = cars) {
     const track = trackCatalog[currentTrackType] || trackCatalog.oval;
     const theme = currentVisualTheme || track.theme || defaultTrackTheme;
     mm.clearRect(0, 0, miniMap.width, miniMap.height);
@@ -2018,28 +2616,145 @@
     mm.closePath();
     mm.stroke();
 
-    const order = cars.slice().sort(sortByRacePosition);
+    const sectorAngles = SECTOR_SPLITS.slice(1, SECTOR_SPLITS.length - 1);
+    mm.lineWidth = 1.5;
+    sectorAngles.forEach((split, idx) => {
+      const angle = split * Math.PI * 2;
+      const pt = track.geometry(angle);
+      const sx = pt.x * scale + ox;
+      const sy = pt.y * scale + oy;
+      mm.strokeStyle = `${theme.lane || '#64748b'}66`;
+      mm.beginPath();
+      mm.arc(sx, sy, 9, 0, Math.PI * 2);
+      mm.stroke();
+      mm.fillStyle = '#cbd5f5';
+      mm.font = '9px Orbitron, Arial';
+      mm.textAlign = 'center';
+      mm.textBaseline = 'middle';
+      mm.fillText(`S${idx + 1}`, sx, sy);
+    });
+
+    const order = (Array.isArray(carList) ? carList.slice() : Array.from(carList)).sort(sortByRacePosition);
+    const leaderId = order[0]?.id ?? null;
+    let leaderPoint = null;
+    let focusPoint = null;
     order.forEach((car, idx) => {
-      const pos = car.getPosition();
+      const pos = typeof car.getPosition === 'function' ? car.getPosition() : { x: car.x ?? 0, y: car.y ?? 0 };
       const x = pos.x * scale + ox;
       const y = pos.y * scale + oy;
       mm.fillStyle = car.color;
       mm.beginPath();
       mm.arc(x, y, idx === 0 ? 4 : 3, 0, Math.PI * 2);
       mm.fill();
+      if (idx === 0) {
+        leaderPoint = { x, y };
+      }
+      if (focusDriverId && car.id === focusDriverId) {
+        focusPoint = { x, y };
+      }
     });
+    if (leaderPoint) {
+      mm.strokeStyle = '#facc15';
+      mm.lineWidth = 2;
+      mm.beginPath();
+      mm.arc(leaderPoint.x, leaderPoint.y, 6, 0, Math.PI * 2);
+      mm.stroke();
+    }
+    if (focusPoint && (!leaderId || focusDriverId !== leaderId)) {
+      mm.strokeStyle = '#38bdf8';
+      mm.lineWidth = 1.5;
+      mm.beginPath();
+      mm.arc(focusPoint.x, focusPoint.y, 7.5, 0, Math.PI * 2);
+      mm.stroke();
+    }
   }
 
-  function drawScene() {
+  function drawScene(orderOverride = null, carList = cars) {
+    const list = Array.isArray(carList) ? carList : Array.from(carList);
     drawTrack();
-    drawCars();
-    drawMiniMap();
-    const order = cars.slice().sort(sortByRacePosition);
+    drawCars(list);
+    drawMiniMap(list);
+    const order = Array.isArray(orderOverride) && orderOverride.length ? orderOverride : list.slice().sort(sortByRacePosition);
     const text = order.slice(0, 3).map((car, idx) => `${idx + 1}. #${car.racingNumber} ${car.driver}`).join('   ');
     if (text) {
       top3Banner.textContent = text;
       top3Banner.classList.remove('hidden');
+    } else {
+      top3Banner.textContent = '';
+      top3Banner.classList.add('hidden');
     }
+    updateLeaderboardHud(order);
+  }
+
+  function updateLeaderboardHud(order) {
+    if (!leaderboardHud || !leaderboardList) return;
+    if (!Array.isArray(order) || order.length === 0) {
+      leaderboardHud.classList.add('hidden');
+      leaderboardList.innerHTML = '';
+      leaderboardGapHistory.clear();
+      return;
+    }
+    const leader = order[0];
+    if (!leader) {
+      leaderboardHud.classList.add('hidden');
+      leaderboardList.innerHTML = '';
+      leaderboardGapHistory.clear();
+      return;
+    }
+    const frag = document.createDocumentFragment();
+    const limit = Math.min(order.length, 6);
+    const nextGapHistory = new Map();
+    for (let i = 0; i < limit; i++) {
+      const car = order[i];
+      if (!car) continue;
+      const li = document.createElement('li');
+      if (i === 0) li.classList.add('leader');
+      if (i > 0) {
+        const duelGap = Math.abs(computeTimeGap(order[i - 1], car));
+        if (duelGap < 0.45) {
+          li.classList.add('charge');
+        }
+      }
+      const rawGap = leader === car ? 0 : Math.abs(computeTimeGap(leader, car));
+      const gapText = i === 0 ? 'Leader' : `+${formatGap(rawGap)}s`;
+      const prevGap = leaderboardGapHistory.get(car.id);
+      let trendText = '';
+      let trendClass = '';
+      if (prevGap != null) {
+        const delta = prevGap - rawGap;
+        if (Math.abs(delta) >= 0.03) {
+          const closing = delta > 0;
+          trendClass = closing ? 'gain' : 'loss';
+          trendText = `${closing ? '▼' : '▲'}${formatGap(Math.abs(delta))}s`;
+          li.classList.add(closing ? 'gain' : 'loss');
+        }
+      }
+      const trendHtml = trendText ? `<span class="trend ${trendClass}">${trendText}</span>` : '';
+      li.innerHTML = `
+        <span class="pos">${i + 1}</span>
+        <span class="driver"><strong style="color:${car.color}">#${car.racingNumber}</strong> ${car.driver}</span>
+        <span class="gap">${gapText}</span>
+        ${trendHtml}
+      `;
+      const info = document.createElement('span');
+      info.className = 'team';
+      const lapText = formatTime(car.lastLapTime);
+      if (i === 0 && lapText !== '--') {
+        info.textContent = `${car.team} • LL ${lapText}`;
+      } else {
+        info.textContent = car.team;
+      }
+      li.appendChild(info);
+      frag.appendChild(li);
+      nextGapHistory.set(car.id, rawGap);
+    }
+    leaderboardList.innerHTML = '';
+    leaderboardList.appendChild(frag);
+    leaderboardHud.classList.remove('hidden');
+    leaderboardGapHistory.clear();
+    nextGapHistory.forEach((value, key) => {
+      leaderboardGapHistory.set(key, value);
+    });
   }
 
   function sortByRacePosition(a, b) {
@@ -2146,11 +2861,13 @@
     telemetryList.innerHTML = '';
     if (!Array.isArray(order) || order.length === 0) {
       lapInfoLabel.textContent = `Runde: 1 / ${totalLaps}`;
-      raceTimeLabel.textContent = `Rennzeit: ${raceTime.toFixed(1)} s`;
+      raceTimeLabel.textContent = `Rennzeit: ${getEffectiveRaceTime().toFixed(1)} s`;
       updateLeaderGap(order || []);
       updateFocusPanel(order || []);
+      updateCameraHud(order || []);
       return;
     }
+    applyCameraLogic(order);
     const leader = order[0];
     order.forEach((car, idx) => {
       const li = document.createElement('li');
@@ -2187,43 +2904,147 @@
       telemetryList.appendChild(li);
     });
     lapInfoLabel.textContent = `Runde: ${Math.min(leader.lap, totalLaps)} / ${totalLaps}`;
-    raceTimeLabel.textContent = `Rennzeit: ${raceTime.toFixed(1)} s`;
+    raceTimeLabel.textContent = `Rennzeit: ${getEffectiveRaceTime().toFixed(1)} s`;
     updateLeaderGap(order);
     lastTelemetryOrder = order.slice();
     updateFocusPanel(order);
+    updateCameraHud(order);
   }
 
   function updateLeaderGap(order) {
     if (!leaderGapHud) return;
-    if (!focusDriverId) {
+    const hideHud = () => {
       leaderGapHud.classList.add('hidden');
+      leaderGapHud.classList.remove('positive', 'negative', 'leader', 'tight');
+      if (leaderGapDelta) leaderGapDelta.textContent = '--';
+      if (leaderGapLabel) leaderGapLabel.textContent = 'Focus';
+      if (leaderGapFill) leaderGapFill.style.width = '0%';
+    };
+    if (!focusDriverId) {
+      hideHud();
       return;
     }
     if (!Array.isArray(order) || order.length === 0) {
-      leaderGapHud.classList.add('hidden');
+      hideHud();
       return;
     }
     const focusCar = order.find(car => car.id === focusDriverId);
     if (!focusCar) {
-      leaderGapHud.classList.add('hidden');
+      hideHud();
       return;
     }
     const position = order.indexOf(focusCar);
     if (position === -1) {
-      leaderGapHud.classList.add('hidden');
+      hideHud();
       return;
     }
     const leader = order[0];
-    leaderGapHud.classList.remove('hidden', 'positive', 'negative');
-    if (leader.id === focusCar.id) {
-      leaderGapHud.innerHTML = `<span class=\"label\">Focus</span><span class=\"delta\">P${position + 1} - Leader</span>`;
+    leaderGapHud.classList.remove('hidden', 'positive', 'negative', 'leader', 'tight');
+    const placeText = position === 0 ? 'Leader' : `P${position + 1}`;
+    if (leaderGapLabel) {
+      leaderGapLabel.textContent = `Focus ${placeText}`;
+    }
+    if (!leader || leader.id === focusCar.id) {
+      if (leaderGapDelta) leaderGapDelta.textContent = 'Im Lead';
+      leaderGapHud.classList.add('leader');
+      if (leaderGapFill) leaderGapFill.style.width = '100%';
       return;
     }
     const gap = computeTimeGap(leader, focusCar);
+    const absGap = Math.abs(gap);
     const cls = gap >= 0 ? 'positive' : 'negative';
     leaderGapHud.classList.add(cls);
-    leaderGapHud.innerHTML = `<span class=\"label\">Focus</span><span class=\"delta\">P${position + 1} +${formatGap(Math.abs(gap))}s</span>`;
+    if (leaderGapDelta) {
+      const gapText = formatGap(absGap);
+      leaderGapDelta.textContent = `${gap >= 0 ? '+' : '-'}${gapText}s zum Leader`;
+    }
+    if (leaderGapFill) {
+      const capped = Math.min(absGap, 8);
+      leaderGapFill.style.width = `${Math.round((capped / 8) * 100)}%`;
+    }
+    if (absGap <= 0.35) {
+      leaderGapHud.classList.add('tight');
+    }
   }
+  function getCameraModeLabel(mode) {
+    switch (mode) {
+      case 'leader':
+        return 'Leader Cam';
+      case 'battle':
+        return 'Battle Pack';
+      case 'manual':
+        return 'Manual Focus';
+      default:
+        return 'Broadcast Auto';
+    }
+  }
+
+  function applyCameraLogic(order) {
+    if (!Array.isArray(order) || order.length === 0) return;
+    const mode = uiSettings.cameraMode || 'auto';
+    const focusExists = focusDriverId && order.some(car => car.id === focusDriverId);
+    if (mode === 'manual') {
+      if (!focusExists) {
+        focusDriverId = order[0].id;
+      }
+      return;
+    }
+    if (mode === 'leader') {
+      focusDriverId = order[0].id;
+      return;
+    }
+    if (mode === 'battle') {
+      let candidate = order[0];
+      let smallestGap = Infinity;
+      for (let i = 1; i < order.length; i++) {
+        const gap = Math.abs(computeTimeGap(order[i - 1], order[i]));
+        if (gap < smallestGap) {
+          smallestGap = gap;
+          candidate = order[i];
+        }
+      }
+      focusDriverId = candidate?.id ?? order[0].id;
+      return;
+    }
+    let autoCandidate = null;
+    let tightestGap = Infinity;
+    const scanLength = Math.min(order.length, 8);
+    for (let i = 1; i < scanLength; i++) {
+      const gap = Math.abs(computeTimeGap(order[i - 1], order[i]));
+      if (gap < 1.2 && gap < tightestGap) {
+        tightestGap = gap;
+        autoCandidate = order[i];
+      }
+    }
+    const chosen = autoCandidate || order[0];
+    focusDriverId = chosen?.id ?? order[0].id;
+  }
+
+  function updateCameraHud(order) {
+    if (!cameraHud) return;
+    if (!Array.isArray(order) || order.length === 0) {
+      cameraHud.classList.add('hidden');
+      cameraHud.innerHTML = '';
+      return;
+    }
+    const mode = uiSettings.cameraMode || 'auto';
+    const label = getCameraModeLabel(mode);
+    let targetText = '--';
+    if (focusDriverId) {
+      const car = order.find(item => item.id === focusDriverId);
+      if (car) {
+        const pos = order.indexOf(car) + 1;
+        targetText = `P${pos} #${car.racingNumber} ${car.driver}`;
+      }
+    }
+    cameraHud.innerHTML = `<span class="mode">${label}</span><span class="target">${targetText}</span>`;
+    if (raceActive || racePhase === 'COUNTDOWN') {
+      cameraHud.classList.remove('hidden');
+    } else {
+      cameraHud.classList.add('hidden');
+    }
+  }
+
   function updateFocusPanel(order) {
     if (!focusDriverPanel || !focusDriverName || !focusDriverMeta || !focusDriverStats || !focusDriverTrend) {
       return;
@@ -2285,6 +3106,39 @@
   }
 
 
+  function formatPhaseLabel(phase) {
+    switch (phase) {
+      case 'GREEN':
+        return 'Green';
+      case 'YELLOW':
+        return 'Yellow';
+      case 'SAFETY':
+        return 'Safety';
+      case 'RESTART':
+        return 'Restart';
+      case 'COUNTDOWN':
+        return 'Countdown';
+      case 'FORMATION':
+        return 'Formation';
+      default:
+        return phase;
+    }
+  }
+
+  function summarizePhaseTimeline() {
+    if (!phaseTimeline.length) return '';
+    const segments = phaseTimeline
+      .filter(entry => entry && entry.phase && entry.phase !== 'IDLE' && entry.phase !== 'FINISHED')
+      .map(entry => {
+        const end = entry.end ?? raceTime;
+        const duration = Math.max(0, end - entry.start);
+        const label = formatPhaseLabel(entry.phase);
+        const note = entry.meta?.source ? ` (${entry.meta.source})` : '';
+        return `${label}${note}: ${duration.toFixed(1)}s`;
+      });
+    return segments.join(' | ');
+  }
+
   function formatResults(order) {
     if (!order.length) return '';
     const winner = order[0];
@@ -2313,7 +3167,11 @@
     }
     const pitCount = cars.filter(car => car.pitted).length;
     const incidentCount = raceControlEvents.filter(entry => entry.level === 'warn' || entry.level === 'alert').length;
-    text += `Boxenstopps: ${pitCount} | Gelb: ${phaseStats.yellow} | Safety: ${phaseStats.safety} | Restarts: ${phaseStats.restart}\n`;
+    text += `Boxenstopps: ${pitCount} | Formation: ${phaseStats.formation} | Gelb: ${phaseStats.yellow} | Safety: ${phaseStats.safety} | Restarts: ${phaseStats.restart}\n`;
+    const phaseSummary = summarizePhaseTimeline();
+    if (phaseSummary) {
+      text += `Phasen: ${phaseSummary}\n`;
+    }
     text += `Race-Control Warnungen: ${incidentCount}`;
     return text;
   }
@@ -2404,6 +3262,10 @@
   }
 
   function startRace() {
+    hidePodiumOverlay(true);
+    clearReplayData();
+    recordingReplay = true;
+    replaySpeed = parseFloat(replaySpeedSelect?.value || '1') || 1;
     if (countdownTimer) {
       clearInterval(countdownTimer);
       countdownTimer = null;
@@ -2417,7 +3279,13 @@
     raceActive = false;
     isPaused = false;
     raceTime = 0;
+    raceClockOffset = 0;
+    raceClockArmed = false;
+    formationActive = false;
+    focusDriverId = null;
     lastFrame = performance.now();
+    phaseTimeline.length = 0;
+    flowAudit.length = 0;
     lapRecords.fastestLap = { time: Infinity, driver: null, team: null, number: null };
     lapRecords.bestSectors = [
       { time: Infinity, driver: null, team: null, number: null },
@@ -2428,13 +3296,16 @@
     updateSectorWidget();
     updateFastestLapLabel();
     leaderGapHud?.classList.add('hidden');
+    if (leaderGapFill) leaderGapFill.style.width = '0%';
+    if (leaderGapHud) leaderGapHud.classList.remove('leader', 'positive', 'negative', 'tight');
     highlightTicker.textContent = '';
+    resetLiveTicker();
+    updateLeaderboardHud([]);
     resultsLabel.textContent = '';
     replayRaceBtn.style.display = 'none';
     if (nextRaceBtn) nextRaceBtn.style.display = 'none';
-    startRaceBtn.disabled = true;
-    pauseRaceBtn.disabled = true;
-    pauseRaceBtn.textContent = 'Pause';
+    setStartButtonState(false);
+    setPauseButtonState(false, 'Pause');
     racePhaseMeta = {};
     resetRaceControlLog();
     const track = trackCatalog[currentTrackType] || trackCatalog.oval;
@@ -2447,14 +3318,20 @@
     phaseStats.yellow = 0;
     phaseStats.safety = 0;
     phaseStats.restart = 0;
+    phaseStats.formation = 0;
+    leaderboardGapHistory.clear();
+    startProcedureMode = startProc?.value || startProcedureMode || 'standing';
+    auditRaceFlow('start', { mode: currentMode, track: currentTrackType, laps: totalLaps });
     createField();
-    applyGridPositions(startProc?.value || 'standing');
+    prepareReplayMeta();
+    applyGridPositions(startProcedureMode);
     rebuildMini();
     setRacePhase('COUNTDOWN');
     top3Banner.classList.remove('hidden');
     top3Banner.textContent = '';
     logRaceControl('Grid formiert – Countdown gestartet', 'info');
     lastTelemetryOrder = cars.slice().sort(sortByRacePosition);
+    captureReplayFrame(lastTelemetryOrder, 0.016, 'COUNTDOWN');
     updateFocusPanel(lastTelemetryOrder);
     showGridIntro(cars);
   }
@@ -2464,16 +3341,18 @@
     if (!isPaused) {
       isPaused = true;
       raceActive = false;
-      pauseRaceBtn.textContent = 'Fortsetzen';
+      setPauseButtonState(true, 'Fortsetzen');
       sessionInfo.textContent = 'Pause';
       sessionInfo.classList.remove('hidden');
       logRaceControl('Rennen pausiert', 'info');
+      auditRaceFlow('pause', { paused: true });
     } else {
       isPaused = false;
       raceActive = true;
-      pauseRaceBtn.textContent = 'Pause';
+      setPauseButtonState(true, 'Pause');
       sessionInfo.classList.add('hidden');
       logRaceControl('Rennen fortgesetzt', 'info');
+      auditRaceFlow('pause', { paused: false });
       requestAnimationFrame(time => {
         lastFrame = time;
         requestAnimationFrame(gameLoop);
@@ -2489,13 +3368,23 @@
 
     tickPhase();
 
-    const leader = cars.slice().sort(sortByRacePosition).find(car => !car.finished) || cars[0] || null;
+    const snapshotOrder = cars.slice().sort(sortByRacePosition);
+    cautionOrderMap.clear();
+    for (let i = 1; i < snapshotOrder.length; i++) {
+      const car = snapshotOrder[i];
+      const ahead = snapshotOrder[i - 1];
+      if (car && ahead) {
+        cautionOrderMap.set(car.id, ahead);
+      }
+    }
+    const leader = snapshotOrder.find(car => !car.finished) || snapshotOrder[0] || null;
     cars.forEach(car => car.update(dt, leader));
 
-    drawScene();
     const orderAfter = cars.slice().sort(sortByRacePosition);
+    drawScene(orderAfter);
     updateTelemetry(orderAfter);
     updateSessionInfo();
+    captureReplayFrame(orderAfter, dt);
 
     if (cars.every(car => car.finished)) {
       finishRace();
@@ -2509,36 +3398,43 @@
     hideGridIntro();
     raceActive = false;
     isPaused = false;
+    formationActive = false;
     setRacePhase('FINISHED');
+    finalizePhaseTimeline(raceTime);
     updateFlag();
     updateSessionInfo();
-    pauseRaceBtn.textContent = 'Pause';
-    pauseRaceBtn.disabled = true;
-    startRaceBtn.disabled = false;
+    resetRaceControls();
     if (countdownTimer) {
       clearInterval(countdownTimer);
       countdownTimer = null;
     }
     const order = cars.slice().sort(sortByRacePosition);
+    if (recordingReplay) {
+      captureReplayFrame(order, 0.033, 'FINISHED');
+      recordingReplay = false;
+    }
+    replayTotalDuration = replayBuffer.length ? replayBuffer[replayBuffer.length - 1].time : raceTime;
+    replayCursor = replayBuffer.length ? replayBuffer.length - 1 : 0;
+    replayAppliedIndex = -1;
+    updateReplayUi();
     recordRaceHistory(order);
     resultsLabel.textContent = formatResults(order);
     replayRaceBtn.style.display = 'inline-block';
-    if (gpActive) {
+    replayRaceBtn.textContent = 'Replay ansehen';
+    if (currentMode === 'gp' && gpActive) {
       gpAccumulate(order);
       gpRaceIndex += 1;
-      gpActive = gpRaceIndex < GP_RACES;
       gpSave();
-      let text = `${resultsLabel.textContent}\n\n${gpStandingsText()}`;
-      if (gpActive) {
-        const upcomingTrackId = gpTrackRotation[gpRaceIndex % gpTrackRotation.length];
-        const upcomingLabel = trackCatalog[upcomingTrackId]?.label || upcomingTrackId;
-        text += `\n\nNächstes Rennen: ${upcomingLabel} (Rennen ${gpRaceIndex + 1}/${GP_RACES})`;
-        if (nextRaceBtn) nextRaceBtn.style.display = 'inline-block';
+      let text = resultsLabel.textContent;
+      text += gpStandingsText();
+      if (gpRaceIndex < GP_RACES) {
+        nextRaceBtn.style.display = 'inline-block';
       } else {
-        text += '\n\nGP abgeschlossen.';
-        if (nextRaceBtn) nextRaceBtn.style.display = 'none';
+        gpActive = false;
+        text += '\nGP abgeschlossen.';
+        gpSave();
       }
-      resultsLabel.textContent = text.trim();
+      resultsLabel.textContent = text;
     }
     if (currentMode === 'manager') {
       applyManagerRewards(order);
@@ -2547,22 +3443,17 @@
       settleBet(order);
     }
     leaderGapHud?.classList.add('hidden');
+    updateCameraHud([]);
     lastTelemetryOrder = order;
     updateFocusPanel(order);
+    updateLeaderboardHud(order);
+    showPodium(order);
     logRaceControl('Rennen beendet – Ergebnisse verfügbar', 'success');
-  }
-
-  function syncRaceSetupForTrack(trackId) {
-    if (!trackId) return;
-    currentTrackType = trackId;
-    if (trackTypeSelect) {
-      trackTypeSelect.value = currentTrackType;
-    }
-    raceSettings.track = currentTrackType;
-    persistRaceSettings();
-    updateActiveTrackTraits();
-    rebuildMini();
-    refreshOddsTable();
+    auditRaceFlow('finish', {
+      winner: order[0]?.driver || null,
+      duration: Number(raceTime.toFixed(2)),
+      mode: currentMode
+    });
   }
 
   function gpReset() {
@@ -2570,7 +3461,7 @@
     gpRaceIndex = 0;
     gpTable.clear();
     gpSave();
-    syncRaceSetupForTrack(gpTrackRotation[0]);
+    prepareGrandPrixRound();
   }
 
   function gpAccumulate(order) {
@@ -2585,84 +3476,11 @@
 
   function gpStandingsText() {
     const arr = Array.from(gpTable.values()).sort((a, b) => b.points - a.points);
-    const completedRaces = Math.min(gpRaceIndex, GP_RACES);
-    const heading = gpRaceIndex >= GP_RACES && arr.length
-      ? `GP Endstand (${GP_RACES} Rennen):`
-      : `GP Zwischenstand nach Rennen ${completedRaces}/${GP_RACES}:`;
-    let text = `${heading}\n`;
+    let text = `\nGP Zwischenstand nach Rennen ${gpRaceIndex}/${GP_RACES}:\n`;
     arr.slice(0, 10).forEach((entry, idx) => {
       text += `${idx + 1}. #${entry.number} ${entry.driver} (${entry.team}) – ${entry.points} P\n`;
     });
-    return text.trimEnd();
-  }
-
-  function formatGpStatusText() {
-    const entryCount = gpTable.size;
-    const hasProgress = entryCount > 0 && gpRaceIndex < GP_RACES;
-    const isFinished = entryCount > 0 && gpRaceIndex >= GP_RACES;
-    if (isFinished) {
-      return `${gpStandingsText()}\nGP abgeschlossen.`.trim();
-    }
-    if (hasProgress) {
-      const upcomingTrackId = gpTrackRotation[gpRaceIndex % gpTrackRotation.length];
-      const upcomingLabel = trackCatalog[upcomingTrackId]?.label || upcomingTrackId;
-      return `${gpStandingsText()}\nNächstes Rennen: ${upcomingLabel} (Rennen ${gpRaceIndex + 1}/${GP_RACES})`.trim();
-    }
-    const firstTrackId = gpTrackRotation[0];
-    const firstLabel = trackCatalog[firstTrackId]?.label || firstTrackId;
-    return `Grand Prix vorbereitet – Auftakt auf ${firstLabel}.`;
-  }
-
-  function prepareGpLobbyState({ fromResume = false } = {}) {
-    hideGridIntro();
-    if (countdownTimer) {
-      clearInterval(countdownTimer);
-      countdownTimer = null;
-    }
-    countdownRunning = false;
-    raceActive = false;
-    isPaused = false;
-    setRacePhase('IDLE');
-    if (sessionInfo) {
-      sessionInfo.classList.add('hidden');
-      sessionInfo.textContent = '';
-    }
-    if (pauseRaceBtn) {
-      pauseRaceBtn.textContent = 'Pause';
-      pauseRaceBtn.disabled = true;
-    }
-    if (startRaceBtn) {
-      startRaceBtn.disabled = false;
-    }
-    if (replayRaceBtn) {
-      replayRaceBtn.style.display = 'none';
-    }
-    leaderGapHud?.classList.add('hidden');
-    if (highlightTicker) {
-      highlightTicker.textContent = '';
-    }
-    if (top3Banner) {
-      top3Banner.textContent = '';
-      top3Banner.classList.add('hidden');
-    }
-    resetRaceControlLog();
-    const trackIndex = gpRaceIndex < GP_RACES ? gpRaceIndex : GP_RACES - 1;
-    const trackId = gpTrackRotation[trackIndex % gpTrackRotation.length];
-    syncRaceSetupForTrack(trackId);
-    if (resultsLabel) {
-      resultsLabel.textContent = formatGpStatusText();
-    }
-    if (nextRaceBtn) {
-      if (gpRaceIndex > 0 && gpRaceIndex < GP_RACES && gpTable.size > 0) {
-        nextRaceBtn.style.display = 'inline-block';
-      } else {
-        nextRaceBtn.style.display = 'none';
-      }
-    }
-    gpActive = gpRaceIndex < GP_RACES && (gpTable.size > 0 || gpRaceIndex === 0);
-    if (fromResume && gpRaceIndex >= GP_RACES) {
-      gpActive = false;
-    }
+    return text;
   }
 
   function gpSave() {
@@ -2679,11 +3497,10 @@
       const raw = localStorage.getItem(STORAGE_KEYS.gp);
       if (!raw) return;
       const obj = JSON.parse(raw);
-      gpRaceIndex = Math.min(Math.max(obj.gpRaceIndex || 0, 0), GP_RACES);
+      gpRaceIndex = obj.gpRaceIndex || 0;
       gpTable.clear();
       (obj.data || []).forEach(([key, value]) => gpTable.set(key, value));
-      const hasEntries = gpTable.size > 0;
-      gpActive = gpRaceIndex < GP_RACES && hasEntries;
+      gpActive = gpRaceIndex > 0 && gpRaceIndex < GP_RACES;
     } catch (err) {
       console.warn('gp load failed', err);
     }
@@ -3256,31 +4073,37 @@
     showScreen(raceScreen);
   });
 
+  function prepareGrandPrixRound() {
+    const trackId = gpTrackRotation[gpRaceIndex % gpTrackRotation.length] || gpTrackRotation[0];
+    currentTrackType = trackId;
+    if (trackTypeSelect) {
+      trackTypeSelect.value = trackId;
+    }
+    raceSettings.track = trackId;
+    persistRaceSettings();
+    updateActiveTrackTraits();
+    rebuildMini();
+    refreshOddsTable();
+  }
+
   grandPrixBtn?.addEventListener('click', () => {
     currentMode = 'gp';
-    const hasEntries = gpTable.size > 0;
-    const canResume = hasEntries && gpRaceIndex < GP_RACES;
-    const finished = hasEntries && gpRaceIndex >= GP_RACES;
-    if (canResume || finished) {
-      prepareGpLobbyState({ fromResume: true });
+    const hasProgress = gpActive && gpRaceIndex > 0 && gpRaceIndex < GP_RACES && gpTable.size > 0;
+    if (hasProgress) {
+      const resume = window.confirm(
+        `Ein Grand Prix läuft noch. Weiter mit Rennen ${gpRaceIndex + 1}?\n` +
+          '„Abbrechen“ startet stattdessen eine neue Serie.'
+      );
+      if (!resume) {
+        gpReset();
+      }
     } else {
       gpReset();
-      prepareGpLobbyState();
     }
-    showScreen(raceScreen);
-  });
-
-  resetGpBtn?.addEventListener('click', () => {
-    const hasEntries = gpTable.size > 0;
-    if (hasEntries) {
-      const confirmReset = confirm('Aktuellen Grand Prix wirklich zurücksetzen? Fortschritt geht verloren.');
-      if (!confirmReset) {
-        return;
-      }
+    if (!gpActive) {
+      gpActive = true;
     }
-    currentMode = 'gp';
-    gpReset();
-    prepareGpLobbyState();
+    prepareGrandPrixRound();
     showScreen(raceScreen);
   });
 
@@ -3412,6 +4235,10 @@
     raceActive = false;
     isPaused = false;
     countdownRunning = false;
+    recordingReplay = false;
+    formationActive = false;
+    raceClockArmed = false;
+    raceClockOffset = 0;
     hideGridIntro();
     if (countdownTimer) {
       clearInterval(countdownTimer);
@@ -3419,14 +4246,22 @@
     }
     setRacePhase('IDLE');
     top3Banner.textContent = '';
-    pauseRaceBtn.textContent = 'Pause';
-    pauseRaceBtn.disabled = true;
-    startRaceBtn.disabled = false;
+    resetRaceControls();
     resultsLabel.textContent = '';
     leaderGapHud?.classList.add('hidden');
+    updateCameraHud([]);
+    updateLeaderboardHud([]);
+    leaderboardGapHistory.clear();
+    resetLiveTicker();
     resetRaceControlLog();
+    hidePodiumOverlay(true);
+    clearReplayData();
     showScreen(mainMenu);
     currentMode = 'quick';
+    finalizePhaseTimeline(raceTime);
+    auditRaceFlow('exit', { via: 'menu', raceTime: Number(raceTime.toFixed(2)) });
+    phaseTimeline.length = 0;
+    flowAudit.length = 0;
   });
 
   backToMenuFromTeams?.addEventListener('click', () => showScreen(mainMenu));
@@ -3440,29 +4275,80 @@
     if (!item?.dataset?.carId) return;
     focusDriverId = parseInt(item.dataset.carId, 10);
     if (Number.isNaN(focusDriverId)) return;
+    if (uiSettings.cameraMode !== 'manual') {
+      uiSettings.cameraMode = 'manual';
+      if (cameraSetting) {
+        cameraSetting.value = 'manual';
+      }
+      persistUiSettings();
+    }
     updateLeaderGap(lastTelemetryOrder);
     updateFocusPanel(lastTelemetryOrder);
-  });
+    updateCameraHud(lastTelemetryOrder);
 
   gridIntroDismiss?.addEventListener('click', () => beginRaceCountdown());
 
   startRaceBtn?.addEventListener('click', () => startRace());
   pauseRaceBtn?.addEventListener('click', pauseToggle);
   replayRaceBtn?.addEventListener('click', () => {
-    alert('Replay folgt in einer späteren Version.');
+    beginReplaySession();
+  });
+  replayPlayPauseBtn?.addEventListener('click', () => {
+    if (!replayActive) {
+      beginReplaySession();
+      return;
+    }
+    setReplayPlaying(!replayPlaying);
+  });
+  replayScrubber?.addEventListener('input', () => {
+    if (!replayBuffer.length) return;
+    const idx = parseInt(replayScrubber.value || '0', 10);
+    setReplayPlaying(false);
+    applyReplayFrame(Number.isNaN(idx) ? 0 : idx, false);
+  });
+  replaySpeedSelect?.addEventListener('change', () => {
+    const value = parseFloat(replaySpeedSelect.value || '1');
+    replaySpeed = Number.isFinite(value) && value > 0 ? value : 1;
+    if (replayPlaying) {
+      replayLastTimestamp = 0;
+    }
+  });
+  podiumCloseBtn?.addEventListener('click', () => {
+    hidePodiumOverlay(true);
   });
   nextRaceBtn?.addEventListener('click', () => {
     nextRaceBtn.style.display = 'none';
-    const nextTrack = gpTrackRotation[gpRaceIndex % gpTrackRotation.length];
-    currentTrackType = nextTrack;
-    if (trackTypeSelect) trackTypeSelect.value = currentTrackType;
-    raceSettings.track = currentTrackType;
-    persistRaceSettings();
-    updateActiveTrackTraits();
-    rebuildMini();
-    refreshOddsTable();
+    prepareGrandPrixRound();
     startRace();
   });
+
+  if (typeof window !== 'undefined') {
+    window.spacerxDiagnostics = {
+      getPhaseTimeline: () => phaseTimeline.map(entry => {
+        const startValue = entry.start ?? 0;
+        const endValue = entry.end;
+        const durationValue = entry.duration;
+        return {
+          phase: entry.phase,
+          start: Number(startValue.toFixed(3)),
+          end: endValue != null ? Number(endValue.toFixed(3)) : null,
+          duration: durationValue != null ? Number(durationValue.toFixed(3)) : null,
+          meta: entry.meta || null
+        };
+      }),
+      getFlowAudit: () => flowAudit.map(item => ({
+        event: item.event,
+        phase: item.phase,
+        raceTime: item.raceTime,
+        timestamp: item.timestamp,
+        details: item.details || null
+      })),
+      reset: () => {
+        phaseTimeline.length = 0;
+        flowAudit.length = 0;
+      }
+    };
+  }
 
   renderTeams();
   updateManagerView();
