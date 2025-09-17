@@ -3456,15 +3456,7 @@
     gpRaceIndex = 0;
     gpTable.clear();
     gpSave();
-    currentTrackType = gpTrackRotation[0];
-    if (trackTypeSelect) {
-      trackTypeSelect.value = currentTrackType;
-    }
-    raceSettings.track = currentTrackType;
-    persistRaceSettings();
-    updateActiveTrackTraits();
-    rebuildMini();
-    refreshOddsTable();
+    prepareGrandPrixRound();
   }
 
   function gpAccumulate(order) {
@@ -4076,9 +4068,37 @@
     showScreen(raceScreen);
   });
 
+  function prepareGrandPrixRound() {
+    const trackId = gpTrackRotation[gpRaceIndex % gpTrackRotation.length] || gpTrackRotation[0];
+    currentTrackType = trackId;
+    if (trackTypeSelect) {
+      trackTypeSelect.value = trackId;
+    }
+    raceSettings.track = trackId;
+    persistRaceSettings();
+    updateActiveTrackTraits();
+    rebuildMini();
+    refreshOddsTable();
+  }
+
   grandPrixBtn?.addEventListener('click', () => {
     currentMode = 'gp';
-    gpReset();
+    const hasProgress = gpActive && gpRaceIndex > 0 && gpRaceIndex < GP_RACES && gpTable.size > 0;
+    if (hasProgress) {
+      const resume = window.confirm(
+        `Ein Grand Prix läuft noch. Weiter mit Rennen ${gpRaceIndex + 1}?\n` +
+          '„Abbrechen“ startet stattdessen eine neue Serie.'
+      );
+      if (!resume) {
+        gpReset();
+      }
+    } else {
+      gpReset();
+    }
+    if (!gpActive) {
+      gpActive = true;
+    }
+    prepareGrandPrixRound();
     showScreen(raceScreen);
   });
 
@@ -4294,14 +4314,7 @@
   });
   nextRaceBtn?.addEventListener('click', () => {
     nextRaceBtn.style.display = 'none';
-    const nextTrack = gpTrackRotation[gpRaceIndex % gpTrackRotation.length];
-    currentTrackType = nextTrack;
-    if (trackTypeSelect) trackTypeSelect.value = currentTrackType;
-    raceSettings.track = currentTrackType;
-    persistRaceSettings();
-    updateActiveTrackTraits();
-    rebuildMini();
-    refreshOddsTable();
+    prepareGrandPrixRound();
     startRace();
   });
 
