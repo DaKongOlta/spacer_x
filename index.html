@@ -8,14 +8,35 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header><h1>SPACER‑X</h1></header>
+  <header>
+    <img src="assets/spacerx_logo.svg" alt="SPACER‑X" class="logoMark">
+    <h1>SPACER‑X</h1>
+    <p class="tagline">Neo‑Noir Broadcast Racing Suite</p>
+  </header>
   <main>
     <!-- Hauptmenü -->
     <section id="mainMenu" class="screen active menu">
-      <button id="newRaceBtn">Schnelles Rennen</button>
-      <button id="grandPrixBtn">Grand Prix (5 Rennen)</button>
-      <button id="teamsBtn">Teams &amp; Fahrer</button>
-      <button id="settingsBtn">Einstellungen</button>
+      <div class="menuHero">
+        <div class="heroOverlay"></div>
+        <div class="heroContent">
+          <h2>Cinematic Spacer Racing</h2>
+          <p>Erlebe dynamische TV‑Overlays, Manager‑Strategie und Wetten in einem modularen Rennkontrollzentrum.</p>
+          <div class="heroMeta">
+            <span>5 Spielmodi</span>
+            <span>24 Fahrer</span>
+            <span>14 Strecken</span>
+          </div>
+        </div>
+      </div>
+      <div class="menuActions">
+        <button id="newRaceBtn" class="primary">Schnelles Rennen</button>
+        <button id="grandPrixBtn">Grand Prix (5 Rennen)</button>
+        <button id="managerBtn">Team Karriere</button>
+        <button id="bettingBtn">Race Betting Challenge</button>
+        <button id="teamsBtn">Teams &amp; Fahrer</button>
+        <button id="codexBtn">Codex &amp; Archiv</button>
+        <button id="settingsBtn">Einstellungen</button>
+      </div>
     </section>
 
     <!-- Rennbildschirm -->
@@ -25,7 +46,22 @@
           <canvas id="raceCanvas" width="900" height="600"></canvas>
           <canvas id="miniMapCanvas" width="200" height="140" class="minimap"></canvas>
           <div id="raceFlag" class="flag hidden">GREEN FLAG</div>
+          <div id="sessionInfo" class="sessionBanner hidden"></div>
+          <div id="leaderGapHud" class="gapHud hidden"></div>
           <div id="top3Banner" class="top3 hidden"></div>
+          <div id="gridIntro" class="gridIntro hidden" aria-hidden="true">
+            <div class="gridIntroCard">
+              <header class="gridIntroHeader">
+                <div class="title">Grid Briefing</div>
+                <div id="gridIntroMeta" class="meta"></div>
+              </header>
+              <ol id="gridIntroList" class="gridIntroList"></ol>
+              <footer class="gridIntroFooter">
+                <button id="gridIntroDismiss" type="button">Countdown starten</button>
+                <div class="autoHint">Auto-Start in <span id="gridIntroTimer">4</span>s</div>
+              </footer>
+            </div>
+          </div>
           <div id="highlightTicker" class="ticker"></div>
         </div>
         <aside class="sidebar">
@@ -41,12 +77,38 @@
               <select id="startProc">
                 <option value="standing">Standing</option>
                 <option value="staggered">Staggered</option>
+                <option value="rolling">Rolling</option>
               </select>
             </label>
+          </div>
+          <div id="eventBriefing" class="eventBriefing">
+            <div class="eventHeader">
+              <span id="eventTrackLabel" class="trackLabel">Orbital Oval</span>
+              <span id="eventWeatherLabel" class="weatherTag">Klar</span>
+            </div>
+            <div id="eventWeatherDesc" class="eventWeatherDesc">Trockene Strecke, Höchsttempo möglich.</div>
+            <div id="eventTraitSummary" class="eventTraits"></div>
           </div>
           <div class="telemetry">
             <div class="statsRow"><span id="lapInfoLabel">Runde:</span><span id="raceTimeLabel">Rennzeit:</span></div>
             <ul id="telemetryList"></ul>
+          </div>
+          <div id="focusDriverPanel" class="focusPanel inactive">
+            <div class="focusHeader">
+              <span id="focusDriverName">Fahrer auswählen</span>
+              <span id="focusDriverTrend" class="trend neutral">--</span>
+            </div>
+            <div id="focusDriverMeta" class="focusMeta">Wähle einen Fahrer aus der Übersicht, um Detaildaten zu sehen.</div>
+            <div id="focusDriverStats" class="focusStats"></div>
+          </div>
+          <div class="splitsPanel">
+            <div class="splitsHeader">Splits &amp; Highlights</div>
+            <ul id="sectorWidget" class="sectorWidget"></ul>
+            <div id="fastestLapLabel" class="fastestLap"></div>
+          </div>
+          <div id="raceControlPanel" class="raceControlPanel">
+            <div class="rcHeader">Race Control</div>
+            <ul id="raceControlLog" class="raceControlLog"></ul>
           </div>
           <div class="controls">
             <button id="startRaceBtn">Rennen starten</button>
@@ -67,6 +129,97 @@
       <button id="backToMenuFromTeams">Zum Hauptmenü</button>
     </section>
 
+    <section id="managerScreen" class="screen">
+      <h2>Team Karriere</h2>
+      <p class="managerIntro">Verwalte Budget, Vertragslaufzeiten und Upgrades über eine ganze Saison. Simuliere Wochen, beobachte den Transfermarkt und bereite automatisch den nächsten Lauf vor.</p>
+      <div class="managerLayout">
+        <aside class="managerSidebar">
+          <label>Team auswählen:
+            <select id="managerTeamSelect"></select>
+          </label>
+          <div class="managerInfo">
+            <div>Saison: <span id="managerSeasonLabel"></span></div>
+            <div>Woche: <span id="managerWeekLabel"></span></div>
+            <div>Budget: <strong id="managerBudget"></strong></div>
+            <div>Chassis: <span id="managerChassisLabel"></span></div>
+            <div>Nächster Lauf: <span id="managerNextTrack"></span></div>
+          </div>
+          <div class="upgradeControls">
+            <button data-upgrade="engine">Motor &amp; Power (+)</button>
+            <button data-upgrade="aero">Aero &amp; Balance (+)</button>
+            <button data-upgrade="systems">Systeme &amp; Reliability (+)</button>
+          </div>
+          <div class="managerPersistence">
+            <button id="managerSaveBtn">Speichern</button>
+            <button id="managerExportBtn">Export JSON</button>
+            <label class="importLabel">Import JSON<input type="file" id="managerImportInput" accept="application/json"></label>
+          </div>
+        </aside>
+        <div class="managerDetail">
+          <h3>Fahrer &amp; Verträge</h3>
+          <div id="contractList" class="contractList"></div>
+          <h3>Upgrade Status</h3>
+          <div id="upgradeStatus" class="upgradeStatus"></div>
+          <h3>Transfermarkt</h3>
+          <div id="freeAgentList" class="freeAgentList"></div>
+          <div class="managerActions">
+            <button id="advanceManagerWeekBtn">Nächste Woche simulieren</button>
+          </div>
+          <div id="managerNotice" class="managerNotice"></div>
+          <button id="managerStartRaceBtn" class="primary">Team-Rennen starten</button>
+        </div>
+      </div>
+      <button id="backToMenuFromManager">Zum Hauptmenü</button>
+    </section>
+
+    <section id="bettingScreen" class="screen">
+      <h2>Race Betting Challenge</h2>
+      <p class="bettingIntro">Setze Credits auf deinen Favoriten. Gewinne werden nach dem Rennen automatisch ausgezahlt.</p>
+      <div class="bettingLayout">
+        <div class="bettingPanel">
+          <div class="betBalance">Credits: <strong id="betBalance"></strong></div>
+          <label>Fahrer:
+            <select id="betDriverSelect"></select>
+          </label>
+          <label>Einsatz:
+            <input type="number" id="betAmount" min="10" step="10" value="50">
+          </label>
+          <button id="placeBetBtn">Wette platzieren</button>
+          <div id="betSlip" class="betSlip"></div>
+          <button id="betStartRaceBtn" class="primary">Wetten &amp; Rennen starten</button>
+        </div>
+        <div class="oddsBoard">
+          <h3>Quotenübersicht</h3>
+          <table id="oddsTable">
+            <thead><tr><th>Fahrer</th><th>Team</th><th>Quote</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div id="betHistory" class="betHistory"></div>
+        </div>
+      </div>
+      <button id="backToMenuFromBetting">Zum Hauptmenü</button>
+    </section>
+
+    <section id="codexScreen" class="screen">
+      <h2>Codex &amp; Archiv</h2>
+      <p class="codexIntro">Hintergrundberichte, Team-Lore und ein wachsendes Rennarchiv für alle Spacer‑X Saisons.</p>
+      <div class="codexLayout">
+        <article class="codexColumn">
+          <h3>Weltenatlas &amp; Strecken</h3>
+          <div id="loreEntries" class="loreEntries"></div>
+          <h3>Teams &amp; Chassis</h3>
+          <div id="codexGarage" class="codexGarage"></div>
+        </article>
+        <aside class="codexColumn archive">
+          <h3>Rennarchiv</h3>
+          <div id="raceArchive" class="raceArchive"></div>
+          <h3>Hall of Fame</h3>
+          <div id="hallOfFame" class="hallOfFame"></div>
+        </aside>
+      </div>
+      <button id="backToMenuFromCodex">Zum Hauptmenü</button>
+    </section>
+
     <!-- Einstellungen -->
     <section id="settingsScreen" class="screen">
       <h2>Einstellungen</h2>
@@ -81,6 +234,25 @@
           <option value="oval" selected>Oval</option>
           <option value="wavy">Wavy Oval</option>
           <option value="fig8">Figure Eight</option>
+          <option value="canyon">Canyon Switchback</option>
+          <option value="delta">Delta Spiral</option>
+          <option value="aurora">Aurora Loop</option>
+          <option value="zenith">Zenith Horizon</option>
+          <option value="mirage">Mirage Hyperloop</option>
+          <option value="nebula">Nebula Nexus</option>
+          <option value="solstice">Solstice Ridge</option>
+          <option value="helix">Helix Spires</option>
+          <option value="atlas">Atlas Skyway</option>
+          <option value="fracture">Fracture Belt</option>
+          <option value="lumen">Lumen Cascades</option>
+        </select>
+      </p>
+      <p>Wetter:
+        <select id="weatherSetting">
+          <option value="clear" selected>Klar</option>
+          <option value="overcast">Bewölkt</option>
+          <option value="storm">Sturmregen</option>
+          <option value="night">Nachtrennen</option>
         </select>
       </p>
       <p>Runden:
@@ -90,6 +262,12 @@
           <option value="25">25</option>
         </select>
       </p>
+      <div class="hudSettings">
+        <h3>HUD &amp; Broadcast</h3>
+        <label><input type="checkbox" id="toggleRaceControl" checked> Race-Control Protokoll</label>
+        <label><input type="checkbox" id="toggleFocusPanel" checked> Fahrerfokus</label>
+        <label><input type="checkbox" id="toggleMiniMap" checked> Mini-Map</label>
+      </div>
       <button id="backToMenuFromSettings">Zum Hauptmenü</button>
     </section>
   </main>

@@ -1,5 +1,5 @@
 # SPACER‑X (Playable Prototype)
-Futuristisches Top‑Down‑Racing mit TV‑UI, 3 Strecken (Oval, Wavy, Figure Eight), Grand‑Prix‑Modus (5 Rennen), Flags (Green/Yellow/Safety), Mini‑Map, Top‑3‑Banner, Ticker, Persistenz (localStorage).
+Futuristisches Top‑Down‑Racing mit TV‑UI, 14 Strecken (u. a. Atlas Skyway, Fracture Belt, Lumen Cascades), Grand‑Prix‑Modus (5 Rennen), Flags (Green/Yellow/Safety), Mini‑Map, Grid-Briefing-Overlay sowie persistente Profile und Rennarchiv (localStorage).
 
 ## Quickstart
 1. ZIP entpacken
@@ -16,6 +16,9 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 3 Strecken (Oval, Wavy, Figure E
 - Keine Tastatureingaben erforderlich
 
 ## Features (Stand)
-- 3 Tracks; TV‑UI (Top‑3, Ticker, Mini‑Map); Grand Prix (5 Rennen, Punkte, localStorage)
-- Flags: Green/Yellow/Safety + Field‑Bunching + Restart
-- 20 Fahrer (Teams/Farben, Fahrerpool, Startnummern)
+- 14 Tracks inklusive Atlas Skyway, Fracture Belt und Lumen Cascades; TV‑UI (Top‑3, Ticker, Mini‑Map) & Grid-Briefing; Grand Prix (5 Rennen, Punkte, localStorage)
+- Flags: Green/Yellow/Safety + Field‑Bunching + Restart + detaillierte Rennzusammenfassung (Fastest Lap, Sektor-Rekorde, Phasen)
+- 24 Fahrer inklusive Free-Agent-Pool, Manager-Transfermarkt und teambezogenen Chassis-Profilen mit zufällig gerollten Fahrzeug-Stats
+- Manager-Modus mit Wochen-Simulation, Vertragsverwaltung, Upgrades, Export/Import (JSON) sowie persistenter Chassis-Anzeige
+- Dynamische Wetterprofile (klar/bewölkt/sturm/nacht) mit Event-Briefing, sendefähigem HUD und gespeicherten Rennen-Settings
+- Codex & Archiv: Lore-Einträge, Team-Garage, Hall-of-Fame und automatisches Rennarchiv mit Schnellzugriff auf Siege & Fastest Laps
