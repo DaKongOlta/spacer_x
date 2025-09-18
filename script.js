@@ -115,7 +115,7 @@
       steps: [
         { label: 'Leaderboard mit Gap-Trend & Leader-Halo', done: true },
         { label: 'Sektor-Gates & Splits mit PB/FL', done: true },
-        { label: 'Incident/Overtake Banner Queue', done: false }
+        { label: 'Incident/Overtake Banner Queue', done: true }
       ]
     },
     {
@@ -1057,10 +1057,87 @@
     }
   }
 
+  function clearHighlightTickerClasses() {
+    if (!highlightTicker) return;
+    highlightTickerToneClasses.forEach(cls => highlightTicker.classList.remove(cls));
+  }
+
+  function resetHighlightTicker() {
+    if (!highlightTicker) return;
+    highlightTickerQueue.length = 0;
+    highlightTickerActive = null;
+    if (highlightTickerTimer) {
+      clearTimeout(highlightTickerTimer);
+      highlightTickerTimer = null;
+    }
+    highlightTicker.classList.remove('visible');
+    clearHighlightTickerClasses();
+    highlightTicker.textContent = '';
+  }
+
+  function queueHighlightTicker(tag, message, tone = 'info') {
+    if (!highlightTicker || !message) return;
+    const toneClassMap = {
+      info: 'tone-info',
+      yellow: 'tone-yellow',
+      sc: 'tone-sc',
+      pb: 'tone-pb',
+      fl: 'tone-fl',
+      finish: 'tone-finish',
+      warn: 'tone-warn'
+    };
+    const toneClass = toneClassMap[tone] || toneClassMap.info;
+    const duration = Math.max(2600, Math.min(7000, 2200 + message.length * 35));
+    highlightTickerQueue.push({ tag, message, toneClass, duration });
+    if (!highlightTickerActive) {
+      showNextHighlightTicker();
+    }
+  }
+
+  function showNextHighlightTicker() {
+    if (!highlightTicker || highlightTickerActive) return;
+    const next = highlightTickerQueue.shift();
+    if (!next) return;
+    highlightTickerActive = next;
+    highlightTicker.textContent = `${next.tag} ${next.message}`;
+    clearHighlightTickerClasses();
+    if (next.toneClass) {
+      highlightTicker.classList.add(next.toneClass);
+    }
+    highlightTicker.classList.add('visible');
+    if (highlightTickerTimer) {
+      clearTimeout(highlightTickerTimer);
+    }
+    highlightTickerTimer = setTimeout(() => {
+      hideHighlightTicker();
+    }, next.duration);
+  }
+
+  function hideHighlightTicker() {
+    if (!highlightTicker) return;
+    highlightTicker.classList.remove('visible');
+    if (highlightTickerTimer) {
+      clearTimeout(highlightTickerTimer);
+      highlightTickerTimer = null;
+    }
+    highlightTickerActive = null;
+    if (highlightTickerQueue.length > 0) {
+      setTimeout(() => {
+        if (!highlightTickerActive) {
+          showNextHighlightTicker();
+        }
+      }, 180);
+    } else {
+      clearHighlightTickerClasses();
+      highlightTicker.textContent = '';
+    }
+  }
+
   function resetRaceControls() {
     resetStartLights();
     resetMarshalOverlay();
     resetEventBanner();
+    resetHighlightTicker();
     setPauseButtonState(false, 'Pause');
     setStartButtonState(true, 'Rennen starten');
     restartHoldUntil = 0;
@@ -1857,8 +1934,12 @@
   const phaseStats = { yellow: 0, safety: 0, restart: 0, formation: 0 };
   const phaseTimeline = [];
   const eventBannerQueue = [];
+  const highlightTickerQueue = [];
+  const highlightTickerToneClasses = ['tone-info', 'tone-yellow', 'tone-sc', 'tone-pb', 'tone-fl', 'tone-finish', 'tone-warn'];
   let eventBannerActive = null;
   let eventBannerTimer = null;
+  let highlightTickerActive = null;
+  let highlightTickerTimer = null;
   const flowAudit = [];
   const leaderboardGapHistory = new Map();
   let settingsNoticeTimer = null;
@@ -3856,10 +3937,9 @@
     else if (type === 'pb') tag = '⏱️';
     else if (type === 'fl') tag = '🔥';
     else if (type === 'info') tag = 'ℹ️';
-    if (highlightTicker) {
-      highlightTicker.textContent = `${tag} ${msg}`;
-    }
+    else if (type === 'warn') tag = '⚠️';
     const entryType = type || 'info';
+    queueHighlightTicker(tag, msg, entryType);
     liveTickerEvents.unshift({ message: msg, type: entryType, stamp: formatTickerStamp() });
     if (liveTickerEvents.length > 12) {
       liveTickerEvents.pop();
@@ -5415,7 +5495,7 @@
     leaderGapHud?.classList.add('hidden');
     if (leaderGapFill) leaderGapFill.style.width = '0%';
     if (leaderGapHud) leaderGapHud.classList.remove('leader', 'positive', 'negative', 'tight');
-    highlightTicker.textContent = '';
+    resetHighlightTicker();
     resetLiveTicker();
     updateLeaderboardHud([]);
     resultsLabel.textContent = '';

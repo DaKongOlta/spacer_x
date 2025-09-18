@@ -207,7 +207,15 @@ button.secondary:disabled:hover{background:#0d1524}
 #podiumCloseBtn:hover{background:#7dd3fc}
 .podiumOverlay.celebrate #podiumCloseBtn{box-shadow:0 0 0 1px rgba(56,189,248,.35),0 10px 18px -12px rgba(56,189,248,.8)}
 .podiumOverlay.celebrate #podiumCloseBtn:hover{box-shadow:0 0 0 1px rgba(125,211,252,.55),0 12px 24px -14px rgba(125,211,252,.9)}
-.ticker{position:absolute;left:0;bottom:0;width:100%;padding:6px 10px;background:#070b13d0;border-top:1px solid #1e293b;font-size:12px;white-space:nowrap;overflow:hidden}
+.ticker{position:absolute;left:0;bottom:0;width:100%;padding:6px 10px;background:#070b13d0;border-top:1px solid #1e293b;font-size:12px;white-space:nowrap;overflow:hidden;color:#e2e8f0;opacity:0;transition:opacity .25s ease}
+.ticker.visible{opacity:1}
+.ticker.tone-info{color:#cbd5f5}
+.ticker.tone-yellow{color:#facc15}
+.ticker.tone-sc{color:#7dd3fc}
+.ticker.tone-pb{color:#4ade80}
+.ticker.tone-fl{color:#fb7185}
+.ticker.tone-finish{color:#bae6fd}
+.ticker.tone-warn{color:#f97316}
 .sidebar{display:flex;flex-direction:column;gap:10px}
 .optionsRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0}
 .eventBriefing{background:#0d1524;border:1px solid #1e293b;border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;min-height:88px}
