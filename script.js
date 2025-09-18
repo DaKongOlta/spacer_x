@@ -3283,6 +3283,9 @@
   }
 
   function startRace() {
+    if (currentMode === 'gp' && gpActive && gpRaceIndex < GP_RACES) {
+      prepareGrandPrixRound();
+    }
     hidePodiumOverlay(true);
     clearReplayData();
     recordingReplay = true;
