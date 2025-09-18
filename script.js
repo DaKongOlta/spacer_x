@@ -580,6 +580,7 @@
       showRaceControl: true,
       showFocusPanel: true,
       showTicker: true,
+      skipBroadcastIntro: false,
       enableAudio: true,
       cameraMode: 'auto',
       racePace: 'normal',
@@ -595,6 +596,7 @@
       showRaceControl: data.showRaceControl !== false,
       showFocusPanel: data.showFocusPanel !== false,
       showTicker: data.showTicker !== false,
+      skipBroadcastIntro: data.skipBroadcastIntro === true,
       enableAudio: data.enableAudio !== false,
       cameraMode: cameraModes.has(data.cameraMode) ? data.cameraMode : defaults.cameraMode,
       racePace: paceModes.has(data.racePace) ? data.racePace : defaults.racePace,
@@ -1735,6 +1737,7 @@
   const toggleRaceControl = document.getElementById('toggleRaceControl');
   const toggleFocusPanel = document.getElementById('toggleFocusPanel');
   const toggleMiniMap = document.getElementById('toggleMiniMap');
+  const toggleBroadcastIntro = document.getElementById('toggleBroadcastIntro');
   const toggleTicker = document.getElementById('toggleTicker');
   const toggleAudio = document.getElementById('toggleAudio');
   const cameraSetting = document.getElementById('cameraSetting');
@@ -1868,6 +1871,11 @@
     uiSettings.showTicker = !!toggleTicker.checked;
     applyUiSettings();
     persistUiSettings();
+  });
+  toggleBroadcastIntro?.addEventListener('change', () => {
+    uiSettings.skipBroadcastIntro = !!toggleBroadcastIntro.checked;
+    persistUiSettings();
+    showSettingsNotice(uiSettings.skipBroadcastIntro ? 'Broadcast-Intro wird übersprungen.' : 'Broadcast-Intro aktiv.', 'info');
   });
   toggleAudio?.addEventListener('change', () => {
     uiSettings.enableAudio = !!toggleAudio.checked;
@@ -2954,6 +2962,11 @@
 
   function showBroadcastIntro(cars, track, weatherProfile, onComplete) {
     cancelBroadcastIntro();
+    if (uiSettings?.skipBroadcastIntro) {
+      logRaceControl('Broadcast-Intro übersprungen (Einstellung).', 'info');
+      if (typeof onComplete === 'function') onComplete();
+      return;
+    }
     if (!Array.isArray(cars) || cars.length === 0) {
       if (typeof onComplete === 'function') onComplete();
       return;
@@ -3155,6 +3168,7 @@
       showRaceControl: true,
       showFocusPanel: true,
       showTicker: true,
+      skipBroadcastIntro: false,
       enableAudio: true,
       cameraMode: 'auto',
       racePace: 'normal',
@@ -3173,6 +3187,7 @@
         showRaceControl: parsed.showRaceControl !== false,
         showFocusPanel: parsed.showFocusPanel !== false,
         showTicker: parsed.showTicker !== false,
+        skipBroadcastIntro: parsed.skipBroadcastIntro === true,
         enableAudio: parsed.enableAudio !== false,
         cameraMode: cameraModes.has(parsed.cameraMode) ? parsed.cameraMode : defaults.cameraMode,
         racePace: paceModes.has(parsed.racePace) ? parsed.racePace : defaults.racePace,
@@ -3268,6 +3283,9 @@
     }
     if (toggleTicker) {
       toggleTicker.checked = uiSettings.showTicker !== false;
+    }
+    if (toggleBroadcastIntro) {
+      toggleBroadcastIntro.checked = uiSettings.skipBroadcastIntro === true;
     }
     if (toggleAudio) {
       toggleAudio.checked = uiSettings.enableAudio !== false;

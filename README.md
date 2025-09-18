@@ -41,6 +41,7 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 18 Strecken (u. a. Atlas Skywa
 - Incident-/Overtake-Banner-Queue blendet zweizeilige TV-Callouts für Flaggen, Safety-Car-Deployments und Überholmanöver ein
 - Mini-Map mit markierten Sektoren, Leader-Halo und Fokus-Ring für klarere TV-Analyse
 - Einstellbare HUD- und Audio-Optionen (Ticker, Race-Control, Fokus, Mini-Map, Broadcast-Sounds) werden pro Profil gespeichert
+- Skip-Toggle für das Broadcast-Intro erlaubt sofortigen Sprung ins Grid Briefing
 - Anpassbare Simulationsparameter: Renn-Tempo (Entspannt/Standard/Intensiv) und Caution-Regelwerk (Locker/Standard/Strikt) steuern
   Pace, Bunching-Aggressivität und Überholverbots-Kontrollen
 - Codex & Archiv: Lore-Einträge, Fahrer-Persönlichkeiten, Team-Garage, Hall-of-Fame und automatisches Rennarchiv mit Schnellzugriff auf Siege & Fastest Laps
