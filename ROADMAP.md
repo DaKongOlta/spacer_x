@@ -5,6 +5,7 @@
 - ✅ Restart-Hold mit Give-Back-Audits & Race-Control-Logging
 - ✅ State-Machine GREEN → YELLOW → SC → RESTART → GREEN
 - ✅ Bunching-Tuning & automatische Release-Trigger
+- ✅ Sim-Tuning: Renn-Tempo & Caution-Striktheit als Spielereinstellungen
 
 ## P2 — TV & Broadcast (⚙️ In Arbeit)
 - ✅ Permanent Leaderboard mit Gap-Trend & Leader-Halo

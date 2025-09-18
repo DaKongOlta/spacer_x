@@ -339,6 +339,10 @@ button.primary:hover{background:#0f4c63}
 .hudSettings h3{margin:0;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:#38bdf8}
 .hudSettings label{font-size:12px;display:flex;align-items:center;gap:6px}
 .hudSettings input{accent-color:#38bdf8}
+.simSettings{margin:18px 0;display:flex;flex-direction:column;gap:10px;background:#0b1322;border:1px solid #1b2738;border-radius:12px;padding:12px}
+.simSettings h3{margin:0;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:#38bdf8}
+.simSettings label{font-size:12px;display:flex;flex-direction:column;gap:6px;color:#e2e8f0}
+.simSettings select{background:#111a2a;border:1px solid #1f2937;border-radius:8px;padding:6px 8px;color:#e2e8f0;font-size:12px}
 .dataSettings{margin:20px 0 10px;display:flex;flex-direction:column;gap:10px;background:#0d1524;border:1px solid #1e293b;border-radius:12px;padding:12px}
 .dataSettings h3{margin:0;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:#38bdf8}
 .saveActions{display:flex;flex-wrap:wrap;gap:10px}

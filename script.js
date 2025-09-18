@@ -581,10 +581,14 @@
       showFocusPanel: true,
       showTicker: true,
       enableAudio: true,
-      cameraMode: 'auto'
+      cameraMode: 'auto',
+      racePace: 'normal',
+      cautionStrictness: 'standard'
     };
     if (!data || typeof data !== 'object') return { ...defaults };
     const cameraModes = new Set(['auto', 'leader', 'battle', 'manual']);
+    const paceModes = new Set(['slow', 'normal', 'fast']);
+    const cautionModes = new Set(['relaxed', 'standard', 'strict']);
     return {
       zoom: data.zoom === 'off' ? 'off' : 'on',
       showMiniMap: data.showMiniMap !== false,
@@ -592,7 +596,9 @@
       showFocusPanel: data.showFocusPanel !== false,
       showTicker: data.showTicker !== false,
       enableAudio: data.enableAudio !== false,
-      cameraMode: cameraModes.has(data.cameraMode) ? data.cameraMode : defaults.cameraMode
+      cameraMode: cameraModes.has(data.cameraMode) ? data.cameraMode : defaults.cameraMode,
+      racePace: paceModes.has(data.racePace) ? data.racePace : defaults.racePace,
+      cautionStrictness: cautionModes.has(data.cautionStrictness) ? data.cautionStrictness : defaults.cautionStrictness
     };
   }
 
@@ -1732,6 +1738,8 @@
   const toggleTicker = document.getElementById('toggleTicker');
   const toggleAudio = document.getElementById('toggleAudio');
   const cameraSetting = document.getElementById('cameraSetting');
+  const racePaceSetting = document.getElementById('racePaceSetting');
+  const cautionSetting = document.getElementById('cautionSetting');
   const eventBriefing = document.getElementById('eventBriefing');
   const eventTrackLabel = document.getElementById('eventTrackLabel');
   const eventWeatherLabel = document.getElementById('eventWeatherLabel');
@@ -1885,6 +1893,21 @@
     updateFocusPanel(lastTelemetryOrder);
     updateCameraHud(lastTelemetryOrder);
   });
+  racePaceSetting?.addEventListener('change', () => {
+    const allowed = ['slow', 'normal', 'fast'];
+    const value = allowed.includes(racePaceSetting.value) ? racePaceSetting.value : 'normal';
+    uiSettings.racePace = value;
+    persistUiSettings();
+    showSettingsNotice(`Renn-Tempo: ${racePaceSetting.options[racePaceSetting.selectedIndex]?.textContent || ''}`, 'info');
+  });
+  cautionSetting?.addEventListener('change', () => {
+    const allowed = ['relaxed', 'standard', 'strict'];
+    const value = allowed.includes(cautionSetting.value) ? cautionSetting.value : 'standard';
+    uiSettings.cautionStrictness = value;
+    persistUiSettings();
+    clearCautionSnapshot();
+    showSettingsNotice('Caution-Regelwerk aktualisiert.', 'info');
+  });
 
   const MAX_REPLAY_FRAMES = 60 * 60 * 6;
   const cars = [];
@@ -2010,10 +2033,16 @@
   const BUNCHING_MIN_TARGET = 0.14;
   const BUNCHING_MAX_TARGET = 0.52;
   const BUNCHING_AGGRESSION = 0.22;
+  const RACE_PACE_PRESETS = { slow: 0.9, normal: 1, fast: 1.15 };
+  const CAUTION_STRICTNESS_PRESETS = {
+    relaxed: { targetScale: 1.12, restartScale: 0.9, safetyScale: 1.12, formationScale: 0.95, aggressionOffset: -0.07, graceMs: 1400 },
+    standard: { targetScale: 1, restartScale: 0.82, safetyScale: 1.05, formationScale: 0.9, aggressionOffset: 0, graceMs: 900 },
+    strict: { targetScale: 0.9, restartScale: 0.78, safetyScale: 1.02, formationScale: 0.85, aggressionOffset: 0.08, graceMs: 600 }
+  };
   let cautionOrderSnapshot = null;
   const cautionPenaltyMemo = new Map();
   const cautionTargets = new Map();
-  const DEFAULT_CAUTION_TARGET = {
+  const BASE_CAUTION_TARGET = {
     YELLOW: 0.26,
     SAFETY: 0.32,
     RESTART: 0.18,
@@ -2027,6 +2056,47 @@
   let startLightsActiveTotal = 5;
   let startLightClearTimer = null;
   let audioCtx = null;
+
+  function getRacePaceMultiplier() {
+    const preset = RACE_PACE_PRESETS[uiSettings.racePace] ?? RACE_PACE_PRESETS.normal;
+    return typeof preset === 'number' && !Number.isNaN(preset) ? preset : 1;
+  }
+
+  function getCautionTuning() {
+    const preset = CAUTION_STRICTNESS_PRESETS[uiSettings.cautionStrictness] || CAUTION_STRICTNESS_PRESETS.standard;
+    return preset || CAUTION_STRICTNESS_PRESETS.standard;
+  }
+
+  function getCautionTargetForPhase(phase = racePhase) {
+    const tuning = getCautionTuning();
+    const base = BASE_CAUTION_TARGET[phase] ?? BASE_CAUTION_TARGET.YELLOW;
+    let scaled = base * (tuning.targetScale || 1);
+    if (phase === 'RESTART') {
+      scaled *= tuning.restartScale || 1;
+    } else if (phase === 'SAFETY') {
+      scaled *= tuning.safetyScale || 1;
+    } else if (phase === 'FORMATION') {
+      scaled *= tuning.formationScale || 1;
+    }
+    return clamp(scaled, BUNCHING_MIN_TARGET, BUNCHING_MAX_TARGET);
+  }
+
+  function getBunchingAggression(phase = racePhase) {
+    const tuning = getCautionTuning();
+    const base = Math.max(0.05, (BUNCHING_AGGRESSION + (tuning.aggressionOffset || 0)));
+    if (phase === 'RESTART') {
+      return base + 0.08;
+    }
+    if (phase === 'SAFETY') {
+      return Math.max(0.05, base - 0.04);
+    }
+    return base;
+  }
+
+  function getCautionGracePeriod() {
+    const tuning = getCautionTuning();
+    return Math.max(250, tuning.graceMs || 900);
+  }
 
   const trackCenter = { x: canvas.width / 2, y: canvas.height / 2 };
   const baseRadiusX = canvas.width * 0.35;
@@ -3033,9 +3103,13 @@
       showFocusPanel: true,
       showTicker: true,
       enableAudio: true,
-      cameraMode: 'auto'
+      cameraMode: 'auto',
+      racePace: 'normal',
+      cautionStrictness: 'standard'
     };
     const cameraModes = new Set(['auto', 'leader', 'battle', 'manual']);
+    const paceModes = new Set(['slow', 'normal', 'fast']);
+    const cautionModes = new Set(['relaxed', 'standard', 'strict']);
     try {
       const raw = localStorage.getItem(STORAGE_KEYS.ui);
       if (!raw) return { ...defaults };
@@ -3047,7 +3121,9 @@
         showFocusPanel: parsed.showFocusPanel !== false,
         showTicker: parsed.showTicker !== false,
         enableAudio: parsed.enableAudio !== false,
-        cameraMode: cameraModes.has(parsed.cameraMode) ? parsed.cameraMode : defaults.cameraMode
+        cameraMode: cameraModes.has(parsed.cameraMode) ? parsed.cameraMode : defaults.cameraMode,
+        racePace: paceModes.has(parsed.racePace) ? parsed.racePace : defaults.racePace,
+        cautionStrictness: cautionModes.has(parsed.cautionStrictness) ? parsed.cautionStrictness : defaults.cautionStrictness
       };
     } catch (err) {
       console.warn('ui settings load failed', err);
@@ -3119,6 +3195,14 @@
     if (cameraSetting) {
       const allowed = ['auto', 'leader', 'battle', 'manual'];
       cameraSetting.value = allowed.includes(uiSettings.cameraMode) ? uiSettings.cameraMode : 'auto';
+    }
+    if (racePaceSetting) {
+      const allowedPace = ['slow', 'normal', 'fast'];
+      racePaceSetting.value = allowedPace.includes(uiSettings.racePace) ? uiSettings.racePace : 'normal';
+    }
+    if (cautionSetting) {
+      const allowedCaution = ['relaxed', 'standard', 'strict'];
+      cautionSetting.value = allowedCaution.includes(uiSettings.cautionStrictness) ? uiSettings.cautionStrictness : 'standard';
     }
     if (toggleMiniMap) {
       toggleMiniMap.checked = uiSettings.showMiniMap !== false;
@@ -3414,17 +3498,13 @@
           const gap = computeAngularGap(reference, this);
           let target = cautionTargets.get(this.id);
           if (typeof target !== 'number' || Number.isNaN(target)) {
-            target = DEFAULT_CAUTION_TARGET[racePhase] ?? DEFAULT_CAUTION_TARGET.YELLOW;
+            target = getCautionTargetForPhase(racePhase);
           }
           target = clamp(target, BUNCHING_MIN_TARGET, BUNCHING_MAX_TARGET);
           const overshoot = gap - target;
           if (overshoot > 0.005) {
             const ratio = clamp(overshoot / Math.max(target, 0.01), 0.08, 2.8);
-            const aggression = racePhase === 'RESTART'
-              ? BUNCHING_AGGRESSION + 0.08
-              : racePhase === 'SAFETY'
-              ? Math.max(0.1, BUNCHING_AGGRESSION - 0.04)
-              : BUNCHING_AGGRESSION;
+            const aggression = getBunchingAggression(racePhase);
             speed *= 1 + ratio * aggression;
             speed += overshoot * 0.35;
           } else if (gap < target * 0.42) {
@@ -3730,23 +3810,24 @@
   }
 
   function getPhaseSpeedFactor() {
+    const pace = getRacePaceMultiplier();
     switch (racePhase) {
       case 'GREEN':
-        return isRestartHoldActive() ? 0.9 : 1;
+        return (isRestartHoldActive() ? 0.9 : 1) * pace;
       case 'YELLOW':
-        return 0.78;
+        return 0.78 * pace;
       case 'SAFETY':
-        return 0.55;
+        return 0.55 * pace;
       case 'RESTART':
-        return 0.82;
+        return 0.82 * pace;
       case 'FORMATION':
-        return 0.6;
+        return 0.6 * pace;
       case 'COUNTDOWN':
       case 'FINISHED':
       case 'IDLE':
         return 0;
       default:
-        return 1;
+        return 1 * pace;
     }
   }
 
@@ -3809,13 +3890,14 @@
       segments += 1;
     }
     const average = segments > 0 ? measured / segments : theoretical;
-    let baseTarget = clamp(average * BUNCHING_TARGET_FACTOR, BUNCHING_MIN_TARGET, BUNCHING_MAX_TARGET);
+    const tuning = getCautionTuning();
+    let baseTarget = average * BUNCHING_TARGET_FACTOR * (tuning.targetScale || 1);
     if (racePhase === 'RESTART') {
-      baseTarget *= 0.82;
+      baseTarget *= tuning.restartScale || 1;
     } else if (racePhase === 'SAFETY') {
-      baseTarget *= 1.05;
+      baseTarget *= tuning.safetyScale || 1;
     } else if (racePhase === 'FORMATION') {
-      baseTarget *= 0.9;
+      baseTarget *= tuning.formationScale || 1;
     }
     baseTarget = clamp(baseTarget, BUNCHING_MIN_TARGET, BUNCHING_MAX_TARGET);
     for (let idx = 1; idx < active.length; idx++) {
@@ -3876,22 +3958,32 @@
       snapshotCautionOrder();
       if (!cautionOrderSnapshot) return;
     }
+    const now = Date.now();
+    const grace = getCautionGracePeriod();
     for (let idx = 0; idx < order.length; idx++) {
       const car = order[idx];
       if (!car || car.finished) continue;
       const baseline = cautionOrderSnapshot.get(car.id);
       if (baseline == null) continue;
-      if (idx < baseline && !cautionPenaltyMemo.has(car.id)) {
+      if (idx < baseline) {
+        const firstFlagged = cautionPenaltyMemo.get(car.id);
+        if (firstFlagged == null) {
+          cautionPenaltyMemo.set(car.id, now);
+          continue;
+        }
+        if (now - firstFlagged < grace) {
+          continue;
+        }
         const ahead = idx > 0 ? order[idx - 1] : null;
         if (ahead && ahead !== car) {
           placeCarBehind(car, ahead);
-          cautionPenaltyMemo.set(car.id, Date.now());
+          cautionPenaltyMemo.delete(car.id);
           pushTicker(`#${car.racingNumber} gibt Position unter Gelb zurück`, 'yellow');
           logRaceControl(`#${car.racingNumber} ${car.driver}: Position unter Gelb zurückgegeben`, 'warn');
           snapshotCautionOrder();
           break;
         }
-      } else if (idx >= baseline) {
+      } else {
         cautionPenaltyMemo.delete(car.id);
       }
     }
