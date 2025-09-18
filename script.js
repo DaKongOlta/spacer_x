@@ -969,6 +969,10 @@
   const podiumList = document.getElementById('podiumList');
   const podiumCloseBtn = document.getElementById('podiumCloseBtn');
   let marshalHideTimer = null;
+  let titleThemeStarted = false;
+  let titleThemeArmed = false;
+  let titleThemeGain = null;
+  let titleThemeSources = [];
 
   function setStartButtonState(enabled, label = 'Rennen starten') {
     if (!startRaceBtn) return;
@@ -1176,6 +1180,148 @@
     if (!Ctor) return null;
     audioCtx = new Ctor();
     return audioCtx;
+  }
+
+  function stopTitleTheme(reset = false) {
+    if (!titleThemeGain || !audioCtx) {
+      if (reset) {
+        titleThemeStarted = false;
+        titleThemeGain = null;
+        titleThemeSources = [];
+      }
+      return;
+    }
+    const ctx = audioCtx;
+    const now = ctx.currentTime;
+    try {
+      titleThemeGain.gain.cancelScheduledValues(now);
+      titleThemeGain.gain.setValueAtTime(titleThemeGain.gain.value, now);
+      titleThemeGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
+    } catch (err) {
+      /* noop */
+    }
+    titleThemeSources.forEach(entry => {
+      if (!entry) return;
+      try {
+        entry.gain.gain.cancelScheduledValues(now);
+        entry.gain.gain.setValueAtTime(entry.gain.gain.value, now);
+        entry.gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+        entry.osc.stop(now + 0.3);
+      } catch (err) {
+        /* noop */
+      }
+    });
+    titleThemeSources = [];
+    window.setTimeout(() => {
+      try {
+        titleThemeGain.disconnect();
+      } catch (err) {
+        /* noop */
+      }
+      titleThemeGain = null;
+    }, 360);
+    titleThemeStarted = false;
+  }
+
+  function playTitleTheme() {
+    if (titleThemeStarted) return;
+    if (uiSettings && uiSettings.enableAudio === false) return;
+    const ctx = ensureAudioContext();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+    titleThemeStarted = true;
+    titleThemeArmed = false;
+    const master = ctx.createGain();
+    master.gain.value = 0.0001;
+    master.connect(ctx.destination);
+    titleThemeGain = master;
+    const now = ctx.currentTime + 0.08;
+    const notes = [
+      { freq: 220, duration: 0.42, gain: 0.16, type: 'sawtooth', offset: 0 },
+      { freq: 277, duration: 0.36, gain: 0.14, type: 'triangle', offset: 0.32 },
+      { freq: 330, duration: 0.36, gain: 0.14, type: 'sawtooth', offset: 0.64 },
+      { freq: 392, duration: 0.48, gain: 0.18, type: 'triangle', offset: 0.96 },
+      { freq: 523, duration: 0.5, gain: 0.18, type: 'square', offset: 1.32 },
+      { freq: 392, duration: 0.4, gain: 0.15, type: 'triangle', offset: 1.82 },
+      { freq: 440, duration: 0.5, gain: 0.16, type: 'sawtooth', offset: 2.14 },
+      { freq: 659, duration: 0.6, gain: 0.2, type: 'triangle', offset: 2.64 },
+      { freq: 523, duration: 0.6, gain: 0.18, type: 'sawtooth', offset: 3.24 },
+      { freq: 784, duration: 0.7, gain: 0.2, type: 'triangle', offset: 3.86 }
+    ];
+    const pad = ctx.createOscillator();
+    const padGain = ctx.createGain();
+    pad.type = 'sine';
+    pad.frequency.setValueAtTime(110, now - 0.02);
+    padGain.gain.setValueAtTime(0.0001, now - 0.05);
+    padGain.gain.linearRampToValueAtTime(0.08, now + 0.6);
+    padGain.gain.linearRampToValueAtTime(0.04, now + 4.6);
+    padGain.gain.linearRampToValueAtTime(0.0001, now + 5.4);
+    pad.connect(padGain);
+    padGain.connect(master);
+    pad.start(now - 0.05);
+    pad.stop(now + 5.6);
+    pad.onended = () => {
+      try {
+        padGain.disconnect();
+      } catch (err) {
+        /* noop */
+      }
+      titleThemeSources = titleThemeSources.filter(entry => entry.osc !== pad);
+    };
+    titleThemeSources.push({ osc: pad, gain: padGain });
+    notes.forEach(note => {
+      const osc = ctx.createOscillator();
+      osc.type = note.type || 'sawtooth';
+      const gainNode = ctx.createGain();
+      gainNode.gain.setValueAtTime(0.0001, now + note.offset);
+      gainNode.gain.linearRampToValueAtTime(note.gain, now + note.offset + 0.04);
+      gainNode.gain.linearRampToValueAtTime(0.0001, now + note.offset + note.duration);
+      osc.frequency.setValueAtTime(note.freq, now + note.offset);
+      osc.connect(gainNode);
+      gainNode.connect(master);
+      const stopAt = now + note.offset + note.duration + 0.08;
+      osc.start(now + note.offset);
+      osc.stop(stopAt);
+      titleThemeSources.push({ osc, gain: gainNode });
+      osc.onended = () => {
+        try {
+          gainNode.disconnect();
+        } catch (err) {
+          /* noop */
+        }
+        titleThemeSources = titleThemeSources.filter(entry => entry.osc !== osc);
+      };
+    });
+    master.gain.setValueAtTime(0.0001, now - 0.05);
+    master.gain.linearRampToValueAtTime(0.14, now + 0.5);
+    master.gain.linearRampToValueAtTime(0.08, now + 4.8);
+    master.gain.linearRampToValueAtTime(0.0001, now + 6.2);
+    window.setTimeout(() => {
+      if (titleThemeGain === master) {
+        try {
+          master.disconnect();
+        } catch (err) {
+          /* noop */
+        }
+        titleThemeGain = null;
+      }
+    }, 6400);
+  }
+
+  function armTitleThemeTrigger() {
+    if (titleThemeStarted || titleThemeArmed) return;
+    if (uiSettings && uiSettings.enableAudio === false) return;
+    titleThemeArmed = true;
+    const handler = () => {
+      document.removeEventListener('pointerdown', handler);
+      document.removeEventListener('keydown', handler);
+      titleThemeArmed = false;
+      playTitleTheme();
+    };
+    document.addEventListener('pointerdown', handler);
+    document.addEventListener('keydown', handler);
   }
 
   function warmupAudio() {
@@ -1630,6 +1776,7 @@
   const uiSettings = loadUiSettings();
   syncUiSettingControls();
   applyUiSettings();
+  armTitleThemeTrigger();
   resetLiveTicker();
   updateLeaderboardHud([]);
   resetRaceControls();
@@ -1719,8 +1866,10 @@
     persistUiSettings();
     if (uiSettings.enableAudio) {
       warmupAudio();
+      armTitleThemeTrigger();
       showSettingsNotice('Audio-Benachrichtigungen aktiv.', 'info');
     } else if (audioCtx && typeof audioCtx.suspend === 'function' && audioCtx.state !== 'closed') {
+      stopTitleTheme(true);
       audioCtx.suspend().catch(() => {});
       showSettingsNotice('Audio-Benachrichtigungen deaktiviert.', 'info');
     }
@@ -5923,6 +6072,11 @@
       if (el) el.classList.remove('active');
     });
     if (target) target.classList.add('active');
+    if (target === mainMenu) {
+      armTitleThemeTrigger();
+    } else {
+      stopTitleTheme();
+    }
     if (target === raceScreen && !raceActive && !countdownRunning) {
       resetRaceControls();
       updateEventBriefing();

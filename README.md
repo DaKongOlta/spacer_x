@@ -27,6 +27,7 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 16 Strecken (u. a. Atlas Skywa
 - Jump-Start-Detection für Standing/Staggered-Verfahren warnt Race Control & Ticker bei Frühstarts ohne das Rennen zu stoppen
 - Rolling-Start-Formation-Lap mit Countdown-Reintegration, dynamischem Race-Clock-Offset und Gap-Trends im Leaderboard
 - Startlicht-Sequenz mit Broadcast-Light-Overlay, Audio-Cues (Start, Green, Yellow, Safety) und TV-würdiger Countdown-Choreografie
+- Titelbildschirm-Jingle im Neo-Noir-Sounddesign, der nach der ersten Interaktion startet und beim Wechsel ins Spiel sauber ausfadet
 - Slime-Marshal-Overlay mit animierten Zielflaggen bringt das Maskottchen an die Startlinie und begleitet die Countdown-Signale
 - Broadcast-Newsdesk-Intro mit Strecken-Lore, Wetterbriefing und Pace-Favoriten vor jedem Rennstart
 - Strenge Gelb-/Safety-Car-Überwachung mit automatischer Positionsrückgabe bei Verstößen und verfeinertem Boxenstopp-Prozess
