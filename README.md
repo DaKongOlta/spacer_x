@@ -1,5 +1,5 @@
 # SPACER‑X (Playable Prototype)
-Futuristisches Top‑Down‑Racing mit TV‑UI, 16 Strecken (u. a. Atlas Skyway, Fracture Belt, Eclipse Citadel, Rift Meridian, Lumen Cascades), Grand‑Prix‑Modus (5 Rennen), Flags (Green/Yellow/Safety), Mini‑Map, Grid-Briefing-Overlay sowie persistente Profile und Rennarchiv (localStorage).
+Futuristisches Top‑Down‑Racing mit TV‑UI, 18 Strecken (u. a. Atlas Skyway, Glacier Traverse, Maelstrom Gauntlet, Fracture Belt, Eclipse Citadel, Rift Meridian, Lumen Cascades), Grand‑Prix‑Modus (5 Rennen), Flags (Green/Yellow/Safety), Mini‑Map, Grid-Briefing-Overlay sowie persistente Profile und Rennarchiv (localStorage).
 
 ## Quickstart
 1. ZIP entpacken
@@ -16,7 +16,7 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 16 Strecken (u. a. Atlas Skywa
 - Keine Tastatureingaben erforderlich
 
 ## Features (Stand)
-- 16 Tracks inklusive Atlas Skyway, Fracture Belt, Eclipse Citadel, Rift Meridian und Lumen Cascades; TV‑UI (Top‑3, Ticker, Mini‑Map) & Grid-Briefing; Grand Prix (5 Rennen, Punkte, localStorage)
+- 18 Tracks inklusive Glacier Traverse, Maelstrom Gauntlet, Atlas Skyway, Fracture Belt, Eclipse Citadel, Rift Meridian und Lumen Cascades; TV‑UI (Top‑3, Ticker, Mini‑Map) & Grid-Briefing; Grand Prix (5 Rennen, Punkte, localStorage)
 - Hauptmenü mit separatem „Neuer GP“ und „Fortsetzen“-Button samt Fortschrittsanzeige
 - Grand-Prix-Statuskarte im Hauptmenü mit Track-Vorschau, Wetterausblick und Top-3-Standing
 - Dynamische Broadcast-Kamera mit Auto-, Leader-, Battle- und Manual-Modus samt Overlay, Fokus-HUD und Speicherung der Präferenz
@@ -31,7 +31,7 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 16 Strecken (u. a. Atlas Skywa
 - Slime-Marshal-Overlay mit animierten Zielflaggen bringt das Maskottchen an die Startlinie und begleitet die Countdown-Signale
 - Broadcast-Newsdesk-Intro mit Strecken-Lore, Wetterbriefing und Pace-Favoriten vor jedem Rennstart
 - Strenge Gelb-/Safety-Car-Überwachung mit automatischer Positionsrückgabe bei Verstößen und verfeinertem Boxenstopp-Prozess
-- Cinematisches Hauptmenü mit Twitch-Mode- und Stream-Deck-Teaser samt Sprite-Showcase für neue Gleiter-Varianten
+- Cinematisches Hauptmenü mit Twitch-Mode- und Stream-Deck-Teaser, neuem Atrium-Backdrop und Sprite-Showcase für Gleiter- und Track-Poster-Assets
 - Neo-Noir-Backdrops rendern pro Strecke individuelle Skyline-Glows, Sternenfelder und Grid-Linien für mehr Retro-Atmosphäre
 - 24 Fahrer inklusive Free-Agent-Pool, Manager-Transfermarkt und teambezogenen Chassis-Profilen mit zufällig gerollten Fahrzeug-Stats
 - Manager-Modus mit Wochen-Simulation, Vertragsverwaltung, Upgrades, Export/Import (JSON) sowie persistenter Chassis-Anzeige

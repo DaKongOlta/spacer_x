@@ -282,7 +282,7 @@
     aero: 'Aero & Balance',
     systems: 'Systeme & Reliability'
   };
-  const managerCalendar = ['oval', 'aurora', 'delta', 'canyon', 'atlas', 'solstice', 'zenith', 'wavy', 'nebula', 'fig8', 'mirage', 'fracture', 'helix', 'lumen', 'eclipse', 'rift'];
+  const managerCalendar = ['oval', 'aurora', 'delta', 'canyon', 'atlas', 'solstice', 'zenith', 'wavy', 'nebula', 'fig8', 'mirage', 'fracture', 'helix', 'lumen', 'glacier', 'eclipse', 'maelstrom', 'rift'];
   const MANAGER_SEASON_LENGTH = managerCalendar.length;
 
   function clamp(value, min, max) {
@@ -571,7 +571,7 @@
     ]
   };
 
-  const gpTrackRotation = ['oval', 'atlas', 'eclipse', 'mirage', 'rift'];
+  const gpTrackRotation = ['oval', 'atlas', 'glacier', 'mirage', 'maelstrom', 'rift'];
 
   function sanitizeUiSnapshot(data) {
     const defaults = {
@@ -2540,6 +2540,32 @@
         };
       }
     },
+    glacier: {
+      label: 'Glacier Traverse',
+      theme: { background: '#050a15', asphalt: '#142032', lane: '#bfdbfe', accent: '#60a5fa' },
+      backdrop: buildBackdrop({
+        skyTop: '#0d1d33',
+        skyBottom: '#04070f',
+        horizon: '#13243a',
+        accent: '#60a5fa',
+        haze: 'rgba(96,165,250,0.16)',
+        stars: 88,
+        pulses: 4,
+        gridSpacing: 30
+      }),
+      traits: { straightBias: 0.92, cornerFocus: 1.2, surfaceGrip: 1.12, wearRate: 1.14, turbulence: 1.18 },
+      weatherBias: { clear: 0.24, overcast: 0.3, storm: 0.16, night: 0.3 },
+      lore: 'Eine Hochalpin-Traverse über eingefrorenen Antennenfeldern – eisiger Grip, kantige Chicanes und dünne Luft.',
+      geometry(t) {
+        const crest = 0.22 * Math.sin(2.1 * t);
+        const rx = baseRadiusX * (0.68 + 0.24 * Math.cos(3.2 * t + crest));
+        const ry = baseRadiusY * (0.76 + 0.26 * Math.sin(2.6 * t));
+        return {
+          x: trackCenter.x + rx * Math.sin(t + crest * 0.35),
+          y: trackCenter.y + ry * Math.cos(t)
+        };
+      }
+    },
     eclipse: {
       label: 'Eclipse Citadel',
       theme: { background: '#050915', asphalt: '#151f2d', lane: '#fca5a5', accent: '#f97316' },
@@ -2563,6 +2589,33 @@
         return {
           x: trackCenter.x + rx * Math.cos(t + crest * 0.35),
           y: trackCenter.y + ry * Math.sin(t)
+        };
+      }
+    },
+    maelstrom: {
+      label: 'Maelstrom Gauntlet',
+      theme: { background: '#080612', asphalt: '#1a1226', lane: '#fde047', accent: '#f472b6' },
+      backdrop: buildBackdrop({
+        skyTop: '#160f2c',
+        skyBottom: '#05030a',
+        horizon: '#221634',
+        accent: '#f472b6',
+        haze: 'rgba(244,114,182,0.18)',
+        stars: 118,
+        pulses: 6,
+        gridSpacing: 24
+      }),
+      traits: { straightBias: 1.08, cornerFocus: 0.98, surfaceGrip: 0.94, wearRate: 1.2, turbulence: 1.3 },
+      weatherBias: { clear: 0.32, overcast: 0.22, storm: 0.26, night: 0.2 },
+      lore: 'Ein Wirbelkanal über den Magnetmeeren von Carina – Turbo-Bursts wechseln mit Scherwinden und engen Underpass-Kurven.',
+      geometry(t) {
+        const surge = 0.26 * Math.sin(2.7 * t);
+        const rx = baseRadiusX * (0.82 + 0.18 * Math.sin(3.5 * t + surge));
+        const ry = baseRadiusY * (0.7 + 0.24 * Math.cos(2.9 * t));
+        const offset = 0.3 * Math.sin(t + surge);
+        return {
+          x: trackCenter.x + rx * Math.cos(t + offset * 0.35),
+          y: trackCenter.y + ry * Math.sin(t + surge * 0.25)
         };
       }
     },

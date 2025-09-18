@@ -22,7 +22,7 @@
 - ⏳ Bonus-Events, Multi-Bet-Queue & Wettarchiv pro Season
 
 ## P5 — Optik & Assets (🎨 Aufbau)
-- ✅ Neo-Noir Hero-Szene, SVG-Sprites für Chassis/Flags, Theme-Polish
+- ✅ Neo-Noir Hero-Szene, Track-Poster-SVGs & Chassis/Flag-Assets, Theme-Polish
 - ⚙️ Dynamische Track-Backdrops (Himmel, Haze, Parallax-Pulse)
 - ⏳ Sponsor-Pakete, Cinematic Camera Paths & Title Theme Layers
 

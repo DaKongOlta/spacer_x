@@ -15,8 +15,8 @@ button.secondary{background:#0d1524;color:#cbd5f5;border-color:#1f2937}
 button.secondary:hover{background:#152338}
 button.secondary:disabled{color:#64748b;border-color:#1f2937}
 button.secondary:disabled:hover{background:#0d1524}
-.menuHero{position:relative;width:100%;max-width:760px;min-height:180px;border-radius:18px;overflow:hidden;border:1px solid #1f2a37;background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 100%);box-shadow:0 18px 60px #0f172a80;display:flex;align-items:flex-end;margin-bottom:18px}
-.menuHero .heroOverlay{position:absolute;inset:0;background:radial-gradient(circle at 20% 20%,#38bdf820 0%,transparent 60%),radial-gradient(circle at 80% 0%,#34d39930 0%,transparent 55%);mix-blend-mode:screen}
+.menuHero{position:relative;width:100%;max-width:760px;min-height:180px;border-radius:18px;overflow:hidden;border:1px solid #1f2a37;background:#0f172a;background-image:linear-gradient(135deg,rgba(15,23,42,.85) 0%,rgba(30,58,138,.65) 60%,rgba(79,70,229,.55) 100%),url('assets/scenes/menu_atrium.svg');background-size:cover;background-position:center;box-shadow:0 18px 60px #0f172a80;display:flex;align-items:flex-end;margin-bottom:18px}
+.menuHero .heroOverlay{position:absolute;inset:0;background:radial-gradient(circle at 18% 24%,#38bdf840 0%,transparent 55%),radial-gradient(circle at 84% 10%,#f472b640 0%,transparent 58%),linear-gradient(160deg,rgba(8,11,19,.1) 0%,rgba(8,13,24,.6) 65%,rgba(3,6,12,.9) 100%);mix-blend-mode:screen}
 .menuHero .heroContent{position:relative;padding:24px 28px;display:flex;flex-direction:column;gap:10px}
 .menuHero h2{margin:0;font-family:'Orbitron',sans-serif;letter-spacing:.16em;text-transform:uppercase;font-size:20px;color:#e0f2fe}
 .menuHero p{margin:0;color:#cbd5f5;font-size:14px;max-width:480px}
@@ -52,8 +52,8 @@ button.secondary:disabled:hover{background:#0d1524}
 .integrationCard .status.upcoming{color:#facc15}
 .integrationCard .status.in-progress{color:#38bdf8}
 .integrationCard .status.active{color:#22c55e}
-.spriteShowcase{width:100%;max-width:900px;margin:6px auto 0;display:flex;justify-content:center}
-.spriteShowcase figure{margin:0;background:#050910;border:1px solid #1f2937;border-radius:18px;overflow:hidden;box-shadow:0 20px 50px -30px #000;display:flex;flex-direction:column;gap:8px}
+.spriteShowcase{width:100%;max-width:900px;margin:6px auto 0;display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
+.spriteShowcase figure{margin:0;background:#050910;border:1px solid #1f2937;border-radius:18px;overflow:hidden;box-shadow:0 20px 50px -30px #000;display:flex;flex-direction:column;gap:8px;max-width:420px}
 .spriteShowcase img{width:100%;height:auto;display:block}
 .spriteShowcase figcaption{padding:10px 14px;font-size:12px;color:#94a3b8;letter-spacing:.04em}
 .screen{display:none}

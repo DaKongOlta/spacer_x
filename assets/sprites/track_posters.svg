@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="360" viewBox="0 0 900 360" role="img" aria-labelledby="title desc">
+  <title id="title">Spacer-X Track Posters</title>
+  <desc id="desc">Poster-Designs für Glacier Traverse und Maelstrom Gauntlet.</desc>
+  <defs>
+    <linearGradient id="glacierSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="glacierGlow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0"/>
+      <stop offset="40%" stop-color="#60a5fa" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="maelstromSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1f0a2e"/>
+      <stop offset="100%" stop-color="#5b21b6"/>
+    </linearGradient>
+    <linearGradient id="maelstromGlow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f472b6" stop-opacity="0"/>
+      <stop offset="45%" stop-color="#f472b6" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#be123c" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(40 40)">
+    <rect width="360" height="280" rx="24" fill="url(#glacierSky)"/>
+    <rect width="360" height="280" rx="24" fill="url(#glacierGlow)" opacity="0.65"/>
+    <g fill="none" stroke="#bfdbfe" stroke-width="5" opacity="0.7">
+      <path d="M32 220 Q180 80 328 220"/>
+      <path d="M60 236 Q180 108 300 236"/>
+      <path d="M90 252 Q180 140 270 252"/>
+    </g>
+    <g fill="none" stroke="#60a5fa" stroke-width="2" opacity="0.8">
+      <path d="M32 192 Q180 52 328 192"/>
+      <path d="M60 208 Q180 84 300 208"/>
+    </g>
+    <text x="36" y="80" fill="#bfdbfe" font-family="Orbitron, sans-serif" font-size="32" letter-spacing="0.2em">GLACIER</text>
+    <text x="36" y="120" fill="#cbd5f5" font-family="Orbitron, sans-serif" font-size="22" letter-spacing="0.3em">TRAVERSE</text>
+  </g>
+  <g transform="translate(480 40)">
+    <rect width="360" height="280" rx="24" fill="url(#maelstromSky)"/>
+    <rect width="360" height="280" rx="24" fill="url(#maelstromGlow)" opacity="0.6"/>
+    <g fill="none" stroke="#fde047" stroke-width="4" opacity="0.75">
+      <path d="M36 90 Q180 60 324 90"/>
+      <path d="M36 130 Q180 100 324 130"/>
+      <path d="M36 170 Q180 140 324 170"/>
+    </g>
+    <g fill="none" stroke="#f472b6" stroke-width="3" opacity="0.65">
+      <path d="M60 210 Q180 170 300 210"/>
+      <path d="M80 240 Q180 200 280 240"/>
+    </g>
+    <text x="36" y="80" fill="#fde047" font-family="Orbitron, sans-serif" font-size="32" letter-spacing="0.18em">MAELSTROM</text>
+    <text x="36" y="120" fill="#f9a8d4" font-family="Orbitron, sans-serif" font-size="22" letter-spacing="0.3em">GAUNTLET</text>
+  </g>
+</svg>
