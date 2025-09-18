@@ -493,6 +493,13 @@
     managerState.freeAgents = Array.from(unique.values());
   }
 
+  function ensureStaffPool() {
+    if (!managerState) return;
+    if (!Array.isArray(managerState.staffFreeAgents)) {
+      managerState.staffFreeAgents = [];
+    }
+  }
+
   let managerState = loadManagerState();
   ensureFreeAgentPool();
   let focusTeam = managerState.selectedTeam;
@@ -6119,6 +6126,10 @@
     } else {
       showManagerNotice(summaryParts.join(' • '), expiredDrivers.length ? 'warn' : 'info');
     }
+    ensureFreeAgentPool();
+    ensureStaffPool();
+    persistManagerState();
+    updateManagerView();
   }
 
   function prepareManagerEvent() {
