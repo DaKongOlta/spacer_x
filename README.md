@@ -19,6 +19,7 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 18 Strecken (u. a. Atlas Skywa
 - 18 Tracks inklusive Glacier Traverse, Maelstrom Gauntlet, Atlas Skyway, Fracture Belt, Eclipse Citadel, Rift Meridian und Lumen Cascades; TV‑UI (Top‑3, Ticker, Mini‑Map) & Grid-Briefing; Grand Prix (5 Rennen, Punkte, localStorage)
 - Hauptmenü mit separatem „Neuer GP“ und „Fortsetzen“-Button samt Fortschrittsanzeige
 - Grand-Prix-Statuskarte im Hauptmenü mit Track-Vorschau, Wetterausblick und Top-3-Standing
+- Grand-Prix-Runden springen nach dem Zieleinlauf automatisch zum nächsten Track – Startbutton & Briefing zeigen sofort das folgende Event
 - Dynamische Broadcast-Kamera mit Auto-, Leader-, Battle- und Manual-Modus samt Overlay, Fokus-HUD und Speicherung der Präferenz
 - Flags: Green/Yellow/Safety + adaptive Field‑Bunching + Restart + detaillierte Rennzusammenfassung (Fastest Lap, Sektor-Rekorde, Phasen)
 - Dynamische Caution-Bunching-Logik hält den Pulk in Yellow/Safety-Phasen innerhalb des Zielabstands und beschleunigt Release-

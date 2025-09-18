@@ -5709,15 +5709,21 @@
     if (currentMode === 'gp' && gpActive) {
       gpAccumulate(order);
       gpRaceIndex += 1;
+      if (gpRaceIndex < GP_RACES) {
+        prepareGrandPrixRound();
+      }
       gpSave();
       let text = resultsLabel.textContent;
       text += gpStandingsText();
       if (gpRaceIndex < GP_RACES) {
+        const nextRaceNumber = Math.min(GP_RACES, gpRaceIndex + 1);
         nextRaceBtn.style.display = 'inline-block';
+        setStartButtonState(true, `Rennen ${nextRaceNumber} starten`);
       } else {
         gpActive = false;
         text += '\nGP abgeschlossen.';
         gpSave();
+        setStartButtonState(true, 'Rennen starten');
       }
       resultsLabel.textContent = text;
       updateGrandPrixMenuState();
@@ -6597,6 +6603,7 @@
     updateActiveTrackTraits();
     rebuildMini();
     refreshOddsTable();
+    updateEventBriefing();
   }
 
   grandPrixBtn?.addEventListener('click', () => {
