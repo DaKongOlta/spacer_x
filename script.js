@@ -163,6 +163,8 @@
     }
   ];
 
+  let managerState;
+
   const defaultChassisSpec = {
     codename: 'Spec-A1',
     engine: 1,
@@ -190,6 +192,22 @@
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
+  function describeVariantProfile(variant = {}) {
+    const traits = [];
+    const engine = typeof variant.engine === 'number' ? variant.engine : 1;
+    const boost = typeof variant.boost === 'number' ? variant.boost : 1;
+    const aero = typeof variant.aero === 'number' ? variant.aero : 1;
+    const handling = typeof variant.handling === 'number' ? variant.handling : 1;
+    const systems = typeof variant.systems === 'number' ? variant.systems : 1;
+    const stability = typeof variant.stability === 'number' ? variant.stability : 1;
+    const drag = typeof variant.drag === 'number' ? variant.drag : 1;
+    if (engine > 1.05 || boost > 1.05) traits.push('Top-End Boost');
+    if (aero > 1.05 || handling > 1.05) traits.push('Kurvengriff');
+    if (systems > 1.05 || stability > 1.05) traits.push('Robuste Systeme');
+    if (drag < 0.98) traits.push('Leichtbau');
+    return traits.length ? traits.join(' • ') : 'Ausgewogenes Paket';
+  }
+
   function generateVehicleVariant(teamName) {
     const geometry = { ...pickRandom(chassisGeometries) };
     const codename = `${pickRandom(chassisPrefixes)}-${pickRandom(chassisSuffixes)}${Math.floor(10 + Math.random() * 80)}`;
@@ -206,13 +224,38 @@
       geometry,
       summary: ''
     };
-    const traits = [];
-    if (variant.engine > 1.05 || variant.boost > 1.05) traits.push('Top-End Boost');
-    if (variant.aero > 1.05 || variant.handling > 1.05) traits.push('Kurvengriff');
-    if (variant.systems > 1.05 || variant.stability > 1.05) traits.push('Robuste Systeme');
-    if (variant.drag < 0.98) traits.push('Leichtbau');
-    variant.summary = traits.length ? traits.join(' • ') : 'Ausgewogenes Paket';
+    variant.summary = describeVariantProfile(variant);
     return variant;
+  }
+
+  function applyUpgradeEffects(teamName, variant) {
+    const team = managerState && managerState.teams ? managerState.teams[teamName] : null;
+    if (!team) {
+      const clone = { ...variant };
+      clone.summary = describeVariantProfile(clone);
+      return clone;
+    }
+    const upgrades = team.upgrades || {};
+    const engineLevel = clamp(Math.round(upgrades.engine ?? 0), 0, MAX_UPGRADE_LEVEL);
+    const aeroLevel = clamp(Math.round(upgrades.aero ?? 0), 0, MAX_UPGRADE_LEVEL);
+    const systemsLevel = clamp(Math.round(upgrades.systems ?? 0), 0, MAX_UPGRADE_LEVEL);
+    const adjusted = { ...variant };
+    if (engineLevel > 0) {
+      adjusted.engine = (adjusted.engine || 1) + engineLevel * 0.02;
+      adjusted.boost = (adjusted.boost || 1) + engineLevel * 0.018;
+      adjusted.drag = Math.max(0.82, (adjusted.drag || 1) - engineLevel * 0.01);
+    }
+    if (aeroLevel > 0) {
+      adjusted.aero = (adjusted.aero || 1) + aeroLevel * 0.022;
+      adjusted.handling = (adjusted.handling || 1) + aeroLevel * 0.024;
+    }
+    if (systemsLevel > 0) {
+      adjusted.systems = (adjusted.systems || 1) + systemsLevel * 0.024;
+      adjusted.stability = (adjusted.stability || 1) + systemsLevel * 0.022;
+      adjusted.wear = Math.max(0.72, (adjusted.wear || 1) - systemsLevel * 0.02);
+    }
+    adjusted.summary = describeVariantProfile(adjusted);
+    return adjusted;
   }
 
   function persistVehicleVariants(map = {}) {
@@ -254,7 +297,8 @@
       teamVehicleVariants[teamName] = generateVehicleVariant(teamName);
       persistVehicleVariants(teamVehicleVariants);
     }
-    return { ...defaultChassisSpec, ...teamVehicleVariants[teamName] };
+    const baseVariant = { ...defaultChassisSpec, ...teamVehicleVariants[teamName] };
+    return applyUpgradeEffects(teamName, baseVariant);
   }
 
   const defaultRosters = [
@@ -500,7 +544,7 @@
     }
   }
 
-  let managerState = loadManagerState();
+  managerState = loadManagerState();
   ensureFreeAgentPool();
   let focusTeam = managerState.selectedTeam;
 
@@ -1761,6 +1805,7 @@
   const managerSeasonLabel = document.getElementById('managerSeasonLabel');
   const managerWeekLabel = document.getElementById('managerWeekLabel');
   const managerChassisLabel = document.getElementById('managerChassisLabel');
+  const managerFacilityLabel = document.getElementById('managerFacilityLabel');
   const managerNextTrack = document.getElementById('managerNextTrack');
   const contractList = document.getElementById('contractList');
   const upgradeStatus = document.getElementById('upgradeStatus');
@@ -5633,6 +5678,21 @@
     else if (type === 'warn') managerNotice.classList.add('warn');
   }
 
+  function formatFacilitySummary(upgrades = {}) {
+    const engine = clamp(Math.round(upgrades.engine ?? 0), 0, MAX_UPGRADE_LEVEL);
+    const aero = clamp(Math.round(upgrades.aero ?? 0), 0, MAX_UPGRADE_LEVEL);
+    const systems = clamp(Math.round(upgrades.systems ?? 0), 0, MAX_UPGRADE_LEVEL);
+    return `Motor L${engine} · Aero L${aero} · Systeme L${systems}`;
+  }
+
+  function formatVariantStatLine(variant) {
+    if (!variant) return 'Engine 100% · Aero 100% · Systeme 100%';
+    const engine = Math.round((variant.engine ?? 1) * 100);
+    const aero = Math.round((variant.aero ?? 1) * 100);
+    const systems = Math.round((variant.systems ?? 1) * 100);
+    return `Engine ${engine}% · Aero ${aero}% · Systeme ${systems}%`;
+  }
+
   function renderContracts(teamName, teamData) {
     if (!contractList) return;
     contractList.innerHTML = '';
@@ -5670,12 +5730,28 @@
     if (!upgradeStatus) return;
     upgradeStatus.innerHTML = '';
     const template = teamTemplates[teamName] || { base: { engine: 0.66, aero: 0.6, systems: 0.62 } };
+    const chassisVariant = getTeamVariant(teamName);
+    const variantStats = {
+      engine: (chassisVariant?.engine ?? 1) * 100,
+      aero: (chassisVariant?.aero ?? 1) * 100,
+      systems: (chassisVariant?.systems ?? 1) * 100
+    };
     Object.entries(teamData.upgrades || {}).forEach(([key, level]) => {
       const div = document.createElement('div');
       div.className = 'upgradeCard';
       const baseValue = (template.base[key] || 0.6) * 100;
       const improved = baseValue + level * 4;
-      div.innerHTML = `<strong>${UPGRADE_LABELS[key]}</strong><span>Stufe ${level}/${MAX_UPGRADE_LEVEL}</span><span>Basis: ${baseValue.toFixed(0)} → ${improved.toFixed(0)}</span>`;
+      const current = Number.isFinite(variantStats[key]) ? variantStats[key] : improved;
+      const delta = current - baseValue;
+      const deltaLabel = Number.isFinite(delta) && Math.abs(delta) >= 0.5
+        ? ` (${delta >= 0 ? '+' : ''}${delta.toFixed(0)}%)`
+        : '';
+      div.innerHTML = `
+        <strong>${UPGRADE_LABELS[key]}</strong>
+        <span>Stufe ${level}/${MAX_UPGRADE_LEVEL}</span>
+        <span>Basis: ${baseValue.toFixed(0)} → ${improved.toFixed(0)}</span>
+        <span>Chassis aktuell: ${current.toFixed(0)}%${deltaLabel}</span>
+      `;
       upgradeStatus.appendChild(div);
     });
   }
@@ -5979,7 +6055,13 @@
     if (managerBudget) managerBudget.textContent = formatCurrency(teamData.budget);
     if (managerSeasonLabel) managerSeasonLabel.textContent = managerState.seasonYear;
     if (managerWeekLabel) managerWeekLabel.textContent = managerState.week || 1;
-    if (managerChassisLabel) managerChassisLabel.textContent = `${variant.codename} – ${variant.summary}`;
+    if (managerChassisLabel) {
+      const statsLine = formatVariantStatLine(variant);
+      managerChassisLabel.textContent = `${variant.codename} – ${variant.summary} (${statsLine})`;
+    }
+    if (managerFacilityLabel) {
+      managerFacilityLabel.textContent = formatFacilitySummary(teamData.upgrades);
+    }
     const nextTrackId = getManagerTrackForWeek(managerState.week);
     if (managerNextTrack) managerNextTrack.textContent = trackCatalog[nextTrackId]?.label || nextTrackId;
     renderContracts(teamName, teamData);

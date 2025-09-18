@@ -34,7 +34,7 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 18 Strecken (u. a. Atlas Skywa
 - Cinematisches Hauptmenü mit Twitch-Mode- und Stream-Deck-Teaser, neuem Atrium-Backdrop und Sprite-Showcase für Gleiter- und Track-Poster-Assets
 - Neo-Noir-Backdrops rendern pro Strecke individuelle Skyline-Glows, Sternenfelder und Grid-Linien für mehr Retro-Atmosphäre
 - 24 Fahrer inklusive Free-Agent-Pool, Manager-Transfermarkt und teambezogenen Chassis-Profilen mit zufällig gerollten Fahrzeug-Stats
-- Manager-Modus mit Wochen-Simulation, Vertragsverwaltung, Upgrades, Export/Import (JSON) sowie persistenter Chassis-Anzeige
+- Manager-Modus mit Wochen-Simulation, Vertragsverwaltung, Upgrades, Export/Import (JSON) sowie persistenter Chassis-Anzeige; Facility-Level beeinflussen direkt die Chassis-Performance und werden im Dashboard ausgewiesen
 - Dynamische Wetterprofile (klar/bewölkt/sturm/nacht/ionensturm) mit Event-Briefing, sendefähigem HUD und gespeicherten Rennen-Settings
 - TV-Replay mit Zeitachse, Geschwindigkeitswahl und sofortigem Wiedereinstieg in jede Rennphase inklusive Sieg-Podium-Overlay
 - Live-Leaderboard-Overlay auf dem Canvas plus Meldungs-Panel mit Zeitstempeln für Überholungen, Flaggen und Specials

@@ -14,7 +14,7 @@
 
 ## P3 — Manager‑/Karriere v1 (🔜 Nächstes)
 - ✅ Budget, Verträge, Upgrades, Transfermarkt, JSON Export/Import
-- ⏳ Staff-Systeme, Facility-Upgrades & Wochen-Schedule Vertiefung
+- ⏳ Staff-Systeme & Wochen-Schedule Vertiefung (Facility-Buffs aktiv)
 - ⏳ Saison-Langzeitstatistiken, Rekorde & Patch-kompatible Saves
 
 ## P4 — Special: Race Betting (🧪 Preview)
