@@ -188,6 +188,34 @@
   const chassisPrefixes = ['VX', 'XR', 'NT', 'QS', 'SP', 'HE', 'AT', 'LX'];
   const chassisSuffixes = ['Flux', 'Nova', 'Vortex', 'Pulse', 'Specter', 'Prism', 'Halo', 'Drift'];
 
+  const MAX_FACILITY_LEVEL = 3;
+  const FACILITY_TYPES = {
+    aeroLab: {
+      label: 'Aero-Lab',
+      shortLabel: 'Aero',
+      description: 'Erhöht Downforce & Cornering-Stabilität.',
+      costs: [0, 950000, 1200000, 1550000]
+    },
+    powertrain: {
+      label: 'Dyno Hub',
+      shortLabel: 'Power',
+      description: 'Optimiert Motorleistung & Boost-Response.',
+      costs: [0, 1000000, 1350000, 1750000]
+    },
+    systemsBay: {
+      label: 'Systems Bay',
+      shortLabel: 'Systems',
+      description: 'Verbessert Zuverlässigkeit & Reifenverschleiß.',
+      costs: [0, 820000, 1120000, 1480000]
+    },
+    academy: {
+      label: 'Pilot Academy',
+      shortLabel: 'Academy',
+      description: 'Hebt Fahrermoral & Formentwicklung.',
+      costs: [0, 650000, 880000, 1180000]
+    }
+  };
+
   function pickRandom(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
   }
@@ -240,6 +268,8 @@
     const aeroLevel = clamp(Math.round(upgrades.aero ?? 0), 0, MAX_UPGRADE_LEVEL);
     const systemsLevel = clamp(Math.round(upgrades.systems ?? 0), 0, MAX_UPGRADE_LEVEL);
     const adjusted = { ...variant };
+    if (adjusted.wear == null) adjusted.wear = 1;
+    if (adjusted.drag == null) adjusted.drag = 1;
     if (engineLevel > 0) {
       adjusted.engine = (adjusted.engine || 1) + engineLevel * 0.02;
       adjusted.boost = (adjusted.boost || 1) + engineLevel * 0.018;
@@ -253,6 +283,25 @@
       adjusted.systems = (adjusted.systems || 1) + systemsLevel * 0.024;
       adjusted.stability = (adjusted.stability || 1) + systemsLevel * 0.022;
       adjusted.wear = Math.max(0.72, (adjusted.wear || 1) - systemsLevel * 0.02);
+    }
+    const facilities = sanitizeFacilities(team.facilities);
+    const aeroLab = clampFacilityLevel(facilities.aeroLab);
+    const powertrain = clampFacilityLevel(facilities.powertrain);
+    const systemsBay = clampFacilityLevel(facilities.systemsBay);
+    if (aeroLab > 0) {
+      adjusted.aero = (adjusted.aero || 1) + aeroLab * 0.018;
+      adjusted.handling = (adjusted.handling || 1) + aeroLab * 0.022;
+      adjusted.drag = Math.max(0.8, (adjusted.drag || 1) - aeroLab * 0.006);
+    }
+    if (powertrain > 0) {
+      adjusted.engine = (adjusted.engine || 1) + powertrain * 0.017;
+      adjusted.boost = (adjusted.boost || 1) + powertrain * 0.015;
+      adjusted.drag = Math.max(0.78, (adjusted.drag || 1) - powertrain * 0.008);
+    }
+    if (systemsBay > 0) {
+      adjusted.systems = (adjusted.systems || 1) + systemsBay * 0.02;
+      adjusted.stability = (adjusted.stability || 1) + systemsBay * 0.02;
+      adjusted.wear = Math.max(0.68, (adjusted.wear || 1) - systemsBay * 0.028);
     }
     adjusted.summary = describeVariantProfile(adjusted);
     return adjusted;
@@ -375,6 +424,31 @@
     return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
   }
 
+  function createDefaultFacilities() {
+    return {
+      aeroLab: 1,
+      powertrain: 1,
+      systemsBay: 1,
+      academy: 0
+    };
+  }
+
+  function clampFacilityLevel(value) {
+    return clamp(Math.round(value ?? 0), 0, MAX_FACILITY_LEVEL);
+  }
+
+  function sanitizeFacilities(input) {
+    const defaults = createDefaultFacilities();
+    if (!input || typeof input !== 'object') {
+      return { ...defaults };
+    }
+    const sanitized = {};
+    Object.keys(FACILITY_TYPES).forEach(key => {
+      sanitized[key] = clampFacilityLevel(input[key] ?? defaults[key]);
+    });
+    return sanitized;
+  }
+
   function createDefaultManagerState() {
     const state = {
       version: 3,
@@ -399,6 +473,7 @@
       state.teams[entry.team] = {
         budget: template.budget,
         upgrades: { engine: 0, aero: 0, systems: 0 },
+        facilities: createDefaultFacilities(),
         roster,
         form: 0
       };
@@ -430,6 +505,7 @@
           data.upgrades.aero = clamp(incoming.upgrades.aero ?? data.upgrades.aero, 0, MAX_UPGRADE_LEVEL);
           data.upgrades.systems = clamp(incoming.upgrades.systems ?? data.upgrades.systems, 0, MAX_UPGRADE_LEVEL);
         }
+        data.facilities = sanitizeFacilities(incoming.facilities || data.facilities);
         data.form = typeof incoming.form === 'number' ? incoming.form : 0;
         const roster = Array.isArray(incoming.roster) ? incoming.roster : [];
         const baseRoster = data.roster.slice();
@@ -454,6 +530,9 @@
         data.roster = sanitizedRoster.slice(0, MAX_ROSTER_SIZE);
       });
     }
+    Object.values(base.teams).forEach(team => {
+      team.facilities = sanitizeFacilities(team.facilities);
+    });
     if (state.selectedTeam && base.teams[state.selectedTeam]) {
       base.selectedTeam = state.selectedTeam;
     }
@@ -1886,6 +1965,7 @@
   const managerNextTrack = document.getElementById('managerNextTrack');
   const contractList = document.getElementById('contractList');
   const upgradeStatus = document.getElementById('upgradeStatus');
+  const facilityList = document.getElementById('facilityList');
   const managerNotice = document.getElementById('managerNotice');
   const managerSaveBtn = document.getElementById('managerSaveBtn');
   const managerExportBtn = document.getElementById('managerExportBtn');
@@ -5758,11 +5838,14 @@
     else if (type === 'warn') managerNotice.classList.add('warn');
   }
 
-  function formatFacilitySummary(upgrades = {}) {
-    const engine = clamp(Math.round(upgrades.engine ?? 0), 0, MAX_UPGRADE_LEVEL);
-    const aero = clamp(Math.round(upgrades.aero ?? 0), 0, MAX_UPGRADE_LEVEL);
-    const systems = clamp(Math.round(upgrades.systems ?? 0), 0, MAX_UPGRADE_LEVEL);
-    return `Motor L${engine} · Aero L${aero} · Systeme L${systems}`;
+  function formatFacilitySummary(teamData) {
+    const facilities = sanitizeFacilities(teamData?.facilities);
+    const chunks = Object.entries(FACILITY_TYPES).map(([key, meta]) => {
+      const level = clampFacilityLevel(facilities[key]);
+      const label = meta.shortLabel || meta.label;
+      return `${label} L${level}`;
+    });
+    return chunks.join(' · ');
   }
 
   function formatVariantStatLine(variant) {
@@ -5833,6 +5916,48 @@
         <span>Chassis aktuell: ${current.toFixed(0)}%${deltaLabel}</span>
       `;
       upgradeStatus.appendChild(div);
+    });
+  }
+
+  function renderFacilities(teamName, teamData) {
+    if (!facilityList) return;
+    facilityList.innerHTML = '';
+    const facilities = sanitizeFacilities(teamData.facilities);
+    Object.entries(FACILITY_TYPES).forEach(([key, meta]) => {
+      const level = clampFacilityLevel(facilities[key]);
+      const card = document.createElement('div');
+      card.className = 'facilityCard';
+      const header = document.createElement('div');
+      header.className = 'facilityHeader';
+      const title = document.createElement('strong');
+      title.textContent = meta.label;
+      const badge = document.createElement('span');
+      badge.className = 'facilityLevel';
+      badge.textContent = `Stufe ${level}/${MAX_FACILITY_LEVEL}`;
+      header.appendChild(title);
+      header.appendChild(badge);
+      const desc = document.createElement('p');
+      desc.className = 'facilityDesc';
+      desc.textContent = meta.description;
+      card.appendChild(header);
+      card.appendChild(desc);
+      const controls = document.createElement('div');
+      controls.className = 'facilityControls';
+      if (level >= MAX_FACILITY_LEVEL) {
+        const span = document.createElement('span');
+        span.className = 'facilityCap';
+        span.textContent = 'Maximale Stufe erreicht';
+        controls.appendChild(span);
+      } else {
+        const nextCost = Array.isArray(meta.costs) ? meta.costs[level + 1] : null;
+        const costLabel = nextCost ? formatCurrency(nextCost) : 'Upgrade';
+        const btn = document.createElement('button');
+        btn.textContent = `Upgrade (${costLabel})`;
+        btn.addEventListener('click', () => upgradeFacility(teamName, key));
+        controls.appendChild(btn);
+      }
+      card.appendChild(controls);
+      facilityList.appendChild(card);
     });
   }
 
@@ -6130,6 +6255,7 @@
     const teamName = managerState.selectedTeam;
     const teamData = managerState.teams[teamName];
     if (!teamData) return;
+    teamData.facilities = sanitizeFacilities(teamData.facilities);
     const variant = getTeamVariant(teamName);
     focusTeam = teamName;
     if (managerBudget) managerBudget.textContent = formatCurrency(teamData.budget);
@@ -6140,12 +6266,13 @@
       managerChassisLabel.textContent = `${variant.codename} – ${variant.summary} (${statsLine})`;
     }
     if (managerFacilityLabel) {
-      managerFacilityLabel.textContent = formatFacilitySummary(teamData.upgrades);
+      managerFacilityLabel.textContent = formatFacilitySummary(teamData);
     }
     const nextTrackId = getManagerTrackForWeek(managerState.week);
     if (managerNextTrack) managerNextTrack.textContent = trackCatalog[nextTrackId]?.label || nextTrackId;
     renderContracts(teamName, teamData);
     renderUpgradeStatus(teamName, teamData);
+    renderFacilities(teamName, teamData);
     renderFreeAgents(teamName, teamData);
     refreshOddsTable();
   }
@@ -6222,6 +6349,33 @@
     updateManagerView();
   }
 
+  function upgradeFacility(teamName, key) {
+    const definition = FACILITY_TYPES[key];
+    if (!definition) return;
+    const teamData = managerState.teams[teamName];
+    if (!teamData) return;
+    teamData.facilities = sanitizeFacilities(teamData.facilities);
+    const level = clampFacilityLevel(teamData.facilities[key]);
+    if (level >= MAX_FACILITY_LEVEL) {
+      showManagerNotice('Facility bereits am Limit.', 'error');
+      return;
+    }
+    const nextCost = Array.isArray(definition.costs) ? definition.costs[level + 1] : null;
+    if (!nextCost) {
+      showManagerNotice('Kein Upgrade verfügbar.', 'error');
+      return;
+    }
+    if (teamData.budget < nextCost) {
+      showManagerNotice('Budget nicht ausreichend für Ausbau.', 'error');
+      return;
+    }
+    teamData.budget -= nextCost;
+    teamData.facilities[key] = level + 1;
+    showManagerNotice(`${definition.label} auf Stufe ${teamData.facilities[key]} erweitert.`, 'success');
+    persistManagerState();
+    updateManagerView();
+  }
+
   function advanceManagerWeek() {
     const currentWeek = managerState.week || 1;
     let totalSpend = 0;
@@ -6230,6 +6384,13 @@
       const roster = Array.isArray(teamData.roster) ? teamData.roster : [];
       const updatedRoster = [];
       let salaryCost = 0;
+      const facilities = sanitizeFacilities(teamData.facilities);
+      const academyLevel = clampFacilityLevel(facilities.academy);
+      const systemsLevel = clampFacilityLevel(facilities.systemsBay);
+      const aeroLevel = clampFacilityLevel(facilities.aeroLab);
+      const powerLevel = clampFacilityLevel(facilities.powertrain);
+      const moraleDecay = Math.max(0.008, 0.02 - academyLevel * 0.005);
+      const upkeepFactor = Math.max(0.72, 1 - systemsLevel * 0.05);
       roster.forEach(contract => {
         if (!contract || !contract.driver) return;
         const driverInfo = driverMap.get(contract.driver);
@@ -6237,7 +6398,7 @@
         const decrement = 1 / MANAGER_SEASON_LENGTH;
         const years = Math.max(0, (typeof contract.years === 'number' ? contract.years : 1) - decrement);
         const moraleBase = clamp(contract.morale ?? 0.55, 0.1, 0.95);
-        const morale = clamp(moraleBase - 0.02 + (teamData.form || 0) * 0.015, 0.1, 0.95);
+        const morale = clamp(moraleBase - moraleDecay + (teamData.form || 0) * 0.015 + academyLevel * 0.01, 0.1, 0.98);
         salaryCost += salary / MANAGER_SEASON_LENGTH;
         if (years <= 0.05) {
           expiredDrivers.push(`${contract.driver} (${teamName})`);
@@ -6252,10 +6413,11 @@
         }
       });
       teamData.roster = updatedRoster.slice(0, MAX_ROSTER_SIZE);
-      const spend = Math.round(salaryCost);
+      const spend = Math.round(salaryCost * upkeepFactor);
       totalSpend += spend;
       teamData.budget = Math.max(0, teamData.budget - spend);
-      teamData.form = clamp((teamData.form || 0) * 0.9 - 0.01, -0.35, 0.5);
+      const facilityMomentum = academyLevel * 0.018 + (aeroLevel + powerLevel) * 0.007;
+      teamData.form = clamp((teamData.form || 0) * 0.9 - 0.01 + facilityMomentum, -0.35, 0.6);
     });
     managerState.week = currentWeek + 1;
     let seasonAdvanced = false;

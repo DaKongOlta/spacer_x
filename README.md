@@ -34,7 +34,7 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 18 Strecken (u. a. Atlas Skywa
 - Cinematisches Hauptmenü mit Twitch-Mode- und Stream-Deck-Teaser, neuem Atrium-Backdrop und Sprite-Showcase für Gleiter- und Track-Poster-Assets
 - Neo-Noir-Backdrops rendern pro Strecke individuelle Skyline-Glows, Sternenfelder und Grid-Linien für mehr Retro-Atmosphäre
 - 24 Fahrer inklusive Free-Agent-Pool, Manager-Transfermarkt und teambezogenen Chassis-Profilen mit zufällig gerollten Fahrzeug-Stats
-- Manager-Modus mit Wochen-Simulation, Vertragsverwaltung, Upgrades, Export/Import (JSON) sowie persistenter Chassis-Anzeige; Facility-Level beeinflussen direkt die Chassis-Performance und werden im Dashboard ausgewiesen
+- Manager-Modus mit Wochen-Simulation, Vertragsverwaltung, Upgrades, Export/Import (JSON) sowie persistenter Chassis-Anzeige; ein neues Facility-Panel erlaubt Ausbaustufen für Aero-Lab, Dyno Hub, Systems Bay und Pilot Academy, die Budget kosten, Performance-Boons liefern und Fahrermoral/Form beeinflussen
 - Dynamische Wetterprofile (klar/bewölkt/sturm/nacht/ionensturm) mit Event-Briefing, sendefähigem HUD und gespeicherten Rennen-Settings
 - TV-Replay mit Zeitachse, Geschwindigkeitswahl und sofortigem Wiedereinstieg in jede Rennphase inklusive Sieg-Podium-Overlay
 - Live-Leaderboard-Overlay auf dem Canvas plus Meldungs-Panel mit Zeitstempeln für Überholungen, Flaggen und Specials
@@ -53,5 +53,5 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 18 Strecken (u. a. Atlas Skywa
 ## Content Roadmap Snapshot
 - **Race-Control Demo Stack** – Formation/Grid-Briefings fertig, Restart-Hold aktiv; State-Machine & adaptive Bunching ausgeliefert
 - **Broadcast HUD v2** – Gap-Trends, Sektor-Gates & Incident-Banner live; nächste Schritte: erweiterte Highlight-Queue
-- **Manager & Saison-Tiefe** – Transfermarkt steht, nächste Schritte: Staff-Systeme, Facility-Upgrades, Saison-Save-Validierung
+- **Manager & Saison-Tiefe** – Transfermarkt steht, Facility-Upgrades mit Effekten auf Chassis & Moral sind live; nächste Schritte: Staff-Systeme und Saison-Save-Validierung
 - **Streaming & Tools** – Twitch-Mode & Stream-Deck-Plugin als Developer Preview im Menü angeteasert, Websocket/Chat-Hooks folgen
