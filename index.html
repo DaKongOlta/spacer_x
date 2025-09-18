@@ -8,14 +8,95 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header><h1>SPACER‑X</h1></header>
+  <header>
+    <img src="assets/spacerx_logo.svg" alt="SPACER‑X" class="logoMark">
+    <h1>SPACER‑X</h1>
+    <p class="tagline">Neo‑Noir Broadcast Racing Suite</p>
+  </header>
   <main>
     <!-- Hauptmenü -->
     <section id="mainMenu" class="screen active menu">
-      <button id="newRaceBtn">Schnelles Rennen</button>
-      <button id="grandPrixBtn">Grand Prix (5 Rennen)</button>
-      <button id="teamsBtn">Teams &amp; Fahrer</button>
-      <button id="settingsBtn">Einstellungen</button>
+      <div class="menuHero">
+        <div class="heroOverlay"></div>
+        <div class="heroContent">
+          <h2>Cinematic Spacer Racing</h2>
+          <p>Erlebe dynamische TV‑Overlays, Manager‑Strategie und Wetten in einem modularen Rennkontrollzentrum.</p>
+          <div class="heroMeta">
+            <span>5 Spielmodi</span>
+            <span>24 Fahrer</span>
+            <span>14 Strecken</span>
+          </div>
+        </div>
+      </div>
+      <div class="menuActions">
+        <button id="newRaceBtn" class="primary">Schnelles Rennen</button>
+        <button id="grandPrixBtn">Grand Prix (5 Rennen)</button>
+        <button id="resumeGrandPrixBtn" class="secondary" disabled>Grand Prix fortsetzen</button>
+        <button id="managerBtn">Team Karriere</button>
+        <button id="bettingBtn">Race Betting Challenge</button>
+        <button id="teamsBtn">Teams &amp; Fahrer</button>
+        <button id="codexBtn">Codex &amp; Archiv</button>
+        <button id="settingsBtn">Einstellungen</button>
+      </div>
+      <section id="grandPrixStatusCard" class="gpStatus hidden" aria-live="polite" aria-label="Grand Prix Fortschritt">
+        <header>
+          <h3>Grand Prix Serie</h3>
+          <p id="gpStatusMeta">Bereit für Lauf 1 von 5</p>
+        </header>
+        <dl class="gpStatusDetails">
+          <div>
+            <dt>Nächster Track</dt>
+            <dd id="gpStatusTrack">–</dd>
+          </div>
+          <div>
+            <dt>Wetterausblick</dt>
+            <dd id="gpStatusWeather">–</dd>
+          </div>
+        </dl>
+        <div class="gpStandings">
+          <h4>Top 3</h4>
+          <ol id="gpStatusStandings"></ol>
+          <p id="gpStatusEmpty" class="emptyHint">Noch keine Punkte vergeben – starte den Grand Prix!</p>
+        </div>
+      </section>
+      <section class="menuTeasers" aria-label="Integrationen &amp; Roadmap">
+        <article class="integrationCard">
+          <header>
+            <img src="assets/sprites/twitch_badge.svg" alt="Twitch Mode" loading="lazy">
+            <div>
+              <h3>Twitch Broadcast Mode</h3>
+              <p class="status upcoming">Preview Build · Q3</p>
+            </div>
+          </header>
+          <p>Chat-votierte Rennregeln, Overlays für Bits &amp; Channel-Points sowie automatische Szenenwechsel für OBS.</p>
+        </article>
+        <article class="integrationCard">
+          <header>
+            <img src="assets/sprites/streamdeck_badge.svg" alt="Stream Deck Plugin" loading="lazy">
+            <div>
+              <h3>Elgato Stream Deck</h3>
+              <p class="status in-progress">Developer Preview</p>
+            </div>
+          </header>
+          <p>Makros für Rennkontrolle, Szenen-Trigger und Live-Callouts – ausgelegt für Spacer‑X Produktions-Desks.</p>
+        </article>
+        <article class="integrationCard">
+          <header>
+            <img src="assets/sprites/codex_badge.svg" alt="Codex Lore" loading="lazy">
+            <div>
+              <h3>Lore Drops &amp; Worldbuilding</h3>
+              <p class="status active">Aktiv</p>
+            </div>
+          </header>
+          <p>Tägliche Codex-Einträge, Fraktions-Stories und Rennarchiv-Erweiterungen halten die Spacer‑X‑Welt lebendig.</p>
+        </article>
+      </section>
+      <div class="spriteShowcase" aria-label="Sprite Atelier">
+        <figure>
+          <img src="assets/sprites/craft_variants.svg" alt="Spacer Gleiter Varianten" loading="lazy">
+          <figcaption>Neue Retro-Sprites für Chassis-Profile – nutzen die gleichen Farben wie die Team-Garage.</figcaption>
+        </figure>
+      </div>
     </section>
 
     <!-- Rennbildschirm -->
@@ -25,7 +106,71 @@
           <canvas id="raceCanvas" width="900" height="600"></canvas>
           <canvas id="miniMapCanvas" width="200" height="140" class="minimap"></canvas>
           <div id="raceFlag" class="flag hidden">GREEN FLAG</div>
+          <div id="sessionInfo" class="sessionBanner hidden"></div>
+          <div id="leaderGapHud" class="gapHud hidden">
+            <div class="label">Focus</div>
+            <div class="delta">--</div>
+            <div class="gapBar"><span class="fill"></span></div>
+          </div>
+          <div id="marshalOverlay" class="marshalOverlay hidden" aria-hidden="true">
+            <img src="assets/sprites/slime_marshal.svg" alt="Spacer-X Slime Marshal" class="marshalAvatar" loading="lazy">
+            <div class="marshalFlags" aria-hidden="true">
+              <span class="flag left"></span>
+              <span class="flag right"></span>
+            </div>
+            <div id="marshalMessage" class="marshalMessage">Bereit</div>
+          </div>
+          <div id="startLights" class="startLights hidden" aria-hidden="true">
+            <span class="light"></span>
+            <span class="light"></span>
+            <span class="light"></span>
+            <span class="light"></span>
+            <span class="light"></span>
+          </div>
+          <div id="cameraHud" class="cameraHud hidden" aria-live="polite"></div>
+          <div id="leaderboardHud" class="leaderboardHud hidden" aria-live="polite">
+            <div class="leaderboardTitle">Leaderboard</div>
+            <ol></ol>
+          </div>
+          <div id="eventBanner" class="eventBanner hidden" aria-live="assertive">
+            <div class="primary"></div>
+            <div class="secondary hiddenLine"></div>
+          </div>
           <div id="top3Banner" class="top3 hidden"></div>
+          <div id="restartHoldBanner" class="restartHold hidden" aria-live="assertive">No Overtake</div>
+          <div id="broadcastIntro" class="broadcastIntro hidden" aria-hidden="true">
+            <article class="broadcastCard">
+              <header class="broadcastHeader">
+                <div class="title">Spacer-X Newsdesk</div>
+                <button id="broadcastIntroSkip" type="button">Zum Grid</button>
+              </header>
+              <div class="broadcastLead">
+                <h3 id="broadcastIntroHeadline">Renn-Überblick</h3>
+                <p id="broadcastIntroSummary">Countdown zum Start läuft.</p>
+              </div>
+              <ol id="broadcastIntroLeaders" class="broadcastLeaders"></ol>
+            </article>
+          </div>
+          <div id="gridIntro" class="gridIntro hidden" aria-hidden="true">
+            <div class="gridIntroCard">
+              <header class="gridIntroHeader">
+                <div class="title">Grid Briefing</div>
+                <div id="gridIntroMeta" class="meta"></div>
+              </header>
+              <ol id="gridIntroList" class="gridIntroList"></ol>
+              <footer class="gridIntroFooter">
+                <button id="gridIntroDismiss" type="button">Countdown starten</button>
+                <div class="autoHint">Auto-Start in <span id="gridIntroTimer">4</span>s</div>
+              </footer>
+            </div>
+          </div>
+          <div id="podiumOverlay" class="podiumOverlay hidden" aria-hidden="true">
+            <div class="podiumInner">
+              <h3>Siegerehrung</h3>
+              <ol id="podiumList" class="podiumList"></ol>
+              <button id="podiumCloseBtn" type="button">Zurück zur Kontrolle</button>
+            </div>
+          </div>
           <div id="highlightTicker" class="ticker"></div>
         </div>
         <aside class="sidebar">
@@ -41,12 +186,42 @@
               <select id="startProc">
                 <option value="standing">Standing</option>
                 <option value="staggered">Staggered</option>
+                <option value="rolling">Rolling</option>
               </select>
             </label>
+          </div>
+          <div id="eventBriefing" class="eventBriefing">
+            <div class="eventHeader">
+              <span id="eventTrackLabel" class="trackLabel">Orbital Oval</span>
+              <span id="eventWeatherLabel" class="weatherTag">Klar</span>
+            </div>
+            <div id="eventWeatherDesc" class="eventWeatherDesc">Trockene Strecke, Höchsttempo möglich.</div>
+            <div id="eventTraitSummary" class="eventTraits"></div>
           </div>
           <div class="telemetry">
             <div class="statsRow"><span id="lapInfoLabel">Runde:</span><span id="raceTimeLabel">Rennzeit:</span></div>
             <ul id="telemetryList"></ul>
+          </div>
+          <div id="focusDriverPanel" class="focusPanel inactive">
+            <div class="focusHeader">
+              <span id="focusDriverName">Fahrer auswählen</span>
+              <span id="focusDriverTrend" class="trend neutral">--</span>
+            </div>
+            <div id="focusDriverMeta" class="focusMeta">Wähle einen Fahrer aus der Übersicht, um Detaildaten zu sehen.</div>
+            <div id="focusDriverStats" class="focusStats"></div>
+          </div>
+          <div class="splitsPanel">
+            <div class="splitsHeader">Splits &amp; Highlights</div>
+            <ul id="sectorWidget" class="sectorWidget"></ul>
+            <div id="fastestLapLabel" class="fastestLap"></div>
+          </div>
+          <div class="liveTickerPanel">
+            <div class="liveTickerHeader">Live Meldungen</div>
+            <ul id="liveTickerList" class="liveTickerList"></ul>
+          </div>
+          <div id="raceControlPanel" class="raceControlPanel">
+            <div class="rcHeader">Race Control</div>
+            <ul id="raceControlLog" class="raceControlLog"></ul>
           </div>
           <div class="controls">
             <button id="startRaceBtn">Rennen starten</button>
@@ -54,6 +229,20 @@
             <button id="replayRaceBtn" style="display:none;">Replay</button>
             <button id="nextRaceBtn" style="display:none;">Nächstes Rennen</button>
             <button id="backToMenuFromRace">Zum Hauptmenü</button>
+          </div>
+          <div id="replayControls" class="replayControls hidden" aria-hidden="true">
+            <button id="replayPlayPause" type="button" class="replayToggle" aria-label="Replay abspielen">▶︎</button>
+            <input id="replayScrubber" type="range" min="0" max="1" value="0" step="1" aria-label="Replay Position">
+            <span id="replayTimeLabel" class="replayTime">0,0s / 0,0s</span>
+            <label class="replaySpeedLabel">Tempo
+              <select id="replaySpeed">
+                <option value="0.5">0,5×</option>
+                <option value="0.75">0,75×</option>
+                <option value="1" selected>1×</option>
+                <option value="1.5">1,5×</option>
+                <option value="2">2×</option>
+              </select>
+            </label>
           </div>
           <pre id="resultsLabel" class="results"></pre>
         </aside>
@@ -65,6 +254,107 @@
       <h2>Teams &amp; Fahrer</h2>
       <div id="teamsList"></div>
       <button id="backToMenuFromTeams">Zum Hauptmenü</button>
+    </section>
+
+    <section id="managerScreen" class="screen">
+      <h2>Team Karriere</h2>
+      <p class="managerIntro">Verwalte Budget, Vertragslaufzeiten und Upgrades über eine ganze Saison. Simuliere Wochen, beobachte den Transfermarkt und bereite automatisch den nächsten Lauf vor.</p>
+      <div class="managerLayout">
+        <aside class="managerSidebar">
+          <label>Team auswählen:
+            <select id="managerTeamSelect"></select>
+          </label>
+          <div class="managerInfo">
+            <div>Saison: <span id="managerSeasonLabel"></span></div>
+            <div>Woche: <span id="managerWeekLabel"></span></div>
+            <div>Budget: <strong id="managerBudget"></strong></div>
+            <div>Chassis: <span id="managerChassisLabel"></span></div>
+            <div>Nächster Lauf: <span id="managerNextTrack"></span></div>
+          </div>
+          <div class="upgradeControls">
+            <button data-upgrade="engine">Motor &amp; Power (+)</button>
+            <button data-upgrade="aero">Aero &amp; Balance (+)</button>
+            <button data-upgrade="systems">Systeme &amp; Reliability (+)</button>
+          </div>
+          <div class="managerPersistence">
+            <button id="managerSaveBtn">Speichern</button>
+            <button id="managerExportBtn">Export JSON</button>
+            <label class="importLabel">Import JSON<input type="file" id="managerImportInput" accept="application/json"></label>
+          </div>
+        </aside>
+        <div class="managerDetail">
+          <h3>Fahrer &amp; Verträge</h3>
+          <div id="contractList" class="contractList"></div>
+          <h3>Upgrade Status</h3>
+          <div id="upgradeStatus" class="upgradeStatus"></div>
+          <h3>Transfermarkt</h3>
+          <div id="freeAgentList" class="freeAgentList"></div>
+          <div class="managerActions">
+            <button id="advanceManagerWeekBtn">Nächste Woche simulieren</button>
+          </div>
+          <div id="managerNotice" class="managerNotice"></div>
+          <button id="managerStartRaceBtn" class="primary">Team-Rennen starten</button>
+        </div>
+      </div>
+      <button id="backToMenuFromManager">Zum Hauptmenü</button>
+    </section>
+
+    <section id="bettingScreen" class="screen">
+      <h2>Race Betting Challenge</h2>
+      <p class="bettingIntro">Setze Credits auf deinen Favoriten. Gewinne werden nach dem Rennen automatisch ausgezahlt.</p>
+      <div class="bettingLayout">
+        <div class="bettingPanel">
+          <div class="betBalance">Credits: <strong id="betBalance"></strong></div>
+          <label>Fahrer:
+            <select id="betDriverSelect"></select>
+          </label>
+          <label>Einsatz:
+            <input type="number" id="betAmount" min="10" step="10" value="50">
+          </label>
+          <button id="placeBetBtn">Wette platzieren</button>
+          <div id="betSlip" class="betSlip"></div>
+          <button id="betStartRaceBtn" class="primary">Wetten &amp; Rennen starten</button>
+        </div>
+        <div class="oddsBoard">
+          <h3>Quotenübersicht</h3>
+          <table id="oddsTable">
+            <thead><tr><th>Fahrer</th><th>Team</th><th>Quote</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div id="betHistory" class="betHistory"></div>
+        </div>
+      </div>
+      <button id="backToMenuFromBetting">Zum Hauptmenü</button>
+    </section>
+
+    <section id="codexScreen" class="screen">
+      <h2>Codex &amp; Archiv</h2>
+      <p class="codexIntro">Hintergrundberichte, Team-Lore und ein wachsendes Rennarchiv für alle Spacer‑X Saisons.</p>
+      <div class="codexLayout">
+        <article class="codexColumn">
+          <h3>Weltenatlas &amp; Strecken</h3>
+          <div id="loreEntries" class="loreEntries"></div>
+          <h3>Fahrer &amp; Persönlichkeiten</h3>
+          <div id="driverCodex" class="driverCodex"></div>
+          <h3>Teams &amp; Chassis</h3>
+          <div id="codexGarage" class="codexGarage"></div>
+          <h3>Content Roadmap</h3>
+          <div id="contentRoadmap" class="contentRoadmap"></div>
+          <h3>Broadcast Ops &amp; Tools</h3>
+          <div id="integrationRoadmap" class="contentRoadmap"></div>
+          <div class="spriteGallery" aria-label="Sprite Preview">
+            <img src="assets/sprites/holo_flags.svg" alt="Holo Flaggen Sprites" loading="lazy">
+            <p>Pixel-Hologramme für Startlichter, Safety Calls und Podiumsszenen sorgen für mehr Retro-Flair.</p>
+          </div>
+        </article>
+        <aside class="codexColumn archive">
+          <h3>Rennarchiv</h3>
+          <div id="raceArchive" class="raceArchive"></div>
+          <h3>Hall of Fame</h3>
+          <div id="hallOfFame" class="hallOfFame"></div>
+        </aside>
+      </div>
+      <button id="backToMenuFromCodex">Zum Hauptmenü</button>
     </section>
 
     <!-- Einstellungen -->
@@ -81,6 +371,28 @@
           <option value="oval" selected>Oval</option>
           <option value="wavy">Wavy Oval</option>
           <option value="fig8">Figure Eight</option>
+          <option value="canyon">Canyon Switchback</option>
+          <option value="delta">Delta Spiral</option>
+          <option value="aurora">Aurora Loop</option>
+          <option value="zenith">Zenith Horizon</option>
+          <option value="mirage">Mirage Hyperloop</option>
+          <option value="nebula">Nebula Nexus</option>
+          <option value="solstice">Solstice Ridge</option>
+          <option value="helix">Helix Spires</option>
+          <option value="atlas">Atlas Skyway</option>
+          <option value="fracture">Fracture Belt</option>
+          <option value="lumen">Lumen Cascades</option>
+          <option value="eclipse">Eclipse Citadel</option>
+          <option value="rift">Rift Meridian</option>
+        </select>
+      </p>
+      <p>Wetter:
+        <select id="weatherSetting">
+          <option value="clear" selected>Klar</option>
+          <option value="overcast">Bewölkt</option>
+          <option value="storm">Sturmregen</option>
+          <option value="night">Nachtrennen</option>
+          <option value="ionstorm">Ionensturm</option>
         </select>
       </p>
       <p>Runden:
@@ -90,6 +402,33 @@
           <option value="25">25</option>
         </select>
       </p>
+      <div class="hudSettings">
+        <h3>HUD &amp; Broadcast</h3>
+        <label><input type="checkbox" id="toggleRaceControl" checked> Race-Control Protokoll</label>
+        <label><input type="checkbox" id="toggleFocusPanel" checked> Fahrerfokus</label>
+        <label><input type="checkbox" id="toggleMiniMap" checked> Mini-Map</label>
+        <label><input type="checkbox" id="toggleTicker" checked> Live-Ticker &amp; Banner</label>
+        <label><input type="checkbox" id="toggleAudio" checked> Audio-Signale</label>
+        <label>Broadcast Kamera:
+          <select id="cameraSetting">
+            <option value="auto" selected>Broadcast Auto</option>
+            <option value="leader">Leader Cam</option>
+            <option value="battle">Battle Pack</option>
+            <option value="manual">Manuell</option>
+          </select>
+        </label>
+      </div>
+      <div class="dataSettings">
+        <h3>Profil &amp; Speicher</h3>
+        <div class="saveActions">
+          <button id="exportProfileBtn" type="button">Profil exportieren</button>
+          <button id="importProfileBtn" type="button">Profil importieren</button>
+          <input id="importProfileInput" type="file" accept="application/json" hidden>
+        </div>
+        <button id="wipeProfileBtn" type="button" class="danger">Speicher löschen</button>
+        <p class="dataHint">Export umfasst Karriere, Grand Prix, Wetten, Archiv, Chassis &amp; Einstellungen.</p>
+        <p id="settingsNotice" class="settingsNotice" role="status" aria-live="polite"></p>
+      </div>
       <button id="backToMenuFromSettings">Zum Hauptmenü</button>
     </section>
   </main>
