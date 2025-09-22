@@ -1,0 +1,14 @@
+<svg width="320" height="220" viewBox="0 0 320 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="canyon-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a1020"/>
+      <stop offset="100%" stop-color="#0a040d"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="220" rx="24" fill="url(#canyon-bg)"/>
+  <path d="M60 170C60 146 76 132 108 126C142 120 174 104 190 86C206 68 214 48 240 42C264 36 280 48 284 66C288 84 280 112 250 128C222 142 192 152 166 166C140 180 112 188 92 186C72 184 60 190 60 206" stroke="#fb7185" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/>
+  <path d="M58 170C58 148 74 134 104 128C136 122 168 106 186 88C202 72 210 50 236 44C258 38 272 48 276 64C280 82 272 108 244 124C216 138 188 148 162 162C136 176 110 184 90 182C72 180 58 188 58 204" stroke="#fbbf24" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M124 140C148 134 182 116 202 96" stroke="#f97316" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
+  <circle cx="92" cy="182" r="6" fill="#f97316" opacity="0.9"/>
+  <circle cx="246" cy="48" r="6" fill="#fb7185" opacity="0.9"/>
+</svg>

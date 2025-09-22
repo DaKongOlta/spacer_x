@@ -136,6 +136,10 @@
             <div class="leaderboardTitle">Leaderboard</div>
             <ol></ol>
           </div>
+          <div id="battleSpotlight" class="battleSpotlight hidden" aria-live="polite">
+            <div class="primary"><span class="tag">Battle</span> <span class="label">--</span></div>
+            <div class="secondary"><span class="gap">Gap --</span> · <span class="trend">Stabil</span></div>
+          </div>
           <div id="eventBanner" class="eventBanner hidden" aria-live="assertive">
             <div class="primary"></div>
             <div class="secondary hiddenLine"></div>
@@ -161,6 +165,16 @@
                 <div class="title">Grid Briefing</div>
                 <div id="gridIntroMeta" class="meta"></div>
               </header>
+              <div id="gridIntroShot" class="gridIntroShot hidden" aria-hidden="true">
+                <div class="gridIntroShotFrame">
+                  <img id="gridIntroSweepImage" alt="" class="hidden" loading="lazy" />
+                  <canvas id="gridIntroSweepCanvas" width="360" height="220" aria-hidden="true"></canvas>
+                  <div class="gridIntroSweepInfo">
+                    <span id="gridIntroSweepLabel" class="label"></span>
+                    <span id="gridIntroSweepDetail" class="detail"></span>
+                  </div>
+                </div>
+              </div>
               <ol id="gridIntroList" class="gridIntroList"></ol>
               <footer class="gridIntroFooter">
                 <button id="gridIntroDismiss" type="button">Countdown starten</button>
@@ -230,6 +244,7 @@
           <div class="controls">
             <button id="startRaceBtn">Rennen starten</button>
             <button id="pauseRaceBtn" disabled>Pause</button>
+            <button id="timingModalBtn" type="button">Timing &amp; Statistik</button>
             <button id="replayRaceBtn" style="display:none;">Replay</button>
             <button id="nextRaceBtn" style="display:none;">Nächstes Rennen</button>
             <button id="backToMenuFromRace">Zum Hauptmenü</button>
@@ -247,11 +262,42 @@
                 <option value="2">2×</option>
               </select>
             </label>
+            <label class="replayBookmarkLabel">Marken
+              <select id="replayBookmarkSelect" aria-label="Replay-Markierungen">
+                <option value="">– Szene wählen –</option>
+              </select>
+            </label>
+
           </div>
           <pre id="resultsLabel" class="results"></pre>
         </aside>
       </div>
     </section>
+    <div id="timingModal" class="timingModal hidden" role="dialog" aria-modal="true" aria-labelledby="timingModalTitle">
+      <div class="timingModalInner">
+        <header class="timingModalHeader">
+          <h3 id="timingModalTitle">Timing &amp; Statistik</h3>
+          <button id="timingModalClose" type="button" aria-label="Timing-Overlay schließen">×</button>
+        </header>
+        <div id="timingModalBody" class="timingModalBody">
+          <table>
+            <thead>
+              <tr>
+                <th>Pos</th>
+                <th>Fahrer</th>
+                <th>Gap</th>
+                <th>Runde</th>
+                <th>Letzte</th>
+                <th>Beste</th>
+                <th>Stopps</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="timingModalTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
     <!-- Teams/Fahrer -->
     <section id="teamsScreen" class="screen">
@@ -281,6 +327,16 @@
             <button data-upgrade="aero">Aero &amp; Balance (+)</button>
             <button data-upgrade="systems">Systeme &amp; Reliability (+)</button>
           </div>
+          <div class="customTeamPanel">
+            <h3>Eigenes Team</h3>
+            <label>Teamname
+              <input type="text" id="customTeamName" placeholder="Team Neon Flux">
+            </label>
+            <label>Farbe
+              <input type="color" id="customTeamColor" value="#ff3366">
+            </label>
+            <button id="createCustomTeamBtn">Team erstellen</button>
+          </div>
           <div class="managerPersistence">
             <button id="managerSaveBtn">Speichern</button>
             <button id="managerExportBtn">Export JSON</button>
@@ -294,6 +350,8 @@
           <div id="upgradeStatus" class="upgradeStatus"></div>
           <h3>Facilities &amp; Infrastruktur</h3>
           <div id="facilityList" class="facilityList"></div>
+          <h3>Sponsoren</h3>
+          <div id="sponsorList" class="sponsorList"></div>
           <h3>Transfermarkt</h3>
           <div id="freeAgentList" class="freeAgentList"></div>
           <div class="managerActions">
@@ -312,6 +370,15 @@
       <div class="bettingLayout">
         <div class="bettingPanel">
           <div class="betBalance">Credits: <strong id="betBalance"></strong></div>
+          <label>Spieleranzahl:
+            <input type="number" id="betPlayerCount" min="1" max="6" value="1">
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" id="betCouchToggle"> Couch-Modus aktivieren
+          </label>
+          <label>Spieler:
+            <select id="betPlayerSelect"></select>
+          </label>
           <label>Fahrer:
             <select id="betDriverSelect"></select>
           </label>
@@ -320,6 +387,7 @@
           </label>
           <button id="placeBetBtn">Wette platzieren</button>
           <div id="betSlip" class="betSlip"></div>
+          <button id="clearBetsBtn" class="secondary">Slip zurücksetzen</button>
           <button id="betStartRaceBtn" class="primary">Wetten &amp; Rennen starten</button>
         </div>
         <div class="oddsBoard">
@@ -329,6 +397,8 @@
             <tbody></tbody>
           </table>
           <div id="betHistory" class="betHistory"></div>
+          <canvas id="betHistoryChart" width="360" height="160" aria-label="Balance-Chart"></canvas>
+          <button id="betExportBtn" class="secondary">Historie exportieren</button>
         </div>
       </div>
       <button id="backToMenuFromBetting">Zum Hauptmenü</button>
@@ -357,6 +427,8 @@
         <aside class="codexColumn archive">
           <h3>Rennarchiv</h3>
           <div id="raceArchive" class="raceArchive"></div>
+          <h3>Saison Historie</h3>
+          <div id="seasonHistory" class="seasonHistory"></div>
           <h3>Hall of Fame</h3>
           <div id="hallOfFame" class="hallOfFame"></div>
         </aside>
@@ -375,6 +447,7 @@
       </p>
       <p>Strecke:
         <select id="trackType">
+          <option value="" disabled selected>Wird geladen …</option>
           <option value="oval" selected>Oval</option>
           <option value="wavy">Wavy Oval</option>
           <option value="fig8">Figure Eight</option>
@@ -426,6 +499,12 @@
           </select>
         </label>
       </div>
+      <div class="accessibilitySettings">
+        <h3>Accessibility</h3>
+        <label><input type="checkbox" id="toggleReducedMotion"> Reduzierte Animationen</label>
+        <label><input type="checkbox" id="toggleHighContrast"> Hoher Kontrast</label>
+        <label><input type="checkbox" id="togglePerformanceHud"> Performance-Monitor anzeigen</label>
+      </div>
       <div class="simSettings">
         <h3>Simulation</h3>
         <label>Renn-Tempo:
@@ -457,6 +536,7 @@
       <button id="backToMenuFromSettings">Zum Hauptmenü</button>
     </section>
   </main>
+  <div id="performanceOverlay" aria-hidden="true"></div>
   <script src="script.js"></script>
 </body>
 </html>

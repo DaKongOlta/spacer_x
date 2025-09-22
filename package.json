@@ -1,0 +1,21 @@
+{
+  "name": "spacer_x",
+  "version": "1.0.0",
+  "description": "Spacer‑X racing prototype with TV UI and manager mode.",
+  "main": "script.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "smoke": "node tests/race_control_smoke.mjs",
+    "test": "npm run smoke"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "playwright": "^1.55.0"
+  }
+}
