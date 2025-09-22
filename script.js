@@ -5969,7 +5969,26 @@
     updateBettingUI();
   }
 
+  function ensureGrandPrixStartContext() {
+    if (currentMode !== 'gp') {
+      return;
+    }
+    const seriesComplete = gpRaceIndex >= GP_RACES;
+    if (seriesComplete) {
+      gpActive = false;
+      currentMode = 'quick';
+      updateGrandPrixMenuState();
+      return;
+    }
+    if (!gpActive) {
+      gpActive = true;
+      gpSave();
+    }
+    prepareGrandPrixRound();
+  }
+
   function startRace() {
+    ensureGrandPrixStartContext();
     hidePodiumOverlay(true);
     clearReplayData();
     recordingReplay = true;
@@ -7315,6 +7334,10 @@
     racePitLog.length = 0;
     replayBookmarks.length = 0;
     updateReplayBookmarksUI();
+    if (currentMode === 'gp') {
+      gpActive = gpRaceIndex > 0 && gpRaceIndex < GP_RACES;
+      gpSave();
+    }
     showScreen(mainMenu);
     currentMode = 'quick';
     finalizePhaseTimeline(raceTime);
