@@ -1,0 +1,204 @@
+{
+  "tracks": [
+    {
+      "id": "oval",
+      "label": "Orbital Oval",
+      "geometryId": "oval",
+      "theme": {"background": "#07111f", "asphalt": "#1f2937", "lane": "#94a3b8", "accent": "#38bdf8"},
+      "backdrop": {"skyTop": "#071a30", "skyBottom": "#020912", "horizon": "#0a1f33", "accent": "#38bdf8", "haze": "rgba(56,189,248,0.1)", "stars": 88, "pulses": 3},
+      "traits": {"straightBias": 1.05, "cornerFocus": 0.82, "surfaceGrip": 1.02, "wearRate": 0.92, "turbulence": 0.9},
+      "weatherBias": {"clear": 0.54, "overcast": 0.26, "storm": 0.1, "night": 0.1},
+      "lore": "Die Orbital-Plattform über Neo-Tokyo hostet seit Jahrzehnten die Spacer-X-Auftaktrennen – makellose Oberfläche, hohe Topspeeds, gefährliche Dirty-Air-Zonen."
+    },
+    {
+      "id": "wavy",
+      "label": "Wavy Oval",
+      "geometryId": "wavy",
+      "theme": {"background": "#081225", "asphalt": "#1e293b", "lane": "#cbd5f5", "accent": "#8b5cf6"},
+      "backdrop": {"skyTop": "#0a1f3b", "skyBottom": "#030b19", "horizon": "#122445", "accent": "#8b5cf6", "haze": "rgba(139,92,246,0.12)", "stars": 84, "pulses": 4},
+      "traits": {"straightBias": 1.0, "cornerFocus": 1.08, "surfaceGrip": 1.04, "wearRate": 1.0, "turbulence": 1.05},
+      "weatherBias": {"clear": 0.48, "overcast": 0.28, "storm": 0.14, "night": 0.1},
+      "lore": "Eine gewellte Konstruktion, die über dem Pazifik schwebt – die Höhenunterschiede erzeugen wechselnde Downforce-Fenster und belohnen feinfühliges Fahrverhalten."
+    },
+    {
+      "id": "fig8",
+      "label": "Figure Eight",
+      "geometryId": "fig8",
+      "theme": {"background": "#0b1320", "asphalt": "#1c2635", "lane": "#d1d5db", "accent": "#f472b6"},
+      "backdrop": {"skyTop": "#101e36", "skyBottom": "#030814", "horizon": "#1a2640", "accent": "#f472b6", "haze": "rgba(244,114,182,0.12)", "stars": 92, "pulses": 5},
+      "traits": {"straightBias": 0.96, "cornerFocus": 1.12, "surfaceGrip": 0.98, "wearRate": 1.08, "turbulence": 1.2},
+      "weatherBias": {"clear": 0.42, "overcast": 0.28, "storm": 0.2, "night": 0.1},
+      "lore": "Die ikonische Überschneidung über dem Core-Habitat zwingt Piloten zu taktischen Überholungen – übermütige Manöver enden schnell im Verkehrschaos."
+    },
+    {
+      "id": "canyon",
+      "label": "Canyon Switchback",
+      "geometryId": "canyon",
+      "theme": {"background": "#101322", "asphalt": "#252f3f", "lane": "#facc15", "accent": "#fb7185"},
+      "backdrop": {"skyTop": "#1a2338", "skyBottom": "#070b16", "horizon": "#201d2e", "accent": "#fb7185", "haze": "rgba(251,113,133,0.12)", "stars": 70, "pulses": 4, "gridSpacing": 30},
+      "traits": {"straightBias": 0.94, "cornerFocus": 1.15, "surfaceGrip": 0.95, "wearRate": 1.18, "turbulence": 1.25},
+      "weatherBias": {"clear": 0.38, "overcast": 0.32, "storm": 0.2, "night": 0.1},
+      "lore": "Durch ein abgestürztes Felsmassiv geschnitten – Dust-Devils, steile Switchbacks und unruhige Luftmassen prägen den Canyon-Lauf."
+    },
+    {
+      "id": "canyonSprint",
+      "label": "Canyon Sprint",
+      "geometryId": "canyonSprint",
+      "theme": {"background": "#120d16", "asphalt": "#251b29", "lane": "#fbbf24", "accent": "#fb7185"},
+      "backdrop": {"skyTop": "#20142a", "skyBottom": "#07040b", "horizon": "#281a2f", "accent": "#fb7185", "haze": "rgba(251,113,133,0.14)", "pulses": 5, "gridSpacing": 32},
+      "traits": {"straightBias": 1.14, "cornerFocus": 1.05, "surfaceGrip": 0.98, "wearRate": 1.16, "turbulence": 1.28},
+      "weatherBias": {"clear": 0.34, "overcast": 0.28, "storm": 0.24, "night": 0.14},
+      "lore": "Ein gestreckter Achterkurs zwischen Felsnadeln – Highspeed-Sweeps wechseln mit engen Überwurfhairpins über dem Canyon."
+    },
+    {
+      "id": "delta",
+      "label": "Delta Spiral",
+      "geometryId": "delta",
+      "theme": {"background": "#050910", "asphalt": "#162033", "lane": "#f1f5f9", "accent": "#34d399"},
+      "backdrop": {"skyTop": "#0c1b2e", "skyBottom": "#01050b", "horizon": "#142236", "accent": "#34d399", "haze": "rgba(52,211,153,0.14)", "stars": 86, "pulses": 4},
+      "traits": {"straightBias": 1.02, "cornerFocus": 1.05, "surfaceGrip": 1.06, "wearRate": 1.05, "turbulence": 1.12},
+      "weatherBias": {"clear": 0.44, "overcast": 0.3, "storm": 0.16, "night": 0.1},
+      "lore": "Schwebende Spiralen im Mündungstrichter des Orinoco – variable Banking-Winkel fordern Balance zwischen Topspeed und Rotation."
+    },
+    {
+      "id": "city",
+      "label": "City Grand Prix",
+      "geometryId": "city",
+      "theme": {"background": "#050a16", "asphalt": "#111d2c", "lane": "#f8fafc", "accent": "#38bdf8"},
+      "backdrop": {"skyTop": "#091d32", "skyBottom": "#02060f", "horizon": "#0f2438", "accent": "#38bdf8", "haze": "rgba(56,189,248,0.12)", "towers": 8, "pulses": 4},
+      "traits": {"straightBias": 1.08, "cornerFocus": 1.18, "surfaceGrip": 1.1, "wearRate": 1.06, "turbulence": 1.22},
+      "weatherBias": {"clear": 0.38, "overcast": 0.34, "storm": 0.18, "night": 0.1},
+      "lore": "Neon-Schluchten, niedrige Mauern und verkantete Schikanen mitten in Neo-Atlantis – jede Gerade endet in einem 90°-Ankerpunkt."
+    },
+    {
+      "id": "aurora",
+      "label": "Aurora Loop",
+      "geometryId": "aurora",
+      "theme": {"background": "#0a101f", "asphalt": "#1c2742", "lane": "#f0abfc", "accent": "#a855f7"},
+      "backdrop": {"skyTop": "#101f3b", "skyBottom": "#030814", "horizon": "#182a48", "accent": "#a855f7", "haze": "rgba(168,85,247,0.14)", "stars": 96, "pulses": 5},
+      "traits": {"straightBias": 0.97, "cornerFocus": 1.18, "surfaceGrip": 1.12, "wearRate": 0.98, "turbulence": 1.05},
+      "weatherBias": {"clear": 0.38, "overcast": 0.24, "storm": 0.18, "night": 0.2},
+      "lore": "Polare Lichtvorhänge beleuchten den Loop über Skandinavien – eiskalte Luft liefert Grip, aber schnelle Temperaturwechsel fordern das Material."
+    },
+    {
+      "id": "zenith",
+      "label": "Zenith Horizon",
+      "geometryId": "zenith",
+      "theme": {"background": "#060b16", "asphalt": "#1a2335", "lane": "#bae6fd", "accent": "#22d3ee"},
+      "backdrop": {"skyTop": "#09182c", "skyBottom": "#01050d", "horizon": "#13223b", "accent": "#22d3ee", "haze": "rgba(34,211,238,0.12)", "stars": 82, "pulses": 3},
+      "traits": {"straightBias": 1.1, "cornerFocus": 0.92, "surfaceGrip": 0.99, "wearRate": 1.02, "turbulence": 0.94},
+      "weatherBias": {"clear": 0.46, "overcast": 0.24, "storm": 0.12, "night": 0.18},
+      "lore": "Über den Alpen gespannt: endlose Horizont-Geraden, dünne Luft und schnelle Wetterumschwünge – ideal für Motorpower."
+    },
+    {
+      "id": "mirage",
+      "label": "Mirage Hyperloop",
+      "geometryId": "mirage",
+      "theme": {"background": "#050910", "asphalt": "#1a2536", "lane": "#fde68a", "accent": "#fb923c"},
+      "backdrop": {"skyTop": "#140f24", "skyBottom": "#06040c", "horizon": "#261826", "accent": "#fb923c", "haze": "rgba(251,146,60,0.14)", "stars": 68, "pulses": 4, "gridSpacing": 32},
+      "traits": {"straightBias": 1.18, "cornerFocus": 0.88, "surfaceGrip": 1.08, "wearRate": 0.96, "turbulence": 0.86},
+      "weatherBias": {"clear": 0.34, "overcast": 0.26, "storm": 0.26, "night": 0.14},
+      "lore": "Durch die Dünen des Sahara-Orbits gebohrt – die Hyperloop-Tunnels pushen Topspeed, aber Sandpartikel erschweren Sicht und Kühlung."
+    },
+    {
+      "id": "nebula",
+      "label": "Nebula Nexus",
+      "geometryId": "nebula",
+      "theme": {"background": "#080b19", "asphalt": "#1e2438", "lane": "#d8b4fe", "accent": "#f472b6"},
+      "backdrop": {"skyTop": "#130f28", "skyBottom": "#040615", "horizon": "#221d36", "accent": "#f472b6", "haze": "rgba(244,114,182,0.16)", "stars": 110, "pulses": 6},
+      "traits": {"straightBias": 0.94, "cornerFocus": 1.22, "surfaceGrip": 1.07, "wearRate": 1.15, "turbulence": 1.2},
+      "weatherBias": {"clear": 0.4, "overcast": 0.26, "storm": 0.18, "night": 0.16},
+      "lore": "Ein Labyrinth aus Glasröhren im Asteroidenfeld – hohe Seitwärtskräfte treffen auf flackernde Plasma-Lichter."
+    },
+    {
+      "id": "solstice",
+      "label": "Solstice Ridge",
+      "geometryId": "solstice",
+      "theme": {"background": "#060b19", "asphalt": "#1c2536", "lane": "#fbbf24", "accent": "#f97316"},
+      "backdrop": {"skyTop": "#11182d", "skyBottom": "#05060f", "horizon": "#241e30", "accent": "#f97316", "haze": "rgba(249,115,22,0.12)", "stars": 76, "pulses": 4},
+      "traits": {"straightBias": 1.12, "cornerFocus": 0.94, "surfaceGrip": 1.04, "wearRate": 1.1, "turbulence": 0.9},
+      "weatherBias": {"clear": 0.36, "overcast": 0.34, "storm": 0.18, "night": 0.12},
+      "lore": "Über Sonnenkollektoren rund um Mercurys Tag-Nacht-Grenze gebaut – extreme Hitze wechselt mit Schattenkälte."
+    },
+    {
+      "id": "helix",
+      "label": "Helix Spires",
+      "geometryId": "helix",
+      "theme": {"background": "#040712", "asphalt": "#161f31", "lane": "#a5b4fc", "accent": "#c084fc"},
+      "backdrop": {"skyTop": "#0b1326", "skyBottom": "#02040a", "horizon": "#1a2136", "accent": "#c084fc", "haze": "rgba(192,132,252,0.16)", "stars": 104, "pulses": 6},
+      "traits": {"straightBias": 0.98, "cornerFocus": 1.24, "surfaceGrip": 1.08, "wearRate": 1.12, "turbulence": 1.18},
+      "weatherBias": {"clear": 0.32, "overcast": 0.28, "storm": 0.22, "night": 0.18},
+      "lore": "Ein Geflecht aus Spindeln über Titan – enge Schikanen im Nebel, ständige Kurswechsel und magnetische Aufwinde."
+    },
+    {
+      "id": "atlas",
+      "label": "Atlas Skyway",
+      "geometryId": "atlas",
+      "theme": {"background": "#040914", "asphalt": "#172032", "lane": "#60a5fa", "accent": "#f97316"},
+      "backdrop": {"skyTop": "#0b1a2c", "skyBottom": "#01050b", "horizon": "#13233b", "accent": "#60a5fa", "haze": "rgba(96,165,250,0.14)", "stars": 88, "pulses": 4},
+      "traits": {"straightBias": 1.12, "cornerFocus": 1.02, "surfaceGrip": 1.05, "wearRate": 1.1, "turbulence": 1.18},
+      "weatherBias": {"clear": 0.4, "overcast": 0.28, "storm": 0.18, "night": 0.14},
+      "lore": "Eine transkontinentale Himmelsstraße über Mega-City Atlas – Windschatten in den Canyons, Sturmfronten über den Wolken."
+    },
+    {
+      "id": "fracture",
+      "label": "Fracture Belt",
+      "geometryId": "fracture",
+      "theme": {"background": "#030710", "asphalt": "#1a1f2f", "lane": "#fda4af", "accent": "#fb7185"},
+      "backdrop": {"skyTop": "#130f24", "skyBottom": "#02040c", "horizon": "#201828", "accent": "#fb7185", "haze": "rgba(253,164,175,0.16)", "stars": 112, "pulses": 6, "gridSpacing": 22},
+      "traits": {"straightBias": 0.9, "cornerFocus": 1.25, "surfaceGrip": 0.96, "wearRate": 1.22, "turbulence": 1.3},
+      "weatherBias": {"clear": 0.28, "overcast": 0.3, "storm": 0.28, "night": 0.14},
+      "lore": "Zwischen aufgebrochenen Asteroiden-Trümmern verlaufen kurze Geraden und unzählige Richtungswechsel – Technik-Parcours pur."
+    },
+    {
+      "id": "lumen",
+      "label": "Lumen Cascades",
+      "geometryId": "lumen",
+      "theme": {"background": "#030712", "asphalt": "#111827", "lane": "#fef9c3", "accent": "#22d3ee"},
+      "backdrop": {"skyTop": "#0f1c2e", "skyBottom": "#03070e", "horizon": "#142235", "accent": "#4ade80", "haze": "rgba(74,222,128,0.12)", "stars": 102, "pulses": 4, "gridSpacing": 26},
+      "traits": {"straightBias": 1.16, "cornerFocus": 0.96, "surfaceGrip": 1.02, "wearRate": 1.08, "turbulence": 1.12},
+      "weatherBias": {"clear": 0.36, "overcast": 0.24, "storm": 0.14, "night": 0.14, "ionstorm": 0.12},
+      "lore": "Schwebende Wasserfälle und bio-lumineszente Vegetation erzeugen wechselnde Lichtfelder, die die Sichtverhältnisse permanent verändern."
+    },
+    {
+      "id": "glacier",
+      "label": "Glacier Traverse",
+      "geometryId": "glacier",
+      "theme": {"background": "#050a16", "asphalt": "#152036", "lane": "#cbd5f5", "accent": "#7dd3fc"},
+      "backdrop": {"skyTop": "#0c1a2e", "skyBottom": "#04070d", "horizon": "#142236", "accent": "#7dd3fc", "haze": "rgba(125,211,252,0.14)", "stars": 94, "pulses": 5},
+      "traits": {"straightBias": 1.04, "cornerFocus": 1.08, "surfaceGrip": 1.18, "wearRate": 0.96, "turbulence": 0.92},
+      "weatherBias": {"clear": 0.32, "overcast": 0.26, "storm": 0.16, "night": 0.26},
+      "lore": "Über arktischen Kämmen schwebend – Eispartikel sorgen für zusätzliche Kühlung, aber böige Polarwinde machen jede Runde zur Herausforderung."
+    },
+    {
+      "id": "eclipse",
+      "label": "Eclipse Citadel",
+      "geometryId": "eclipse",
+      "theme": {"background": "#06060f", "asphalt": "#151a2c", "lane": "#f8fafc", "accent": "#f97316"},
+      "backdrop": {"skyTop": "#120f26", "skyBottom": "#04040a", "horizon": "#1c1b2e", "accent": "#f97316", "haze": "rgba(249,115,22,0.14)", "stars": 74, "pulses": 5},
+      "traits": {"straightBias": 0.96, "cornerFocus": 1.22, "surfaceGrip": 1.06, "wearRate": 1.14, "turbulence": 1.24},
+      "weatherBias": {"clear": 0.3, "overcast": 0.34, "storm": 0.2, "night": 0.16},
+      "lore": "Ein Festungsring im Orbit der Sonnenfinsternis-Station – enge Kehren, wechselnde Schatten und magnetisierte Mauern fordern absolute Präzision."
+    },
+    {
+      "id": "maelstrom",
+      "label": "Maelstrom Gauntlet",
+      "geometryId": "maelstrom",
+      "theme": {"background": "#04070f", "asphalt": "#121b2b", "lane": "#c7d2fe", "accent": "#38bdf8"},
+      "backdrop": {"skyTop": "#0a1426", "skyBottom": "#03060b", "horizon": "#151f31", "accent": "#38bdf8", "haze": "rgba(56,189,248,0.16)", "stars": 98, "pulses": 4},
+      "traits": {"straightBias": 1.06, "cornerFocus": 1.02, "surfaceGrip": 1.08, "wearRate": 1.12, "turbulence": 1.26},
+      "weatherBias": {"clear": 0.34, "overcast": 0.3, "storm": 0.22, "night": 0.14},
+      "lore": "Ein Wirbel aus Plasmastürmen entlang des Äquators – wechselnde Gravitation reißt die Fahrzeuge in unterschiedliche Bahnen und verlangt blitzschnelle Reaktionen."
+    },
+    {
+      "id": "rift",
+      "label": "Rift Meridian",
+      "geometryId": "rift",
+      "theme": {"background": "#040a12", "asphalt": "#161f2f", "lane": "#bbf7d0", "accent": "#22d3ee"},
+      "backdrop": {"skyTop": "#0f1d2e", "skyBottom": "#03070e", "horizon": "#142235", "accent": "#4ade80", "haze": "rgba(74,222,128,0.12)", "stars": 102, "pulses": 4, "gridSpacing": 26},
+      "traits": {"straightBias": 1.16, "cornerFocus": 0.96, "surfaceGrip": 1.02, "wearRate": 1.08, "turbulence": 1.12},
+      "weatherBias": {"clear": 0.36, "overcast": 0.24, "storm": 0.14, "night": 0.14, "ionstorm": 0.12},
+      "lore": "Ein magnetisierter Rift-Gürtel entlang des Äquators sorgt für beschleunigende Strömungen und abrupte Seitenböen."
+    }
+  ]
+}

@@ -1,7 +1,9 @@
 # Manual Test Checklist
 - [ ] Quick Race: 20 Cars spawn, Countdown, Finish
+- [ ] Race Controls: Start aktiv beim Öffnen, Pause/Fortsetzen funktioniert nach Rennstart
 - [ ] Flags: Trigger YELLOW & SC (Incidents), Restart to GREEN
 - [ ] GP: 5 Rennen, Punkte zählen, Zwischenstand, Next Race
+- [ ] GP-Fortsetzung: Rennen 1 abschließen, ins Menü, "Fortsetzen" lädt nächste Strecke
 - [ ] Tracks: Oval/Wavy/Figure‑8 funktionieren
 - [ ] TV: Top‑3 Banner sichtbar, Ticker bei Events
 - [ ] Mini‑Map zeigt Cars korrekt

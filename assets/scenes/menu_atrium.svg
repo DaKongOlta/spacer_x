@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-labelledby="title desc">
+  <title id="title">Spacer-X Neo-Noir Atrium</title>
+  <desc id="desc">Vektorhintergrund mit futuristischen Bögen und Lichtakzenten für das Spacer-X-Menü.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#111827"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#22d3ee" stop-opacity="0"/>
+      <stop offset="40%" stop-color="#22d3ee" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0b1120"/>
+    </linearGradient>
+    <radialGradient id="pulse" cx="0.5" cy="0.4" r="0.6">
+      <stop offset="0%" stop-color="#f472b6" stop-opacity="0.6"/>
+      <stop offset="70%" stop-color="#a855f7" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#312e81" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="600" fill="url(#sky)"/>
+  <rect width="1200" height="600" fill="url(#glow)" opacity="0.6"/>
+  <circle cx="300" cy="180" r="260" fill="url(#pulse)"/>
+  <circle cx="900" cy="140" r="220" fill="url(#pulse)"/>
+  <g fill="none" stroke="#1f2937" stroke-width="2" opacity="0.65">
+    <path d="M-40 520 Q600 260 1240 520"/>
+    <path d="M-60 560 Q600 300 1260 560"/>
+    <path d="M-80 600 Q600 340 1280 600"/>
+  </g>
+  <rect y="420" width="1200" height="180" fill="url(#floor)"/>
+  <g fill="none" stroke="#38bdf8" stroke-width="4" opacity="0.5">
+    <path d="M120 440 Q600 240 1080 440"/>
+    <path d="M200 470 Q600 280 1000 470"/>
+  </g>
+  <g fill="none" stroke="#0ea5e9" stroke-width="2" opacity="0.4">
+    <path d="M80 500 Q600 320 1120 500"/>
+    <path d="M60 540 Q600 360 1140 540"/>
+  </g>
+  <g fill="none" stroke="#6366f1" stroke-width="3" opacity="0.6">
+    <path d="M0 600 Q600 260 1200 600"/>
+  </g>
+  <g fill="none" stroke="#facc15" stroke-width="3" opacity="0.35">
+    <path d="M-20 600 Q600 320 1220 600"/>
+  </g>
+  <g fill="none" stroke="#a855f7" stroke-width="2" opacity="0.45">
+    <path d="M-40 600 Q600 360 1240 600"/>
+  </g>
+  <g fill="none" stroke="#22d3ee" stroke-width="2" opacity="0.5">
+    <path d="M-60 600 Q600 400 1260 600"/>
+  </g>
+</svg>

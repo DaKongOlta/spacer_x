@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+  <defs>
+    <linearGradient id="slimeBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b4ff5a" />
+      <stop offset="1" stop-color="#36b946" />
+    </linearGradient>
+    <linearGradient id="slimeShadow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2f7a30" stop-opacity="0.35" />
+      <stop offset="1" stop-color="#1d481d" stop-opacity="0.75" />
+    </linearGradient>
+    <pattern id="checkers" width="8" height="8" patternUnits="userSpaceOnUse">
+      <rect width="8" height="8" fill="#111827" />
+      <rect width="4" height="4" fill="#f9fafb" />
+      <rect x="4" y="4" width="4" height="4" fill="#f9fafb" />
+    </pattern>
+  </defs>
+  <rect x="6" y="16" width="14" height="54" rx="4" fill="#2c1600" />
+  <rect x="76" y="16" width="14" height="54" rx="4" fill="#2c1600" />
+  <path d="M20 18l26 26H20z" fill="url(#checkers)" />
+  <path d="M76 18l-26 26h26z" fill="url(#checkers)" />
+  <ellipse cx="48" cy="56" rx="34" ry="24" fill="url(#slimeBody)" />
+  <ellipse cx="50" cy="60" rx="30" ry="22" fill="url(#slimeShadow)" opacity="0.25" />
+  <circle cx="36" cy="52" r="6" fill="#0f172a" />
+  <circle cx="60" cy="52" r="6" fill="#0f172a" />
+  <rect x="40" y="64" width="16" height="6" rx="3" fill="#0f172a" />
+  <path d="M32 40c4-8 12-12 16-12s12 4 16 12" fill="none" stroke="#14532d" stroke-width="4" stroke-linecap="round" />
+  <rect x="38" y="28" width="20" height="8" rx="4" fill="#7f1d1d" />
+</svg>
