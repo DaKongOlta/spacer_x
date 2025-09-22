@@ -712,6 +712,7 @@
   };
 
   const gpTrackRotation = ['oval', 'city', 'atlas', 'glacier', 'mirage', 'canyonSprint', 'maelstrom', 'rift'];
+  const GP_SAVE_VERSION = 2;
 
   function sanitizeUiSnapshot(data) {
     const defaults = {
@@ -6904,10 +6905,60 @@ const fallbackTrackData = [
     return text;
   }
 
+  function serializeGpTable() {
+    return Array.from(gpTable.values()).map(entry => ({
+      driver: entry?.driver || '',
+      team: entry?.team || '',
+      number: Number.isFinite(entry?.number) ? Math.round(entry.number) : null,
+      points: Number.isFinite(entry?.points) ? Math.max(0, Math.round(entry.points)) : 0
+    })).filter(item => item.driver);
+  }
+
+  function hydrateGpTable(entries) {
+    gpTable.clear();
+    if (!Array.isArray(entries)) return;
+    entries.forEach(item => {
+      if (!item) return;
+      let driver = '';
+      let payload = null;
+      if (Array.isArray(item) && item.length >= 2) {
+        driver = typeof item[0] === 'string' ? item[0] : '';
+        payload = item[1];
+      } else if (typeof item === 'object') {
+        driver = typeof item.driver === 'string' ? item.driver : '';
+        payload = item;
+      }
+      if (!driver || !payload || typeof payload !== 'object') return;
+      const normalized = {
+        driver,
+        team: typeof payload.team === 'string' ? payload.team : '',
+        number: Number.isFinite(payload.number) ? Math.round(payload.number) : null,
+        points: Number.isFinite(payload.points) ? Math.max(0, Math.round(payload.points)) : 0
+      };
+      gpTable.set(driver, normalized);
+    });
+  }
+
+  function sanitizeGpRotation(candidate) {
+    if (!Array.isArray(candidate)) return false;
+    const clean = candidate.filter(id => typeof id === 'string' && id.trim().length > 0);
+    if (!clean.length) return false;
+    gpTrackRotation.length = 0;
+    clean.forEach(id => gpTrackRotation.push(id));
+    sanitizeGrandPrixRotation();
+    return true;
+  }
+
   function gpSave() {
     try {
-      const data = Array.from(gpTable.entries());
-      localStorage.setItem(STORAGE_KEYS.gp, JSON.stringify({ gpRaceIndex, data }));
+      const payload = {
+        version: GP_SAVE_VERSION,
+        raceIndex: gpRaceIndex,
+        active: gpActive,
+        table: serializeGpTable(),
+        rotation: gpTrackRotation.slice()
+      };
+      localStorage.setItem(STORAGE_KEYS.gp, JSON.stringify(payload));
     } catch (err) {
       console.warn('gp save failed', err);
     }
@@ -6917,11 +6968,38 @@ const fallbackTrackData = [
     try {
       const raw = localStorage.getItem(STORAGE_KEYS.gp);
       if (!raw) return;
-      const obj = JSON.parse(raw);
-      gpRaceIndex = obj.gpRaceIndex || 0;
-      gpTable.clear();
-      (obj.data || []).forEach(([key, value]) => gpTable.set(key, value));
-      gpActive = gpRaceIndex > 0 && gpRaceIndex < GP_RACES;
+      const parsed = JSON.parse(raw);
+      let raceIndex = 0;
+      let active = false;
+      let table = [];
+      let rotation = null;
+      if (parsed && typeof parsed === 'object') {
+        if (Array.isArray(parsed.table)) {
+          table = parsed.table;
+        } else if (Array.isArray(parsed.data)) {
+          table = parsed.data;
+        }
+        if (Number.isFinite(parsed.raceIndex)) {
+          raceIndex = parsed.raceIndex;
+        } else if (Number.isFinite(parsed.gpRaceIndex)) {
+          raceIndex = parsed.gpRaceIndex;
+        }
+        if (Array.isArray(parsed.rotation)) {
+          rotation = parsed.rotation;
+        }
+        if (typeof parsed.active === 'boolean') {
+          active = parsed.active;
+        }
+      } else if (Array.isArray(parsed)) {
+        table = parsed;
+      }
+      gpRaceIndex = Math.max(0, Math.floor(raceIndex));
+      hydrateGpTable(table);
+      if (rotation) {
+        sanitizeGpRotation(rotation);
+      }
+      const hasProgress = gpRaceIndex > 0 && gpRaceIndex < GP_RACES && gpTable.size > 0;
+      gpActive = hasProgress ? true : Boolean(active);
       updateGrandPrixMenuState();
     } catch (err) {
       console.warn('gp load failed', err);

@@ -57,7 +57,7 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 20 Strecken (u. a. City Grand 
 - Timing-&-Statistik-Overlay mit kompaktem Timing-Table, Replay-Markierungen für Formation/Starts und laufend aktualisierten Gap-/Statusdaten
 - Codex-Archiv erweitert um Race-Control-Verstöße, Pit-Stop-Zusammenfassungen und Caution-Statistiken je Event
 - Live-Gap-HUD mit Delta-Bar, Phasen-Timeline im Ergebnisbericht sowie `window.spacerxDiagnostics` für Race-Control-Diagnosen
-- Globale Speicherverwaltung: Profil-Export/Import (JSON) inkl. Manager, GP, Wetten, Archiv & UI-Settings sowie kompletter Speicher-Reset im Einstellungsmenü
+- Globale Speicherverwaltung: Profil-Export/Import (JSON) inkl. Manager, GP, Wetten, Archiv & UI-Settings, versionierte Grand-Prix-Saves (inkl. Rotation-Migration) sowie kompletter Speicher-Reset im Einstellungsmenü
 - Codex-Roadmap mit Status-Badges für Demo-, Broadcast- und Community-Meilensteine
 - Lore-, Flaggen- und Chassis-Sprites als SVG-Assets für weitere UI-Iterationen
 
