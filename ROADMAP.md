@@ -21,11 +21,13 @@
 ## P3 — Manager‑/Karriere v1 (🔜 Nächstes)
 - ✅ Budget, Verträge, Upgrades, Transfermarkt, JSON Export/Import
 - ✅ Facility-Upgrades mit Team-Buffs; Staff-Systeme & Wochen-Schedule Vertiefung folgen
-- ⏳ Saison-Langzeitstatistiken, Rekorde & Patch-kompatible Saves
+- ✅ Sponsorziele, Custom-Team-Onboarding sowie Saison-Historie & Champion-Archiv im Codex
+- ⏳ Staff-Systeme, Rekorde & Patch-kompatible Karriere-Saves
 
 ## P4 — Special: Race Betting (🧪 Preview)
 - ✅ Quotenmodell aus Fahrerform, Einsatzverwaltung & Auszahlungen
-- ⏳ Bonus-Events, Multi-Bet-Queue & Wettarchiv pro Season
+- ✅ Multi-Bet-Slips, Couch-Modus sowie Balance-Chart & JSON-Export
+- ⏳ Bonus-Events & saisonale Wett-Archive
 
 ## P5 — Optik & Assets (🎨 Aufbau)
 - ✅ Neo-Noir Hero-Szene, Track-Poster-SVGs & Chassis/Flag-Assets, Theme-Polish

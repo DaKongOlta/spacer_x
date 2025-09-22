@@ -369,6 +369,12 @@ button.secondary:disabled:hover{background:#0d1524}
 .managerPersistence{display:flex;flex-direction:column;gap:8px}
 .managerPersistence .importLabel{position:relative;overflow:hidden;border:1px dashed #334155;padding:8px 10px;border-radius:10px;text-align:center;font-size:12px}
 .managerPersistence .importLabel input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.customTeamPanel{background:rgba(15,23,42,.78);border:1px solid #1f2937;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:0 16px 32px -30px #000}
+.customTeamPanel h3{margin:0;font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:#38bdf8}
+.customTeamPanel label{display:flex;flex-direction:column;gap:6px;font-size:12px;color:#e2e8f0}
+.customTeamPanel input[type=text]{background:#0b1220;border:1px solid #1f2937;border-radius:8px;padding:6px 8px;color:#e2e8f0}
+.customTeamPanel input[type=color]{height:36px;border-radius:8px;border:1px solid #1f2937;background:#0b1220;padding:4px}
+.customTeamPanel button{align-self:flex-start}
 .managerDetail{background:#0d1524;border:1px solid #1e293b;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:12px}
 .contractList{display:flex;flex-direction:column;gap:10px}
 .contractCard{background:#0f172a;border:1px solid #1e293b;border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:4px;font-size:13px}
@@ -398,6 +404,16 @@ button.secondary:disabled:hover{background:#0d1524}
 .freeAgentCard .meta{display:flex;justify-content:space-between;font-size:12px;opacity:.82}
 .freeAgentCard button{align-self:flex-start}
 .freeAgentCard.unavailable{opacity:.55}
+.sponsorList{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.sponsorCard{background:rgba(11,18,32,.92);border:1px solid #1f2937;border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;box-shadow:0 16px 32px -28px #020617}
+.sponsorCard header{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#f8fafc;text-transform:uppercase;letter-spacing:.06em}
+.sponsorCard p{margin:0;font-size:12px;color:#cbd5f5;line-height:1.4}
+.sponsorCard footer{display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;font-variant-numeric:tabular-nums}
+.sponsorCard .status{padding:2px 8px;border-radius:999px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(148,163,184,.35)}
+.sponsorCard .status.success{color:#22c55e;border-color:rgba(34,197,94,.45);background:rgba(34,197,94,.16)}
+.sponsorCard .status.pending{color:#38bdf8;border-color:rgba(56,189,248,.4);background:rgba(56,189,248,.16)}
+.sponsorCard .status.error{color:#f87171;border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.18)}
+.sponsorEmpty{padding:10px;border:1px dashed #334155;border-radius:10px;font-size:12px;color:#94a3b8;text-align:center}
 
 button.primary{background:#155e75;border-color:#0ea5e9}
 button.primary:hover{background:#0f4c63}
@@ -406,12 +422,17 @@ button.primary:hover{background:#0f4c63}
 .bettingLayout{display:grid;grid-template-columns:320px 1fr;gap:16px;margin:12px 0;align-items:start}
 .bettingPanel,.oddsBoard{background:#0d1524;border:1px solid #1e293b;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px}
 .betSlip{min-height:48px;background:#0f172a;border:1px dashed #1e293b;border-radius:10px;padding:8px;font-size:13px}
+.slipEntry{display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(15,23,42,.78);border:1px solid rgba(51,65,85,.65);border-radius:10px;padding:6px 8px;margin-bottom:6px;font-size:12px;color:#e2e8f0}
+.slipEntry strong{font-size:13px;color:#7dd3fc}
+.slipEntry .removeSlip{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:4px 8px;font-size:11px;color:#e2e8f0;cursor:pointer}
+.slipEntry .removeSlip:hover{background:#0f172a}
 #oddsTable{width:100%;border-collapse:collapse;font-size:13px}
 #oddsTable th,#oddsTable td{padding:6px;border-bottom:1px solid #1e293b;text-align:left}
 #oddsTable tbody tr:nth-child(even){background:#101a2a}
 .betHistory{margin-top:12px;font-size:12px;display:flex;flex-direction:column;gap:6px;max-height:220px;overflow:auto}
 .betHistory .win{color:#22c55e}
 .betHistory .loss{color:#ef4444}
+.betHistoryFallback{margin-top:10px;font-size:12px;color:#94a3b8;text-align:center}
 .hudSettings{margin:18px 0 10px;display:flex;flex-direction:column;gap:6px;background:#0d1524;border:1px solid #1e293b;border-radius:12px;padding:12px}
 .hudSettings h3{margin:0;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:#38bdf8}
 .hudSettings label{font-size:12px;display:flex;align-items:center;gap:6px}
@@ -458,6 +479,13 @@ button.danger:hover{background:#991b1b}
 .roadmapCard li .dot{width:6px;height:6px;border-radius:50%;background:#38bdf8;display:inline-block}
 .roadmapCard li .dot.done{background:#22c55e}
 .roadmapCard li .dot.pending{background:#475569}
+.seasonHistory{display:flex;flex-direction:column;gap:10px}
+.seasonEntry{background:rgba(11,18,32,.86);border:1px solid #1f2937;border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:4px;font-size:12px;color:#cbd5f5}
+.seasonEntry strong{color:#38bdf8;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.seasonEntry.empty{border-style:dashed;text-align:center;color:#94a3b8;font-style:italic}
+
+.performanceOverlay{position:fixed;bottom:18px;right:18px;z-index:120;background:rgba(2,6,23,.84);border:1px solid rgba(56,189,248,.35);border-radius:10px;padding:8px 12px;font-size:12px;color:#7dd3fc;letter-spacing:.04em;text-transform:uppercase;font-variant-numeric:tabular-nums;backdrop-filter:blur(6px);box-shadow:0 18px 32px -28px #000;pointer-events:none;opacity:0;transform:translateY(6px);transition:opacity .2s ease,transform .2s ease}
+.performanceOverlay.visible{opacity:1;transform:translateY(0)}
 .spriteGallery{margin:12px 0 0;background:#050910;border:1px solid #1f2937;border-radius:16px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;box-shadow:0 18px 36px -28px #000}
 .spriteGallery img{width:100%;height:auto;border-radius:12px}
 .spriteGallery p{margin:0;font-size:12px;color:#94a3b8;line-height:1.4}

@@ -327,6 +327,16 @@
             <button data-upgrade="aero">Aero &amp; Balance (+)</button>
             <button data-upgrade="systems">Systeme &amp; Reliability (+)</button>
           </div>
+          <div class="customTeamPanel">
+            <h3>Eigenes Team</h3>
+            <label>Teamname
+              <input type="text" id="customTeamName" placeholder="Team Neon Flux">
+            </label>
+            <label>Farbe
+              <input type="color" id="customTeamColor" value="#ff3366">
+            </label>
+            <button id="createCustomTeamBtn">Team erstellen</button>
+          </div>
           <div class="managerPersistence">
             <button id="managerSaveBtn">Speichern</button>
             <button id="managerExportBtn">Export JSON</button>
@@ -340,6 +350,8 @@
           <div id="upgradeStatus" class="upgradeStatus"></div>
           <h3>Facilities &amp; Infrastruktur</h3>
           <div id="facilityList" class="facilityList"></div>
+          <h3>Sponsoren</h3>
+          <div id="sponsorList" class="sponsorList"></div>
           <h3>Transfermarkt</h3>
           <div id="freeAgentList" class="freeAgentList"></div>
           <div class="managerActions">
@@ -358,6 +370,15 @@
       <div class="bettingLayout">
         <div class="bettingPanel">
           <div class="betBalance">Credits: <strong id="betBalance"></strong></div>
+          <label>Spieleranzahl:
+            <input type="number" id="betPlayerCount" min="1" max="6" value="1">
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" id="betCouchToggle"> Couch-Modus aktivieren
+          </label>
+          <label>Spieler:
+            <select id="betPlayerSelect"></select>
+          </label>
           <label>Fahrer:
             <select id="betDriverSelect"></select>
           </label>
@@ -366,6 +387,7 @@
           </label>
           <button id="placeBetBtn">Wette platzieren</button>
           <div id="betSlip" class="betSlip"></div>
+          <button id="clearBetsBtn" class="secondary">Slip zurücksetzen</button>
           <button id="betStartRaceBtn" class="primary">Wetten &amp; Rennen starten</button>
         </div>
         <div class="oddsBoard">
@@ -375,6 +397,8 @@
             <tbody></tbody>
           </table>
           <div id="betHistory" class="betHistory"></div>
+          <canvas id="betHistoryChart" width="360" height="160" aria-label="Balance-Chart"></canvas>
+          <button id="betExportBtn" class="secondary">Historie exportieren</button>
         </div>
       </div>
       <button id="backToMenuFromBetting">Zum Hauptmenü</button>
@@ -403,6 +427,8 @@
         <aside class="codexColumn archive">
           <h3>Rennarchiv</h3>
           <div id="raceArchive" class="raceArchive"></div>
+          <h3>Saison Historie</h3>
+          <div id="seasonHistory" class="seasonHistory"></div>
           <h3>Hall of Fame</h3>
           <div id="hallOfFame" class="hallOfFame"></div>
         </aside>
@@ -461,6 +487,7 @@
         <h3>Accessibility</h3>
         <label><input type="checkbox" id="toggleReducedMotion"> Reduzierte Animationen</label>
         <label><input type="checkbox" id="toggleHighContrast"> Hoher Kontrast</label>
+        <label><input type="checkbox" id="togglePerformanceHud"> Performance-Monitor anzeigen</label>
       </div>
       <div class="simSettings">
         <h3>Simulation</h3>
@@ -493,6 +520,7 @@
       <button id="backToMenuFromSettings">Zum Hauptmenü</button>
     </section>
   </main>
+  <div id="performanceOverlay" aria-hidden="true"></div>
   <script src="script.js"></script>
 </body>
 </html>

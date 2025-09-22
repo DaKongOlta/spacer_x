@@ -12,6 +12,68 @@
     history: 'spacerx_race_history'
   };
   const PROFILE_EXPORT_VERSION = '0.9.0-demo';
+  const MANAGER_SAVE_VERSION = 2;
+
+  const MANAGER_POINTS_TABLE = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
+  const MAX_SEASON_ARCHIVE = 12;
+  const MAX_ACTIVE_SPONSORS = 3;
+
+  const sponsorDeck = [
+    {
+      id: 'aegis_dynamics',
+      name: 'Aegis Dynamics',
+      type: 'form',
+      threshold: 0.12,
+      payout: 325000,
+      duration: 4,
+      blurb: 'Halte die Teamform über 0.12 für einen Bonus.'
+    },
+    {
+      id: 'nova_energy',
+      name: 'Nova Energy Grid',
+      type: 'budget',
+      threshold: 5200000,
+      payout: 280000,
+      duration: 3,
+      blurb: 'Bewahre ein Budget von mindestens 5.2 Mio. Credits.'
+    },
+    {
+      id: 'helix_media',
+      name: 'Helix MediaWorks',
+      type: 'morale',
+      threshold: 0.68,
+      payout: 210000,
+      duration: 4,
+      blurb: 'Team-Moral im Schnitt über 68 %. '
+    },
+    {
+      id: 'quantum_parts',
+      name: 'Quantum Parts Consortium',
+      type: 'upgrade',
+      threshold: 5,
+      payout: 360000,
+      duration: 5,
+      blurb: 'Mindestens fünf kombinierte Upgrade-Stufen halten.'
+    },
+    {
+      id: 'orbital_finance',
+      name: 'Orbital Finance Trust',
+      type: 'podium',
+      threshold: 3,
+      payout: 450000,
+      duration: 6,
+      blurb: 'Sammle drei Podiumsplatzierungen in dieser Saison.'
+    },
+    {
+      id: 'stellar_transport',
+      name: 'Stellar Transport League',
+      type: 'facility',
+      threshold: 8,
+      payout: 240000,
+      duration: 4,
+      blurb: 'Facility-Level gesamt auf mindestens 8 bringen.'
+    }
+  ];
 
   const allTeamNames = [
     "Apex Nova","VoltWorks","Nebula GP","Quantum Edge","Zenith Motors","HyperFlux",
@@ -220,6 +282,155 @@
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
+  function createDefaultSeasonStandings(year = 1) {
+    return {
+      year,
+      races: [],
+      teamPoints: {},
+      driverPoints: {},
+      podiums: {},
+      wins: {}
+    };
+  }
+
+  function createSponsorFromTemplate(template, teamName) {
+    const weeks = Math.max(2, Math.round(template.duration || 4));
+    return {
+      id: `${template.id}-${teamName}-${Math.floor(Math.random() * 100000)}`,
+      name: template.name,
+      type: template.type,
+      threshold: template.threshold,
+      payout: template.payout,
+      duration: weeks,
+      weeksRemaining: weeks,
+      description: template.blurb,
+      progress: 0,
+      completed: false,
+      failed: false
+    };
+  }
+
+  function rollSponsorContracts(teamName, existing = []) {
+    const active = Array.isArray(existing) ? existing.filter(Boolean) : [];
+    const picks = [...sponsorDeck];
+    while (active.length < MAX_ACTIVE_SPONSORS && picks.length) {
+      const idx = Math.floor(Math.random() * picks.length);
+      const template = picks.splice(idx, 1)[0];
+      active.push(createSponsorFromTemplate(template, teamName));
+    }
+    return active;
+  }
+
+  function ensureTeamSponsors(teamName, teamData) {
+    if (!teamData.sponsors || !Array.isArray(teamData.sponsors)) {
+      teamData.sponsors = rollSponsorContracts(teamName);
+    }
+    teamData.sponsors = teamData.sponsors
+      .filter(contract => contract && typeof contract === 'object')
+      .map(contract => {
+        const duration = Math.max(2, Math.round(contract.duration || 4));
+        const weeksRemaining = Math.max(0, Math.round(contract.weeksRemaining ?? duration));
+        return {
+          id: typeof contract.id === 'string' ? contract.id : `${contract.type}-${teamName}-${Math.random()}`,
+          name: contract.name || 'Sponsor',
+          type: contract.type || 'form',
+          threshold: contract.threshold ?? 0,
+          payout: Number.isFinite(contract.payout) ? Math.max(0, Math.round(contract.payout)) : 0,
+          duration,
+          weeksRemaining,
+          description: typeof contract.description === 'string' ? contract.description : '',
+          progress: Number.isFinite(contract.progress) ? Math.max(0, contract.progress) : 0,
+          completed: contract.completed === true,
+          failed: contract.failed === true
+        };
+      });
+    if (teamData.sponsors.length < MAX_ACTIVE_SPONSORS) {
+      teamData.sponsors = rollSponsorContracts(teamName, teamData.sponsors);
+    }
+  }
+
+  function computeAverageMorale(teamData) {
+    const roster = Array.isArray(teamData.roster) ? teamData.roster : [];
+    if (!roster.length) return 0.5;
+    const total = roster.reduce((sum, contract) => sum + clamp(contract?.morale ?? 0.5, 0, 1), 0);
+    return total / roster.length;
+  }
+
+  function computeFacilitySum(teamData) {
+    const facilities = sanitizeFacilities(teamData.facilities || {});
+    return Object.values(facilities).reduce((sum, level) => sum + clampFacilityLevel(level), 0);
+  }
+
+  function computeUpgradeSum(teamData) {
+    const upgrades = teamData.upgrades || {};
+    return ['engine', 'aero', 'systems'].reduce((sum, key) => sum + clamp(Math.round(upgrades[key] ?? 0), 0, MAX_UPGRADE_LEVEL), 0);
+  }
+
+  function evaluateSponsorContracts(teamName, teamData, summaryParts) {
+    if (!teamData) return;
+    ensureTeamSponsors(teamName, teamData);
+    const averageMorale = computeAverageMorale(teamData);
+    const facilitySum = computeFacilitySum(teamData);
+    const upgradeSum = computeUpgradeSum(teamData);
+    const formValue = teamData.form ?? 0;
+    const budgetValue = teamData.budget ?? 0;
+    const stats = teamData.seasonStats || {};
+    const podiums = stats.podiums || 0;
+    const completedThisWeek = [];
+    teamData.sponsors.forEach(contract => {
+      if (contract.completed || contract.failed) return;
+      let achieved = false;
+      switch (contract.type) {
+        case 'morale':
+          achieved = averageMorale >= contract.threshold;
+          break;
+        case 'budget':
+          achieved = budgetValue >= contract.threshold;
+          break;
+        case 'upgrade':
+          achieved = upgradeSum >= contract.threshold;
+          break;
+        case 'facility':
+          achieved = facilitySum >= contract.threshold;
+          break;
+        case 'podium':
+          achieved = podiums >= contract.threshold;
+          break;
+        default:
+          achieved = formValue >= contract.threshold;
+          break;
+      }
+      if (achieved) {
+        contract.completed = true;
+        contract.progress += 1;
+        teamData.budget = Math.max(0, Math.round((teamData.budget || 0) + contract.payout));
+        completedThisWeek.push(contract);
+      } else {
+        contract.weeksRemaining = Math.max(0, (contract.weeksRemaining ?? contract.duration ?? 4) - 1);
+        if (contract.weeksRemaining === 0) {
+          contract.failed = true;
+        }
+      }
+    });
+    if (completedThisWeek.length) {
+      const lines = completedThisWeek.map(contract => `${contract.name} +${formatCurrency(contract.payout)}`);
+      summaryParts.push(`Sponsorboni: ${lines.join(', ')}`);
+    }
+    const failed = teamData.sponsors.filter(contract => contract.failed && !contract.completed);
+    if (failed.length) {
+      summaryParts.push(`Sponsorziele verfehlt: ${failed.map(c => c.name).join(', ')}`);
+    }
+    const refreshed = teamData.sponsors.filter(contract => !contract.completed && !contract.failed);
+    if (refreshed.length < MAX_ACTIVE_SPONSORS) {
+      const newContracts = rollSponsorContracts(teamName).filter(contract => {
+        return !teamData.sponsors.some(existing => existing.id === contract.id);
+      }).slice(0, MAX_ACTIVE_SPONSORS - refreshed.length);
+      teamData.sponsors = [...refreshed, ...newContracts];
+    } else {
+      teamData.sponsors = [...refreshed];
+    }
+  }
+
   function describeVariantProfile(variant = {}) {
     const traits = [];
     const engine = typeof variant.engine === 'number' ? variant.engine : 1;
@@ -234,6 +445,28 @@
     if (systems > 1.05 || stability > 1.05) traits.push('Robuste Systeme');
     if (drag < 0.98) traits.push('Leichtbau');
     return traits.length ? traits.join(' • ') : 'Ausgewogenes Paket';
+  }
+
+  function registerCustomTeam(name, color) {
+    if (!name || typeof name !== 'string') return;
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    if (!allTeamNames.includes(trimmed)) {
+      allTeamNames.push(trimmed);
+    }
+    const hueColor = color && typeof color === 'string' && color.trim() ? color.trim() : `hsl(${Math.floor(Math.random() * 360)},80%,55%)`;
+    teamColors[trimmed] = hueColor;
+    if (!teamTemplates[trimmed]) {
+      const baseEngine = 0.62 + Math.random() * 0.12;
+      const baseAero = 0.6 + Math.random() * 0.12;
+      const baseSystems = 0.6 + Math.random() * 0.12;
+      const archetypes = Object.keys(vehicleArchetypes);
+      teamTemplates[trimmed] = {
+        budget: 4300000 + Math.round(Math.random() * 600000),
+        base: { engine: baseEngine, aero: baseAero, systems: baseSystems },
+        archetype: pickRandom(archetypes)
+      };
+    }
   }
 
   function generateVehicleVariant(teamName) {
@@ -456,10 +689,14 @@
   function createDefaultManagerState() {
     const state = {
       version: 3,
+      saveVersion: MANAGER_SAVE_VERSION,
       seasonYear: 1,
       week: 1,
       selectedTeam: defaultRosters[0].team,
-      teams: {}
+      teams: {},
+      customTeams: [],
+      seasonStandings: createDefaultSeasonStandings(1),
+      seasonHistory: []
     };
     const rostered = new Set();
     defaultRosters.forEach(entry => {
@@ -479,7 +716,9 @@
         upgrades: { engine: 0, aero: 0, systems: 0 },
         facilities: createDefaultFacilities(),
         roster,
-        form: 0
+        form: 0,
+        sponsors: rollSponsorContracts(entry.team),
+        seasonStats: { points: 0, podiums: 0, wins: 0 }
       };
     });
     state.freeAgents = driverDatabase
@@ -497,6 +736,8 @@
     if (!state || typeof state !== 'object') {
       return base;
     }
+    const incomingVersion = Number.isFinite(state.saveVersion) ? state.saveVersion : 0;
+    base.saveVersion = MANAGER_SAVE_VERSION;
     base.seasonYear = typeof state.seasonYear === 'number' ? Math.max(1, Math.floor(state.seasonYear)) : base.seasonYear;
     base.week = typeof state.week === 'number' && state.week >= 1 ? Math.floor(state.week) : base.week;
     const seasonLength = getManagerSeasonLength();
@@ -517,6 +758,7 @@
         }
         data.facilities = sanitizeFacilities(incoming.facilities || data.facilities);
         data.form = typeof incoming.form === 'number' ? incoming.form : 0;
+        ensureTeamSponsors(team, data);
         const roster = Array.isArray(incoming.roster) ? incoming.roster : [];
         const baseRoster = data.roster.slice();
         const sanitizedRoster = [];
@@ -538,10 +780,18 @@
           }
         });
         data.roster = sanitizedRoster.slice(0, MAX_ROSTER_SIZE);
+        const stats = incoming.seasonStats && typeof incoming.seasonStats === 'object' ? incoming.seasonStats : {};
+        data.seasonStats = {
+          points: Number.isFinite(stats.points) ? Math.max(0, stats.points) : 0,
+          podiums: Number.isFinite(stats.podiums) ? Math.max(0, stats.podiums) : 0,
+          wins: Number.isFinite(stats.wins) ? Math.max(0, stats.wins) : 0
+        };
+        ensureTeamSponsors(team, data);
       });
     }
-    Object.values(base.teams).forEach(team => {
-      team.facilities = sanitizeFacilities(team.facilities);
+    Object.entries(base.teams).forEach(([teamName, data]) => {
+      data.facilities = sanitizeFacilities(data.facilities);
+      ensureTeamSponsors(teamName, data);
     });
     if (state.selectedTeam && base.teams[state.selectedTeam]) {
       base.selectedTeam = state.selectedTeam;
@@ -572,6 +822,61 @@
       });
     });
     base.freeAgents = agents;
+    base.customTeams = Array.isArray(state.customTeams)
+      ? state.customTeams.filter(name => typeof name === 'string' && name.trim().length).map(name => name.trim())
+      : [];
+    if (Array.isArray(state.seasonHistory)) {
+      base.seasonHistory = state.seasonHistory
+        .filter(entry => entry && typeof entry === 'object')
+        .map(entry => ({
+          year: Number.isFinite(entry.year) ? Math.max(1, Math.floor(entry.year)) : base.seasonYear,
+          championTeam: typeof entry.championTeam === 'string' ? entry.championTeam : '',
+          championDriver: typeof entry.championDriver === 'string' ? entry.championDriver : '',
+          points: Number.isFinite(entry.points) ? Math.max(0, entry.points) : 0,
+          wins: Number.isFinite(entry.wins) ? Math.max(0, entry.wins) : 0
+        }))
+        .slice(0, MAX_SEASON_ARCHIVE);
+    }
+    if (state.seasonStandings && typeof state.seasonStandings === 'object') {
+      const standings = createDefaultSeasonStandings(
+        Number.isFinite(state.seasonStandings.year) ? Math.max(1, Math.floor(state.seasonStandings.year)) : base.seasonYear
+      );
+      const incomingStandings = state.seasonStandings;
+      if (Array.isArray(incomingStandings.races)) {
+        standings.races = incomingStandings.races
+          .filter(entry => entry && typeof entry === 'object')
+          .map(entry => ({
+            trackId: typeof entry.trackId === 'string' ? entry.trackId : 'oval',
+            winner: typeof entry.winner === 'string' ? entry.winner : '',
+            timestamp: Number.isFinite(entry.timestamp) ? entry.timestamp : Date.now(),
+            podium: Array.isArray(entry.podium) ? entry.podium.slice(0, 3) : []
+          }));
+      }
+      if (incomingStandings.teamPoints && typeof incomingStandings.teamPoints === 'object') {
+        Object.entries(incomingStandings.teamPoints).forEach(([teamName, value]) => {
+          standings.teamPoints[teamName] = Number.isFinite(value) ? Math.max(0, value) : 0;
+        });
+      }
+      if (incomingStandings.driverPoints && typeof incomingStandings.driverPoints === 'object') {
+        Object.entries(incomingStandings.driverPoints).forEach(([driverName, value]) => {
+          standings.driverPoints[driverName] = Number.isFinite(value) ? Math.max(0, value) : 0;
+        });
+      }
+      if (incomingStandings.podiums && typeof incomingStandings.podiums === 'object') {
+        Object.entries(incomingStandings.podiums).forEach(([teamName, value]) => {
+          standings.podiums[teamName] = Number.isFinite(value) ? Math.max(0, value) : 0;
+        });
+      }
+      if (incomingStandings.wins && typeof incomingStandings.wins === 'object') {
+        Object.entries(incomingStandings.wins).forEach(([teamName, value]) => {
+          standings.wins[teamName] = Number.isFinite(value) ? Math.max(0, value) : 0;
+        });
+      }
+      base.seasonStandings = standings;
+    }
+    if (incomingVersion < MANAGER_SAVE_VERSION) {
+      base.saveVersion = MANAGER_SAVE_VERSION;
+    }
     return base;
   }
 
@@ -589,6 +894,9 @@
 
   function persistManagerState() {
     try {
+      if (managerState) {
+        managerState.saveVersion = MANAGER_SAVE_VERSION;
+      }
       localStorage.setItem(STORAGE_KEYS.manager, JSON.stringify(managerState));
     } catch (err) {
       console.warn('manager state save failed', err);
@@ -637,21 +945,26 @@
   ensureFreeAgentPool();
   let focusTeam = managerState.selectedTeam;
 
-  const bettingDefaults = { balance: 1000, activeBet: null, history: [] };
+  const bettingDefaults = {
+    balance: 1000,
+    history: [],
+    slips: [],
+    players: [
+      { id: 'P1', name: 'Player 1', balance: 1000 }
+    ],
+    couchMode: false,
+    activeBet: null
+  };
 
   function loadBettingState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEYS.betting);
-      if (!raw) return { ...bettingDefaults };
+      if (!raw) return sanitizeBettingSnapshot({});
       const parsed = JSON.parse(raw);
-      return {
-        balance: typeof parsed.balance === 'number' ? parsed.balance : bettingDefaults.balance,
-        activeBet: parsed.activeBet || null,
-        history: Array.isArray(parsed.history) ? parsed.history.slice(0, 12) : []
-      };
+      return sanitizeBettingSnapshot(parsed);
     } catch (err) {
       console.warn('betting state load failed', err);
-      return { ...bettingDefaults };
+      return sanitizeBettingSnapshot({});
     }
   }
 
@@ -668,13 +981,26 @@
   function loadRaceChronicle() {
     try {
       const raw = localStorage.getItem(STORAGE_KEYS.history);
-      if (!raw) return { events: [] };
+      if (!raw) return { events: [], seasons: [] };
       const parsed = JSON.parse(raw);
       const events = Array.isArray(parsed?.events) ? parsed.events.filter(Boolean).slice(0, MAX_ARCHIVE_ENTRIES) : [];
-      return { events };
+      const seasons = Array.isArray(parsed?.seasons)
+        ? parsed.seasons
+            .filter(entry => entry && typeof entry === 'object')
+            .map(entry => ({
+              year: Number.isFinite(entry.year) ? entry.year : 1,
+              championTeam: typeof entry.championTeam === 'string' ? entry.championTeam : '',
+              championDriver: typeof entry.championDriver === 'string' ? entry.championDriver : '',
+              points: Number.isFinite(entry.points) ? entry.points : 0,
+              wins: Number.isFinite(entry.wins) ? entry.wins : 0,
+              driverPoints: Number.isFinite(entry.driverPoints) ? entry.driverPoints : 0
+            }))
+            .slice(0, MAX_SEASON_ARCHIVE)
+        : [];
+      return { events, seasons };
     } catch (err) {
       console.warn('history load failed', err);
-      return { events: [] };
+      return { events: [], seasons: [] };
     }
   }
 
@@ -689,6 +1015,10 @@
   let raceChronicle = loadRaceChronicle();
 
   let bettingState = loadBettingState();
+  ensureBettingPlayers();
+  if (!bettingState.couchMode && bettingState.players?.length) {
+    bettingState.players[0].balance = bettingState.balance;
+  }
   let cachedOdds = [];
 
   const difficultyModifiers = {
@@ -813,30 +1143,74 @@
       odds: Number.isFinite(entry.odds) ? Math.max(1, Number(entry.odds)) : 1,
       placedAt: Number.isFinite(entry.placedAt) ? entry.placedAt : Date.now(),
       track: typeof entry.track === 'string' ? entry.track : '',
-      success: entry.success === true
+      success: entry.success === true,
+      playerId: typeof entry.playerId === 'string' ? entry.playerId : 'P1'
     };
     if (Number.isFinite(entry.payout)) sanitized.payout = Math.max(0, Math.round(entry.payout));
     if (Number.isFinite(entry.loss)) sanitized.loss = Math.max(0, Math.round(entry.loss));
     if (Number.isFinite(entry.settledAt)) sanitized.settledAt = entry.settledAt;
+    if (Number.isFinite(entry.balanceAfter)) sanitized.balanceAfter = Math.max(0, Math.round(entry.balanceAfter));
     return sanitized;
   }
 
   function sanitizeBettingSnapshot(data) {
-    const snapshot = { balance: bettingDefaults.balance, activeBet: null, history: [] };
+    const snapshot = {
+      balance: bettingDefaults.balance,
+      slips: [],
+      history: [],
+      players: bettingDefaults.players.map(player => ({ ...player })),
+      couchMode: false
+    };
     if (!data || typeof data !== 'object') return snapshot;
     if (Number.isFinite(data.balance)) {
       snapshot.balance = Math.max(0, Math.round(data.balance));
     }
-    if (data.activeBet && typeof data.activeBet === 'object' && typeof data.activeBet.driver === 'string') {
+    if (Array.isArray(data.players) && data.players.length) {
+      snapshot.players = data.players.slice(0, 6).map((player, index) => {
+        const id = typeof player.id === 'string' ? player.id : `P${index + 1}`;
+        const name = typeof player.name === 'string' && player.name.trim().length ? player.name.trim() : `Player ${index + 1}`;
+        const balance = Number.isFinite(player.balance) ? Math.max(0, Math.round(player.balance)) : snapshot.balance;
+        return { id, name, balance };
+      });
+    }
+    if (!snapshot.players.length) {
+      snapshot.players = bettingDefaults.players.map(player => ({ ...player }));
+    }
+    if (Array.isArray(data.slips)) {
+      data.slips.slice(0, 8).forEach(item => {
+        if (!item || typeof item !== 'object' || typeof item.driver !== 'string') return;
+        const amount = Number.isFinite(item.amount) ? Math.max(0, Math.round(item.amount)) : 0;
+        if (amount <= 0) return;
+        const odds = Number.isFinite(item.odds) ? Math.max(1, Number(item.odds)) : 1;
+        const id = typeof item.id === 'string' ? item.id : `SLIP-${Date.now()}-${Math.random()}`;
+        const playerId = typeof item.playerId === 'string' ? item.playerId : snapshot.players[0].id;
+        snapshot.slips.push({
+          id,
+          driver: item.driver,
+          team: typeof item.team === 'string' ? item.team : '',
+          amount,
+          odds,
+          track: typeof item.track === 'string' ? item.track : '',
+          placedAt: Number.isFinite(item.placedAt) ? item.placedAt : Date.now(),
+          playerId
+        });
+      });
+    }
+    if (!snapshot.slips.length && data.activeBet && typeof data.activeBet === 'object' && typeof data.activeBet.driver === 'string') {
       const active = data.activeBet;
-      snapshot.activeBet = {
-        driver: active.driver,
-        team: typeof active.team === 'string' ? active.team : '',
-        amount: Number.isFinite(active.amount) ? Math.max(0, Math.round(active.amount)) : 0,
-        odds: Number.isFinite(active.odds) ? Math.max(1, Number(active.odds)) : 1,
-        track: typeof active.track === 'string' ? active.track : '',
-        placedAt: Number.isFinite(active.placedAt) ? active.placedAt : Date.now()
-      };
+      const amount = Number.isFinite(active.amount) ? Math.max(0, Math.round(active.amount)) : 0;
+      if (amount > 0) {
+        snapshot.slips.push({
+          id: `LEGACY-${Date.now()}`,
+          driver: active.driver,
+          team: typeof active.team === 'string' ? active.team : '',
+          amount,
+          odds: Number.isFinite(active.odds) ? Math.max(1, Number(active.odds)) : 1,
+          track: typeof active.track === 'string' ? active.track : '',
+          placedAt: Number.isFinite(active.placedAt) ? active.placedAt : Date.now(),
+          playerId: snapshot.players[0].id
+        });
+      }
     }
     if (Array.isArray(data.history)) {
       data.history.slice(0, 12).forEach(item => {
@@ -844,7 +1218,35 @@
         if (sanitized) snapshot.history.push(sanitized);
       });
     }
+    snapshot.couchMode = data.couchMode === true;
+    if (!snapshot.couchMode && snapshot.players.length) {
+      snapshot.players[0].balance = snapshot.balance;
+    }
     return snapshot;
+  }
+
+  function ensureBettingPlayers(count = (bettingState.players?.length || 1)) {
+    if (!Array.isArray(bettingState.players)) {
+      bettingState.players = bettingDefaults.players.map(player => ({ ...player }));
+    }
+    const target = Math.min(6, Math.max(1, Math.round(count)));
+    while (bettingState.players.length < target) {
+      const index = bettingState.players.length;
+      bettingState.players.push({
+        id: `P${index + 1}`,
+        name: `Player ${index + 1}`,
+        balance: bettingState.balance || 1000
+      });
+    }
+    if (bettingState.players.length > target) {
+      bettingState.players.length = target;
+    }
+    if (!bettingState.players.length) {
+      bettingState.players.push({ id: 'P1', name: 'Player 1', balance: bettingState.balance || 1000 });
+    }
+    if (!bettingState.couchMode && bettingState.players.length) {
+      bettingState.balance = bettingState.players[0].balance;
+    }
   }
 
   function sanitizeGpSnapshot(data) {
@@ -873,45 +1275,60 @@
   }
 
   function normalizeChronicleSnapshot(data) {
-    const chronicle = { events: [] };
-    if (!data || typeof data !== 'object' || !Array.isArray(data.events)) return chronicle;
-    data.events.forEach(entry => {
-      if (!entry || typeof entry !== 'object') return;
-      const trackId = typeof entry.trackId === 'string' ? entry.trackId : 'oval';
-      const podium = Array.isArray(entry.podium)
-        ? entry.podium.slice(0, 3).map(item => {
-            if (!item || typeof item !== 'object' || typeof item.driver !== 'string') return null;
-            return {
-              driver: item.driver,
-              team: typeof item.team === 'string' ? item.team : '',
-              number: Number.isFinite(item.number) ? Math.round(item.number) : null,
-              gap: Number.isFinite(item.gap) ? item.gap : null
-            };
-          }).filter(Boolean)
-        : [];
-      const fastestLap = entry.fastestLap && typeof entry.fastestLap === 'object' && typeof entry.fastestLap.driver === 'string'
-        ? {
-            driver: entry.fastestLap.driver,
-            team: typeof entry.fastestLap.team === 'string' ? entry.fastestLap.team : '',
-            number: Number.isFinite(entry.fastestLap.number) ? Math.round(entry.fastestLap.number) : null,
-            time: Number.isFinite(entry.fastestLap.time) ? entry.fastestLap.time : null
-          }
-        : null;
-      chronicle.events.push({
-        id: Number.isFinite(entry.id) ? entry.id : Date.now(),
-        timestamp: Number.isFinite(entry.timestamp) ? entry.timestamp : Date.now(),
-        mode: typeof entry.mode === 'string' ? entry.mode : 'quick',
-        trackId,
-        trackLabel: typeof entry.trackLabel === 'string' ? entry.trackLabel : (trackCatalog?.[trackId]?.label || trackId),
-        weatherLabel: typeof entry.weatherLabel === 'string' ? entry.weatherLabel : 'Klar',
-        laps: Number.isFinite(entry.laps) ? Math.max(0, Math.floor(entry.laps)) : 0,
-        podium,
-        fastestLap
+    const chronicle = { events: [], seasons: [] };
+    if (!data || typeof data !== 'object') return chronicle;
+    if (Array.isArray(data.events)) {
+      data.events.forEach(entry => {
+        if (!entry || typeof entry !== 'object') return;
+        const trackId = typeof entry.trackId === 'string' ? entry.trackId : 'oval';
+        const podium = Array.isArray(entry.podium)
+          ? entry.podium.slice(0, 3).map(item => {
+              if (!item || typeof item !== 'object' || typeof item.driver !== 'string') return null;
+              return {
+                driver: item.driver,
+                team: typeof item.team === 'string' ? item.team : '',
+                number: Number.isFinite(item.number) ? Math.round(item.number) : null,
+                gap: Number.isFinite(item.gap) ? item.gap : null
+              };
+            }).filter(Boolean)
+          : [];
+        const fastestLap = entry.fastestLap && typeof entry.fastestLap === 'object' && typeof entry.fastestLap.driver === 'string'
+          ? {
+              driver: entry.fastestLap.driver,
+              team: typeof entry.fastestLap.team === 'string' ? entry.fastestLap.team : '',
+              number: Number.isFinite(entry.fastestLap.number) ? Math.round(entry.fastestLap.number) : null,
+              time: Number.isFinite(entry.fastestLap.time) ? entry.fastestLap.time : null
+            }
+          : null;
+        chronicle.events.push({
+          id: Number.isFinite(entry.id) ? entry.id : Date.now(),
+          timestamp: Number.isFinite(entry.timestamp) ? entry.timestamp : Date.now(),
+          mode: typeof entry.mode === 'string' ? entry.mode : 'quick',
+          trackId,
+          trackLabel: typeof entry.trackLabel === 'string' ? entry.trackLabel : (trackCatalog?.[trackId]?.label || trackId),
+          weatherLabel: typeof entry.weatherLabel === 'string' ? entry.weatherLabel : 'Klar',
+          laps: Number.isFinite(entry.laps) ? Math.max(0, Math.floor(entry.laps)) : 0,
+          podium,
+          fastestLap
+        });
       });
-    });
+    }
     chronicle.events.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
     if (chronicle.events.length > MAX_ARCHIVE_ENTRIES) {
       chronicle.events.length = MAX_ARCHIVE_ENTRIES;
+    }
+    if (Array.isArray(data.seasons)) {
+      chronicle.seasons = data.seasons
+        .filter(entry => entry && typeof entry === 'object')
+        .map(entry => ({
+          year: Number.isFinite(entry.year) ? Math.max(1, Math.floor(entry.year)) : 1,
+          championTeam: typeof entry.championTeam === 'string' ? entry.championTeam : '',
+          championDriver: typeof entry.championDriver === 'string' ? entry.championDriver : '',
+          points: Number.isFinite(entry.points) ? Math.max(0, entry.points) : 0,
+          wins: Number.isFinite(entry.wins) ? Math.max(0, entry.wins) : 0,
+          driverPoints: Number.isFinite(entry.driverPoints) ? Math.max(0, entry.driverPoints) : 0
+        }))
+        .slice(0, MAX_SEASON_ARCHIVE);
     }
     return chronicle;
   }
@@ -1000,10 +1417,10 @@
 
     teamVehicleVariants = loadVehicleVariants();
 
-    bettingState = { ...bettingDefaults, history: [] };
+    bettingState = sanitizeBettingSnapshot({});
     persistBettingState();
 
-    raceChronicle = { events: [] };
+    raceChronicle = { events: [], seasons: [] };
     persistRaceChronicle();
 
     gpTable.clear();
@@ -1143,6 +1560,7 @@
   const timingModal = document.getElementById('timingModal');
   const timingModalClose = document.getElementById('timingModalClose');
   const timingModalTable = document.getElementById('timingModalTable');
+  let timingModalOpen = false;
   let marshalHideTimer = null;
   let titleThemeStarted = false;
   let titleThemeArmed = false;
@@ -2412,6 +2830,7 @@
   const contractList = document.getElementById('contractList');
   const upgradeStatus = document.getElementById('upgradeStatus');
   const facilityList = document.getElementById('facilityList');
+  const sponsorList = document.getElementById('sponsorList');
   const managerNotice = document.getElementById('managerNotice');
   const managerSaveBtn = document.getElementById('managerSaveBtn');
   const managerExportBtn = document.getElementById('managerExportBtn');
@@ -2419,6 +2838,9 @@
   const managerStartRaceBtn = document.getElementById('managerStartRaceBtn');
   const freeAgentList = document.getElementById('freeAgentList');
   const advanceManagerWeekBtn = document.getElementById('advanceManagerWeekBtn');
+  const customTeamNameInput = document.getElementById('customTeamName');
+  const customTeamColorInput = document.getElementById('customTeamColor');
+  const createCustomTeamBtn = document.getElementById('createCustomTeamBtn');
 
   const betBalance = document.getElementById('betBalance');
   const betDriverSelect = document.getElementById('betDriverSelect');
@@ -2428,16 +2850,27 @@
   const oddsTable = document.getElementById('oddsTable');
   const placeBetBtn = document.getElementById('placeBetBtn');
   const betStartRaceBtn = document.getElementById('betStartRaceBtn');
+  const betPlayerCount = document.getElementById('betPlayerCount');
+  const betCouchToggle = document.getElementById('betCouchToggle');
+  const betPlayerSelect = document.getElementById('betPlayerSelect');
+  const clearBetsBtn = document.getElementById('clearBetsBtn');
+  const betExportBtn = document.getElementById('betExportBtn');
+  const betHistoryChart = document.getElementById('betHistoryChart');
   const loreEntries = document.getElementById('loreEntries');
   const driverCodex = document.getElementById('driverCodex');
   const codexGarage = document.getElementById('codexGarage');
   const raceArchive = document.getElementById('raceArchive');
   const hallOfFame = document.getElementById('hallOfFame');
+  const seasonHistory = document.getElementById('seasonHistory');
   const exportProfileBtn = document.getElementById('exportProfileBtn');
   const importProfileBtn = document.getElementById('importProfileBtn');
   const importProfileInput = document.getElementById('importProfileInput');
   const wipeProfileBtn = document.getElementById('wipeProfileBtn');
   const settingsNotice = document.getElementById('settingsNotice');
+  const performanceOverlay = document.getElementById('performanceOverlay');
+  const togglePerformanceHud = document.getElementById('togglePerformanceHud');
+  const performanceHud = { samples: [], enabled: false, lastUpdate: 0 };
+  let betHistoryChartFallback = null;
 
   const uiSettings = loadUiSettings();
   const leaderboardGapHistory = new Map();
@@ -3411,7 +3844,6 @@ const fallbackTrackData = [
   const replayBookmarks = [];
   let cautionLapHistory = [];
   let currentCautionEntry = null;
-  let timingModalOpen = false;
   const phaseStats = { yellow: 0, safety: 0, restart: 0, formation: 0 };
   const phaseTimeline = [];
   const flowAudit = [];
@@ -3529,6 +3961,12 @@ const fallbackTrackData = [
     applyUiSettings();
     persistUiSettings();
     showSettingsNotice(uiSettings.highContrast ? 'Hoher Kontrast aktiviert.' : 'Standarddarstellung aktiv.', 'info');
+  });
+  togglePerformanceHud?.addEventListener('change', () => {
+    uiSettings.showPerformanceHud = !!togglePerformanceHud.checked;
+    applyUiSettings();
+    persistUiSettings();
+    showSettingsNotice(uiSettings.showPerformanceHud ? 'Performance-Monitor sichtbar.' : 'Performance-Monitor ausgeblendet.', 'info');
   });
   cameraSetting?.addEventListener('change', () => {
     uiSettings.cameraMode = cameraSetting.value;
@@ -4264,7 +4702,8 @@ const fallbackTrackData = [
       highContrast: false,
       cameraMode: 'auto',
       racePace: 'normal',
-      cautionStrictness: 'standard'
+      cautionStrictness: 'standard',
+      showPerformanceHud: false
     };
     const cameraModes = new Set(['auto', 'leader', 'battle', 'manual']);
     const paceModes = new Set(['slow', 'normal', 'fast']);
@@ -4283,6 +4722,7 @@ const fallbackTrackData = [
         enableAudio: parsed.enableAudio !== false,
         reducedMotion: parsed.reducedMotion === true,
         highContrast: parsed.highContrast === true,
+        showPerformanceHud: parsed.showPerformanceHud === true,
         cameraMode: cameraModes.has(parsed.cameraMode) ? parsed.cameraMode : defaults.cameraMode,
         racePace: paceModes.has(parsed.racePace) ? parsed.racePace : defaults.racePace,
         cautionStrictness: cautionModes.has(parsed.cautionStrictness) ? parsed.cautionStrictness : defaults.cautionStrictness
@@ -4352,6 +4792,19 @@ const fallbackTrackData = [
     if (highlightTicker) {
       highlightTicker.classList.toggle('isHidden', uiSettings.showTicker === false);
     }
+    if (performanceOverlay) {
+      if (uiSettings.showPerformanceHud) {
+        performanceOverlay.classList.add('visible');
+        performanceOverlay.setAttribute('aria-hidden', 'false');
+        performanceHud.enabled = true;
+      } else {
+        performanceOverlay.classList.remove('visible');
+        performanceOverlay.setAttribute('aria-hidden', 'true');
+        performanceHud.enabled = false;
+        performanceHud.samples.length = 0;
+        performanceOverlay.textContent = '';
+      }
+    }
   }
 
   function syncUiSettingControls() {
@@ -4393,6 +4846,9 @@ const fallbackTrackData = [
     }
     if (toggleHighContrast) {
       toggleHighContrast.checked = uiSettings.highContrast === true;
+    }
+    if (togglePerformanceHud) {
+      togglePerformanceHud.checked = uiSettings.showPerformanceHud === true;
     }
   }
 
@@ -6585,6 +7041,70 @@ const fallbackTrackData = [
     }
   }
 
+  function recordManagerRaceResult(order) {
+    if (!Array.isArray(order) || order.length === 0) return;
+    if (!managerState) return;
+    if (!managerState.seasonStandings || managerState.seasonStandings.year !== managerState.seasonYear) {
+      managerState.seasonStandings = createDefaultSeasonStandings(managerState.seasonYear);
+    }
+    const standings = managerState.seasonStandings;
+    const timestamp = Date.now();
+    const podium = order.slice(0, 3).map(car => ({ driver: car.driver, team: car.team }));
+    standings.races.push({ trackId: currentTrackType, winner: order[0].driver, podium, timestamp });
+    order.forEach((car, index) => {
+      const points = MANAGER_POINTS_TABLE[index] || 0;
+      standings.teamPoints[car.team] = (standings.teamPoints[car.team] || 0) + points;
+      standings.driverPoints[car.driver] = (standings.driverPoints[car.driver] || 0) + points;
+      if (!standings.podiums[car.team]) standings.podiums[car.team] = 0;
+      if (!standings.wins[car.team]) standings.wins[car.team] = 0;
+      const teamData = managerState.teams[car.team];
+      if (teamData) {
+        teamData.seasonStats = teamData.seasonStats || { points: 0, podiums: 0, wins: 0 };
+        teamData.seasonStats.points += points;
+        if (index === 0) {
+          teamData.seasonStats.wins += 1;
+          standings.wins[car.team] += 1;
+        }
+        if (index < 3) {
+          teamData.seasonStats.podiums += 1;
+          standings.podiums[car.team] += 1;
+        }
+      }
+    });
+    persistManagerState();
+  }
+
+  function finalizeManagerSeason(completedYear) {
+    if (!managerState) return;
+    const year = Number.isFinite(completedYear) ? completedYear : managerState.seasonYear - 1;
+    const standings = managerState.seasonStandings && managerState.seasonStandings.year === year
+      ? managerState.seasonStandings
+      : createDefaultSeasonStandings(year);
+    const teamEntries = Object.entries(standings.teamPoints || {}).sort((a, b) => b[1] - a[1]);
+    const driverEntries = Object.entries(standings.driverPoints || {}).sort((a, b) => b[1] - a[1]);
+    const topTeam = teamEntries[0] || ['', 0];
+    const topDriver = driverEntries[0] || ['', 0];
+    const record = {
+      year,
+      championTeam: topTeam[0] || '',
+      championDriver: topDriver[0] || '',
+      points: topTeam[1] || 0,
+      wins: standings.wins?.[topTeam[0]] || 0,
+      driverPoints: topDriver[1] || 0
+    };
+    const existingHistory = Array.isArray(managerState.seasonHistory) ? managerState.seasonHistory : [];
+    managerState.seasonHistory = [record, ...existingHistory.filter(entry => entry.year !== record.year)].slice(0, MAX_SEASON_ARCHIVE);
+    const archivedSeasons = Array.isArray(raceChronicle.seasons) ? raceChronicle.seasons.filter(entry => entry.year !== record.year) : [];
+    archivedSeasons.unshift(record);
+    raceChronicle.seasons = archivedSeasons.slice(0, MAX_SEASON_ARCHIVE);
+    persistRaceChronicle();
+    managerState.seasonStandings = createDefaultSeasonStandings(managerState.seasonYear);
+    Object.values(managerState.teams).forEach(team => {
+      team.seasonStats = { points: 0, podiums: 0, wins: 0 };
+    });
+    persistManagerState();
+  }
+
   function applyManagerRewards(order) {
     const prizeTable = [550000, 420000, 320000, 260000, 210000, 170000, 130000, 110000, 90000, 70000];
     order.forEach((car, idx) => {
@@ -6605,30 +7125,50 @@ const fallbackTrackData = [
   }
 
   function settleBet(order) {
-    if (!bettingState.activeBet) return;
-    const bet = bettingState.activeBet;
+    if (!Array.isArray(bettingState.slips) || !bettingState.slips.length) return;
     const winner = order[0];
-    const historyEntry = {
-      driver: bet.driver,
-      amount: bet.amount,
-      odds: bet.odds,
-      placedAt: bet.placedAt,
-      track: bet.track || currentTrackType,
-      success: false
-    };
-    if (winner && winner.driver === bet.driver) {
-      const payout = Math.round(bet.amount * bet.odds);
-      bettingState.balance += payout;
-      historyEntry.success = true;
-      historyEntry.payout = payout;
-      pushTicker(`Wette gewonnen! ${bet.driver} zahlt ${payout.toLocaleString('de-DE')} Cr`, 'fl');
-    } else {
-      historyEntry.loss = bet.amount;
-      pushTicker(`Wette verloren – ${bet.driver} nicht auf P1`, 'yellow');
+    const settledAt = Date.now();
+    const entries = [];
+    bettingState.slips.forEach(slip => {
+      const entry = {
+        driver: slip.driver,
+        amount: slip.amount,
+        odds: slip.odds,
+        placedAt: slip.placedAt,
+        track: slip.track || currentTrackType,
+        success: false,
+        playerId: slip.playerId,
+        settledAt
+      };
+      const player = bettingState.players.find(p => p.id === slip.playerId);
+      if (winner && winner.driver === slip.driver) {
+        const payout = Math.round(slip.amount * slip.odds);
+        entry.success = true;
+        entry.payout = payout;
+        if (player) {
+          player.balance += payout;
+        } else {
+          bettingState.balance += payout;
+        }
+        pushTicker(`Wette gewonnen! ${slip.driver} zahlt ${payout.toLocaleString('de-DE')} Cr`, 'fl');
+      } else {
+        entry.loss = slip.amount;
+        pushTicker(`Wette verloren – ${slip.driver} nicht auf P1`, 'yellow');
+      }
+      entries.push(entry);
+    });
+    bettingState.slips = [];
+    if (!bettingState.couchMode && bettingState.players.length) {
+      bettingState.balance = Math.max(0, Math.round(bettingState.players[0].balance));
     }
-    bettingState.history.unshift(historyEntry);
-    if (bettingState.history.length > 12) bettingState.history.pop();
-    bettingState.activeBet = null;
+    const totalBalance = bettingState.couchMode
+      ? bettingState.players.reduce((sum, player) => sum + player.balance, 0)
+      : bettingState.balance;
+    entries.forEach(entry => {
+      entry.balanceAfter = totalBalance;
+      bettingState.history.unshift(entry);
+    });
+    if (bettingState.history.length > 12) bettingState.history.length = 12;
     persistBettingState();
     updateBettingUI();
   }
@@ -6767,6 +7307,7 @@ const fallbackTrackData = [
     const dt = Math.max(0.016, Math.min(0.05, (timestamp - lastFrame) / 1000));
     lastFrame = timestamp;
     raceTime += dt;
+    recordPerformanceSample(dt);
 
     tickPhase();
 
@@ -6859,6 +7400,7 @@ const fallbackTrackData = [
     }
     if (currentMode === 'manager') {
       applyManagerRewards(order);
+      recordManagerRaceResult(order);
     }
     if (currentMode === 'betting') {
       settleBet(order);
@@ -7181,6 +7723,38 @@ const fallbackTrackData = [
     });
   }
 
+  function renderSponsors(teamName, teamData) {
+    if (!sponsorList) return;
+    sponsorList.innerHTML = '';
+    const sponsors = Array.isArray(teamData.sponsors) ? teamData.sponsors : [];
+    if (!sponsors.length) {
+      const empty = document.createElement('div');
+      empty.className = 'sponsorEmpty';
+      empty.textContent = 'Keine aktiven Sponsorverträge.';
+      sponsorList.appendChild(empty);
+      return;
+    }
+    sponsors.forEach(contract => {
+      const card = document.createElement('div');
+      card.className = 'sponsorCard';
+      const status = contract.completed ? 'erfüllt' : contract.failed ? 'verfehlt' : 'laufend';
+      const statusClass = contract.completed ? 'success' : contract.failed ? 'error' : 'pending';
+      const weeksRemaining = contract.weeksRemaining ?? contract.duration;
+      card.innerHTML = `
+        <header>
+          <strong>${contract.name}</strong>
+          <span class="status ${statusClass}">${status}</span>
+        </header>
+        <p>${contract.description || ''}</p>
+        <footer>
+          <span>Bonus: ${formatCurrency(contract.payout || 0)}</span>
+          <span>Restwochen: ${Math.max(0, weeksRemaining)}</span>
+        </footer>
+      `;
+      sponsorList.appendChild(card);
+    });
+  }
+
   function renderFreeAgents(teamName, teamData) {
     if (!freeAgentList) return;
     freeAgentList.innerHTML = '';
@@ -7471,6 +8045,32 @@ const fallbackTrackData = [
     });
   }
 
+  function renderSeasonHistory() {
+    if (!seasonHistory) return;
+    seasonHistory.innerHTML = '';
+    const seasons = Array.isArray(raceChronicle.seasons) && raceChronicle.seasons.length
+      ? raceChronicle.seasons
+      : managerState.seasonHistory || [];
+    if (!seasons.length) {
+      const empty = document.createElement('div');
+      empty.className = 'seasonEntry empty';
+      empty.textContent = 'Noch keine Saison abgeschlossen.';
+      seasonHistory.appendChild(empty);
+      return;
+    }
+    seasons.slice(0, MAX_SEASON_ARCHIVE).forEach(entry => {
+      const div = document.createElement('div');
+      div.className = 'seasonEntry';
+      div.innerHTML = `
+        <strong>Saison ${entry.year}</strong>
+        <span>Team-Champion: ${entry.championTeam || '—'} (${entry.points || 0} P)</span>
+        <span>Fahrer-Champion: ${entry.championDriver || '—'} (${entry.driverPoints || 0} P)</span>
+        <span>Siege: ${entry.wins || 0}</span>
+      `;
+      seasonHistory.appendChild(div);
+    });
+  }
+
   function computeHallOfFame() {
     const stats = new Map();
     raceChronicle.events.forEach(entry => {
@@ -7522,6 +8122,7 @@ const fallbackTrackData = [
     renderContentRoadmap();
     renderIntegrationRoadmap();
     renderRaceArchive();
+    renderSeasonHistory();
     renderHallOfFame();
   }
 
@@ -7548,6 +8149,7 @@ const fallbackTrackData = [
     renderContracts(teamName, teamData);
     renderUpgradeStatus(teamName, teamData);
     renderFacilities(teamName, teamData);
+    renderSponsors(teamName, teamData);
     renderFreeAgents(teamName, teamData);
     refreshOddsTable();
   }
@@ -7653,9 +8255,11 @@ const fallbackTrackData = [
 
   function advanceManagerWeek() {
     const currentWeek = managerState.week || 1;
+    const activeSeasonYear = managerState.seasonYear || 1;
     const seasonLength = Math.max(1, getManagerSeasonLength());
     let totalSpend = 0;
     const expiredDrivers = [];
+    const sponsorHighlights = [];
     Object.entries(managerState.teams).forEach(([teamName, teamData]) => {
       const roster = Array.isArray(teamData.roster) ? teamData.roster : [];
       const updatedRoster = [];
@@ -7694,6 +8298,11 @@ const fallbackTrackData = [
       teamData.budget = Math.max(0, teamData.budget - spend);
       const facilityMomentum = academyLevel * 0.018 + (aeroLevel + powerLevel) * 0.007;
       teamData.form = clamp((teamData.form || 0) * 0.9 - 0.01 + facilityMomentum, -0.35, 0.6);
+      const sponsorParts = [];
+      evaluateSponsorContracts(teamName, teamData, sponsorParts);
+      if (sponsorParts.length) {
+        sponsorHighlights.push(`${teamName}: ${sponsorParts.join(' / ')}`);
+      }
     });
     managerState.week = currentWeek + 1;
     let seasonAdvanced = false;
@@ -7701,6 +8310,7 @@ const fallbackTrackData = [
       managerState.week = 1;
       managerState.seasonYear += 1;
       seasonAdvanced = true;
+      finalizeManagerSeason(activeSeasonYear);
       Object.entries(managerState.teams).forEach(([teamName, teamData]) => {
         const stipend = Math.round((teamTemplates[teamName]?.budget || 4500000) * 0.18);
         teamData.budget += stipend;
@@ -7711,6 +8321,7 @@ const fallbackTrackData = [
           salary: contract.salary,
           morale: clamp(contract.morale + 0.04, 0.1, 0.95)
         }));
+        ensureTeamSponsors(teamName, teamData);
       });
     }
     ensureFreeAgentPool();
@@ -7719,6 +8330,9 @@ const fallbackTrackData = [
     const summaryParts = [`Gehälter: -${formatCurrency(totalSpend)}`];
     if (expiredDrivers.length) {
       summaryParts.push(`Verträge ausgelaufen: ${expiredDrivers.join(', ')}`);
+    }
+    if (sponsorHighlights.length) {
+      summaryParts.push(`Sponsoren: ${sponsorHighlights.join(' • ')}`);
     }
     if (seasonAdvanced) {
       summaryParts.push(`Neue Saison ${managerState.seasonYear}`);
@@ -7812,28 +8426,147 @@ const fallbackTrackData = [
   function updateBetHistory() {
     if (!betHistory) return;
     betHistory.innerHTML = '';
+    const playerLookup = new Map((bettingState.players || []).map(player => [player.id, player.name]));
     bettingState.history.forEach(entry => {
       const div = document.createElement('div');
       div.className = entry.success ? 'win' : 'loss';
+      const owner = playerLookup.get(entry.playerId) || 'Player';
       if (entry.success) {
-        div.textContent = `${entry.driver} – Gewinn ${entry.payout?.toLocaleString('de-DE')} Cr`;
+        div.textContent = `${owner}: ${entry.driver} – Gewinn ${entry.payout?.toLocaleString('de-DE')} Cr`;
       } else {
-        div.textContent = `${entry.driver} – Verlust ${entry.loss?.toLocaleString('de-DE')} Cr`;
+        div.textContent = `${owner}: ${entry.driver} – Verlust ${entry.loss?.toLocaleString('de-DE')} Cr`;
       }
       betHistory.appendChild(div);
     });
+    renderBetHistoryChart();
+  }
+
+  function renderBetHistoryChart() {
+    if (!betHistoryChart) return;
+    if (typeof betHistoryChart.getContext !== 'function') {
+      if (!betHistoryChartFallback) {
+        betHistoryChartFallback = document.createElement('div');
+        betHistoryChartFallback.className = 'betHistoryFallback';
+        betHistoryChartFallback.textContent = 'Balance-Verlauf erfordert Canvas-Unterstützung.';
+        betHistoryChart.insertAdjacentElement('afterend', betHistoryChartFallback);
+      }
+      betHistoryChart.classList.add('hidden');
+      return;
+    }
+    const ctx = betHistoryChart.getContext('2d');
+    if (!ctx || typeof ctx.clearRect !== 'function') {
+      if (!betHistoryChartFallback) {
+        betHistoryChartFallback = document.createElement('div');
+        betHistoryChartFallback.className = 'betHistoryFallback';
+        betHistoryChartFallback.textContent = 'Balance-Verlauf erfordert Canvas-Unterstützung.';
+        betHistoryChart.insertAdjacentElement('afterend', betHistoryChartFallback);
+      }
+      betHistoryChart.classList.add('hidden');
+      return;
+    }
+    betHistoryChart.classList.remove('hidden');
+    if (betHistoryChartFallback) {
+      betHistoryChartFallback.remove();
+      betHistoryChartFallback = null;
+    }
+    const width = betHistoryChart.width || betHistoryChart.clientWidth || 320;
+    const height = betHistoryChart.height || betHistoryChart.clientHeight || 160;
+    ctx.clearRect(0, 0, width, height);
+    const entries = bettingState.history.slice().reverse();
+    const points = entries.length
+      ? entries.map(entry => Number.isFinite(entry.balanceAfter) ? entry.balanceAfter : bettingState.balance)
+      : [bettingState.balance];
+    const min = Math.min(...points);
+    const max = Math.max(...points);
+    const span = Math.max(1, max - min);
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    points.forEach((value, index) => {
+      const x = (index / Math.max(1, points.length - 1)) * width;
+      const y = height - ((value - min) / span) * height;
+      if (index === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    });
+    ctx.stroke();
+    ctx.fillStyle = '#64748b';
+    ctx.font = '10px sans-serif';
+    ctx.fillText(`Balance: ${Math.round(points[points.length - 1]).toLocaleString('de-DE')} Cr`, 8, 14);
+  }
+
+  function recordPerformanceSample(dt) {
+    if (!performanceHud.enabled || !performanceOverlay) return;
+    const ms = Math.max(0, dt * 1000);
+    performanceHud.samples.push(ms);
+    if (performanceHud.samples.length > 240) {
+      performanceHud.samples.shift();
+    }
+    const now = (typeof performance !== 'undefined' && typeof performance.now === 'function')
+      ? performance.now()
+      : Date.now();
+    if (now - performanceHud.lastUpdate < 200) {
+      return;
+    }
+    performanceHud.lastUpdate = now;
+    const samples = performanceHud.samples.length ? performanceHud.samples : [ms];
+    const total = samples.reduce((sum, value) => sum + value, 0);
+    const avg = total / samples.length;
+    const worst = Math.max(...samples);
+    const best = Math.min(...samples);
+    const fps = avg > 0 ? 1000 / avg : 0;
+    performanceOverlay.textContent = `Frame ${ms.toFixed(2)} ms · Avg ${avg.toFixed(2)} ms (${fps.toFixed(0)} FPS) · Best ${best.toFixed(2)} ms · Worst ${worst.toFixed(2)} ms`;
   }
 
   function updateBettingUI() {
+    ensureBettingPlayers(bettingState.players?.length || 1);
     if (betBalance) {
-      betBalance.textContent = `${Math.round(bettingState.balance).toLocaleString('de-DE')} Cr`;
+      if (bettingState.couchMode) {
+        const parts = (bettingState.players || []).map(player => `${player.name}: ${Math.round(player.balance).toLocaleString('de-DE')} Cr`);
+        betBalance.textContent = parts.join(' • ');
+      } else {
+        betBalance.textContent = `${Math.round(bettingState.balance).toLocaleString('de-DE')} Cr`;
+      }
+    }
+    if (betPlayerCount) {
+      betPlayerCount.value = bettingState.players?.length || 1;
+    }
+    if (betCouchToggle) {
+      betCouchToggle.checked = bettingState.couchMode === true;
+    }
+    if (betPlayerSelect) {
+      betPlayerSelect.innerHTML = '';
+      (bettingState.players || []).forEach(player => {
+        const opt = document.createElement('option');
+        opt.value = player.id;
+        opt.textContent = player.name;
+        betPlayerSelect.appendChild(opt);
+      });
     }
     if (betSlip) {
-      if (bettingState.activeBet) {
-        const bet = bettingState.activeBet;
-        betSlip.textContent = `Aktive Wette: ${bet.driver} – ${bet.amount} Cr @ ${bet.odds.toFixed(2)}`;
+      betSlip.innerHTML = '';
+      if (!Array.isArray(bettingState.slips) || !bettingState.slips.length) {
+        betSlip.textContent = 'Keine aktiven Wetten.';
       } else {
-        betSlip.textContent = 'Keine aktive Wette.';
+        const playerLookup = new Map((bettingState.players || []).map(player => [player.id, player.name]));
+        bettingState.slips.forEach(slip => {
+          const row = document.createElement('div');
+          row.className = 'slipEntry';
+          const owner = playerLookup.get(slip.playerId) || 'Player';
+          row.innerHTML = `
+            <strong>${slip.driver}</strong>
+            <span>${slip.amount.toLocaleString('de-DE')} Cr @ ${slip.odds.toFixed(2)}</span>
+            <span>${owner}</span>
+          `;
+          const removeBtn = document.createElement('button');
+          removeBtn.className = 'removeSlip';
+          removeBtn.textContent = 'Entfernen';
+          removeBtn.setAttribute('data-slip-id', slip.id);
+          row.appendChild(removeBtn);
+          betSlip.appendChild(row);
+        });
       }
     }
     updateBetHistory();
@@ -7954,6 +8687,51 @@ const fallbackTrackData = [
     advanceManagerWeek();
   });
 
+  createCustomTeamBtn?.addEventListener('click', () => {
+    const name = (customTeamNameInput?.value || '').trim();
+    if (!name) {
+      showManagerNotice('Teamname darf nicht leer sein.', 'error');
+      return;
+    }
+    if (managerState.teams[name]) {
+      showManagerNotice('Team existiert bereits.', 'error');
+      return;
+    }
+    const color = customTeamColorInput?.value || '';
+    registerCustomTeam(name, color);
+    const budget = 4200000 + Math.round(Math.random() * 400000);
+    const newTeam = {
+      budget,
+      upgrades: { engine: 0, aero: 0, systems: 0 },
+      facilities: createDefaultFacilities(),
+      roster: [],
+      form: 0,
+      sponsors: rollSponsorContracts(name),
+      seasonStats: { points: 0, podiums: 0, wins: 0 }
+    };
+    ensureFreeAgentPool();
+    const roster = [];
+    const available = managerState.freeAgents || [];
+    while (roster.length < MAX_ROSTER_SIZE && available.length) {
+      const agent = available.shift();
+      const driver = driverMap.get(agent.driver);
+      const salary = driver ? driver.salary : Math.round(agent.askingSalary || 320000);
+      roster.push({ driver: agent.driver, years: 2, salary, morale: clamp(agent.morale ?? 0.55, 0.1, 0.95) });
+    }
+    newTeam.roster = roster;
+    managerState.teams[name] = newTeam;
+    managerState.customTeams = Array.from(new Set([...(managerState.customTeams || []), name]));
+    teamVehicleVariants[name] = generateVehicleVariant(name);
+    persistVehicleVariants(teamVehicleVariants);
+    managerState.selectedTeam = name;
+    focusTeam = name;
+    ensureFreeAgentPool();
+    persistManagerState();
+    updateManagerView();
+    showManagerNotice(`Custom Team ${name} gegründet.`, 'success');
+    if (customTeamNameInput) customTeamNameInput.value = '';
+  });
+
   managerSaveBtn?.addEventListener('click', () => {
     persistManagerState();
     showManagerNotice('Karriere gespeichert.', 'success');
@@ -8057,26 +8835,112 @@ const fallbackTrackData = [
       if (betSlip) betSlip.textContent = 'Bitte Fahrer und Einsatz wählen.';
       return;
     }
-    if (amount > bettingState.balance) {
-      if (betSlip) betSlip.textContent = 'Nicht genügend Credits.';
-      return;
-    }
     const oddsEntry = cachedOdds.find(item => item.driver === driver);
     if (!oddsEntry) {
       if (betSlip) betSlip.textContent = 'Quote nicht verfügbar.';
       return;
     }
-    bettingState.balance -= amount;
-    bettingState.activeBet = {
+    const playerId = bettingState.couchMode
+      ? (betPlayerSelect?.value || bettingState.players?.[0]?.id)
+      : (bettingState.players?.[0]?.id || 'P1');
+    const player = bettingState.players.find(p => p.id === playerId);
+    const available = bettingState.couchMode ? player?.balance ?? 0 : bettingState.balance;
+    if (amount > available) {
+      if (betSlip) betSlip.textContent = 'Nicht genügend Credits.';
+      return;
+    }
+    if (bettingState.couchMode) {
+      player.balance -= amount;
+    } else {
+      bettingState.balance -= amount;
+      if (bettingState.players.length) {
+        bettingState.players[0].balance = bettingState.balance;
+      }
+    }
+    const slip = {
+      id: `SLIP-${Date.now()}-${Math.random()}`,
       driver,
       team: oddsEntry.team,
       amount,
       odds: oddsEntry.odds,
       track: currentTrackType,
-      placedAt: Date.now()
+      placedAt: Date.now(),
+      playerId
     };
+    bettingState.slips = Array.isArray(bettingState.slips) ? bettingState.slips : [];
+    bettingState.slips.push(slip);
     persistBettingState();
     updateBettingUI();
+  });
+
+  clearBetsBtn?.addEventListener('click', () => {
+    if (!Array.isArray(bettingState.slips) || !bettingState.slips.length) return;
+    const playerLookup = new Map((bettingState.players || []).map(player => [player.id, player]));
+    bettingState.slips.forEach(slip => {
+      const owner = playerLookup.get(slip.playerId);
+      if (owner) {
+        owner.balance += slip.amount;
+      } else {
+        bettingState.balance += slip.amount;
+      }
+    });
+    bettingState.slips = [];
+    if (!bettingState.couchMode && bettingState.players.length) {
+      bettingState.balance = bettingState.players[0].balance;
+    }
+    persistBettingState();
+    updateBettingUI();
+  });
+
+  betSlip?.addEventListener('click', event => {
+    const target = event.target;
+    if (!target || !target.matches('.removeSlip')) return;
+    const slipId = target.getAttribute('data-slip-id');
+    if (!slipId) return;
+    const index = bettingState.slips.findIndex(slip => slip.id === slipId);
+    if (index === -1) return;
+    const [removed] = bettingState.slips.splice(index, 1);
+    const owner = (bettingState.players || []).find(player => player.id === removed.playerId);
+    if (owner) {
+      owner.balance += removed.amount;
+    } else {
+      bettingState.balance += removed.amount;
+    }
+    if (!bettingState.couchMode && bettingState.players.length) {
+      bettingState.balance = bettingState.players[0].balance;
+    }
+    persistBettingState();
+    updateBettingUI();
+  });
+
+  betPlayerCount?.addEventListener('change', () => {
+    const count = parseInt(betPlayerCount.value || '1', 10) || 1;
+    ensureBettingPlayers(count);
+    persistBettingState();
+    updateBettingUI();
+  });
+
+  betCouchToggle?.addEventListener('change', () => {
+    bettingState.couchMode = betCouchToggle.checked;
+    if (!bettingState.couchMode && bettingState.players.length) {
+      bettingState.balance = bettingState.players[0].balance;
+    }
+    persistBettingState();
+    updateBettingUI();
+  });
+
+  betExportBtn?.addEventListener('click', () => {
+    try {
+      const blob = new Blob([JSON.stringify(bettingState.history, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `spacerx-bet-history-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.warn('bet history export failed', err);
+    }
   });
 
   betStartRaceBtn?.addEventListener('click', () => {
@@ -8275,6 +9139,49 @@ const fallbackTrackData = [
         victim: entry.victim,
         state: entry.state
       })),
+      forcePhase: phase => {
+        if (typeof phase !== 'string') return racePhase;
+        setRacePhase(phase);
+        return racePhase;
+      },
+      runPhaseSequence: async phases => {
+        if (!Array.isArray(phases)) return [];
+        for (const phase of phases) {
+          // allow frame to process UI updates between transitions
+          await new Promise(resolve => {
+            setTimeout(() => {
+              setRacePhase(phase);
+              resolve();
+            }, 60);
+          });
+        }
+        return window.spacerxDiagnostics.getPhaseTimeline();
+      },
+      finishRaceNow: () => {
+        finishRace();
+        return !raceActive;
+      },
+      fastStartQuickRace: () => {
+        currentMode = 'quick';
+        showScreen(raceScreen);
+        startRace();
+        cancelBroadcastIntro();
+        hideGridIntro();
+        setRacePhase('GREEN');
+        raceActive = true;
+        isPaused = false;
+        setPauseButtonState(true, 'Pause');
+        requestAnimationFrame(time => {
+          lastFrame = time;
+          requestAnimationFrame(gameLoop);
+        });
+        return true;
+      },
+      goToRaceScreen: () => {
+        currentMode = 'quick';
+        showScreen(raceScreen);
+        return raceScreen?.classList.contains('active');
+      },
       reset: () => {
         phaseTimeline.length = 0;
         flowAudit.length = 0;

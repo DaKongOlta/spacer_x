@@ -6,6 +6,10 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 20 Strecken (u. a. City Grand 
 2. `index.html` im Browser öffnen (oder optional: `python3 -m http.server`)
 3. **Einstellungen**: Strecke & Runden wählen → **Schnelles Rennen** oder **Grand Prix** starten
 
+### Tests & Tooling
+- Abhängigkeiten installieren: `npm install`
+- Race-Control-Smoke ausführen: `npm run smoke`
+
 ## Ordner & Dateien
 - `index.html` – UI & Screens (Main Menu, Race, Teams, Settings)
 - `styles.css` – Dark/Neo‑Noir Theme, Banner, Ticker, Mini‑Map
@@ -40,6 +44,7 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 20 Strecken (u. a. City Grand 
 - Neo-Noir-Backdrops rendern pro Strecke individuelle Skyline-Glows, Sternenfelder und Grid-Linien für mehr Retro-Atmosphäre
 - 24 Fahrer inklusive Free-Agent-Pool, Manager-Transfermarkt und teambezogenen Chassis-Profilen mit zufällig gerollten Fahrzeug-Stats
 - Manager-Modus mit Wochen-Simulation, Vertragsverwaltung, Upgrades, Export/Import (JSON) sowie persistenter Chassis-Anzeige; ein neues Facility-Panel erlaubt Ausbaustufen für Aero-Lab, Dyno Hub, Systems Bay und Pilot Academy, die Budget kosten, Performance-Boons liefern und Fahrermoral/Form beeinflussen
+- Manager-Sponsorziele mit Budgetboni, Saisonhistorie & Hall-of-Fame-Archiv sowie Custom-Team-Onboarding inklusive automatisch generierter Roster und Chassis-Varianten
 - Dynamische, streckengebundene Wetterprofile (klar/bewölkt/sturm/nacht/ionensturm) mit Event-Briefing, sendefähigem HUD und gespeicherten Rennen-Settings
 - TV-Replay mit Zeitachse, Geschwindigkeitswahl und sofortigem Wiedereinstieg in jede Rennphase inklusive Sieg-Podium-Overlay
 - Live-Leaderboard-Overlay auf dem Canvas plus Meldungs-Panel mit Zeitstempeln für Überholungen, Flaggen und Specials
@@ -47,6 +52,7 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 20 Strecken (u. a. City Grand 
 - Incident-/Overtake-Banner-Queue blendet zweizeilige TV-Callouts für Flaggen, Safety-Car-Deployments und Überholmanöver ein
 - KI-Zustandsmaschine (Attack/Defend/Conserve/Follow SC) steuert Pace, Reifenverschleiß & Risiko-Fenster; Incident-Log zeichnet Kontakte für Codex & Diagnostik auf
 - Highlight-Ticker zählt Safety-Laps mit und fasst Pit-Stops als Broadcast-Callouts zusammen, inklusive Service-Gewinnen
+- Race Betting Challenge mit Multi-Slip-Couch-Modus, Balance-Graf und JSON-Export der Historie
 - Mini-Map mit markierten Sektoren, Leader-Halo und Fokus-Ring für klarere TV-Analyse
 - Einstellbare HUD- und Audio-Optionen (Ticker, Race-Control, Fokus, Mini-Map, Broadcast-Sounds) werden pro Profil gespeichert
 - Accessibility-Toggles für reduzierte Animationen und hohen Kontrast verbessern Lesbarkeit und Komfort
@@ -57,6 +63,7 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 20 Strecken (u. a. City Grand 
 - Timing-&-Statistik-Overlay mit kompaktem Timing-Table, Replay-Markierungen für Formation/Starts und laufend aktualisierten Gap-/Statusdaten
 - Codex-Archiv erweitert um Race-Control-Verstöße, Pit-Stop-Zusammenfassungen und Caution-Statistiken je Event
 - Live-Gap-HUD mit Delta-Bar, Phasen-Timeline im Ergebnisbericht sowie `window.spacerxDiagnostics` für Race-Control-Diagnosen
+- Dev-Performance-HUD mit `performance.now()`-Sampling (Frame-, Durchschnitts- und Worst-Case-Zeiten) schaltbar in den Einstellungen
 - Globale Speicherverwaltung: Profil-Export/Import (JSON) inkl. Manager, GP, Wetten, Archiv & UI-Settings, versionierte Grand-Prix-Saves (inkl. Rotation-Migration) sowie kompletter Speicher-Reset im Einstellungsmenü
 - Codex-Roadmap mit Status-Badges für Demo-, Broadcast- und Community-Meilensteine
 - Lore-, Flaggen- und Chassis-Sprites als SVG-Assets für weitere UI-Iterationen

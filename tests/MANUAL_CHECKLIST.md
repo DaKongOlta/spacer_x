@@ -1,4 +1,5 @@
 # Manual Test Checklist
+- [ ] `npm run smoke` (headless race-control sequence)
 - [ ] Quick Race: 20 Cars spawn, Countdown, Finish
 - [ ] Race Controls: Start aktiv beim Öffnen, Pause/Fortsetzen funktioniert nach Rennstart
 - [ ] Flags: Trigger YELLOW & SC (Incidents), Restart to GREEN
