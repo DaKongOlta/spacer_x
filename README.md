@@ -56,3 +56,5 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 18 Strecken (u. a. Atlas Skywa
 - **Broadcast HUD v2** – Gap-Trends, Sektor-Gates & Incident-Banner live; nächste Schritte: erweiterte Highlight-Queue
 - **Manager & Saison-Tiefe** – Transfermarkt steht, Facility-Upgrades mit Effekten auf Chassis & Moral sind live; nächste Schritte: Staff-Systeme und Saison-Save-Validierung
 - **Streaming & Tools** – Twitch-Mode & Stream-Deck-Plugin als Developer Preview im Menü angeteasert, Websocket/Chat-Hooks folgen
+
+👉 Für die detaillierte Aufgabenliste zum v0.9.0-„DEMO“-Push siehe [`docs/v0.9_demo_checklist.md`](docs/v0.9_demo_checklist.md). Dort sind alle Deliverables mit Status-Checkboxen hinterlegt, sodass Fortschritt und nächste Schritte jederzeit sichtbar bleiben.
