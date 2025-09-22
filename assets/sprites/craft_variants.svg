@@ -1,0 +1,49 @@
+<svg width="360" height="120" viewBox="0 0 360 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Spacer Craft Variants</title>
+  <desc id="desc">Lineup of retro hovercraft sprites for different chassis archetypes</desc>
+  <defs>
+    <linearGradient id="longtail" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#1e40af"/>
+    </linearGradient>
+    <linearGradient id="broadwing" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#be123c"/>
+    </linearGradient>
+    <linearGradient id="arrow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#065f46"/>
+    </linearGradient>
+    <linearGradient id="delta" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#312e81"/>
+    </linearGradient>
+  </defs>
+  <rect width="360" height="120" rx="18" fill="#050915"/>
+  <g transform="translate(24 20)">
+    <g transform="translate(0 0)">
+      <path d="M0 20h80l16 12-16 12H0l16-12z" fill="url(#longtail)" stroke="#0ea5e9" stroke-width="2"/>
+      <ellipse cx="34" cy="32" rx="10" ry="6" fill="#0ea5e9" opacity="0.4"/>
+      <ellipse cx="58" cy="32" rx="10" ry="6" fill="#38bdf8" opacity="0.4"/>
+      <text x="40" y="58" text-anchor="middle" font-size="12" fill="#bae6fd" font-family="'Orbitron',sans-serif">Longtail</text>
+    </g>
+    <g transform="translate(90 0)">
+      <path d="M0 18h74l22 14-22 14H0l18-14z" fill="url(#broadwing)" stroke="#f97316" stroke-width="2"/>
+      <ellipse cx="30" cy="32" rx="9" ry="6" fill="#fb923c" opacity="0.45"/>
+      <ellipse cx="52" cy="32" rx="9" ry="6" fill="#facc15" opacity="0.45"/>
+      <text x="38" y="58" text-anchor="middle" font-size="12" fill="#ffe4e6" font-family="'Orbitron',sans-serif">Broadwing</text>
+    </g>
+    <g transform="translate(180 0)">
+      <path d="M0 22h70l18 10-18 10H0l14-10z" fill="url(#arrow)" stroke="#34d399" stroke-width="2"/>
+      <ellipse cx="28" cy="32" rx="8" ry="5" fill="#34d399" opacity="0.4"/>
+      <ellipse cx="48" cy="32" rx="8" ry="5" fill="#22c55e" opacity="0.4"/>
+      <text x="35" y="58" text-anchor="middle" font-size="12" fill="#d1fae5" font-family="'Orbitron',sans-serif">Arrow</text>
+    </g>
+    <g transform="translate(264 0)">
+      <path d="M0 24h66l16 8-16 8H0l12-8z" fill="url(#delta)" stroke="#c4b5fd" stroke-width="2"/>
+      <ellipse cx="26" cy="32" rx="7" ry="4" fill="#c4b5fd" opacity="0.45"/>
+      <ellipse cx="44" cy="32" rx="7" ry="4" fill="#a855f7" opacity="0.45"/>
+      <text x="33" y="58" text-anchor="middle" font-size="12" fill="#ede9fe" font-family="'Orbitron',sans-serif">Delta</text>
+    </g>
+  </g>
+</svg>

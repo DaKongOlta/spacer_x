@@ -24,18 +24,82 @@
           <div class="heroMeta">
             <span>5 Spielmodi</span>
             <span>24 Fahrer</span>
-            <span>14 Strecken</span>
+            <span>18 Strecken</span>
           </div>
         </div>
       </div>
       <div class="menuActions">
         <button id="newRaceBtn" class="primary">Schnelles Rennen</button>
         <button id="grandPrixBtn">Grand Prix (5 Rennen)</button>
+        <button id="resumeGrandPrixBtn" class="secondary" disabled>Grand Prix fortsetzen</button>
         <button id="managerBtn">Team Karriere</button>
         <button id="bettingBtn">Race Betting Challenge</button>
         <button id="teamsBtn">Teams &amp; Fahrer</button>
         <button id="codexBtn">Codex &amp; Archiv</button>
         <button id="settingsBtn">Einstellungen</button>
+      </div>
+      <section id="grandPrixStatusCard" class="gpStatus hidden" aria-live="polite" aria-label="Grand Prix Fortschritt">
+        <header>
+          <h3>Grand Prix Serie</h3>
+          <p id="gpStatusMeta">Bereit für Lauf 1 von 5</p>
+        </header>
+        <dl class="gpStatusDetails">
+          <div>
+            <dt>Nächster Track</dt>
+            <dd id="gpStatusTrack">–</dd>
+          </div>
+          <div>
+            <dt>Wetterausblick</dt>
+            <dd id="gpStatusWeather">–</dd>
+          </div>
+        </dl>
+        <div class="gpStandings">
+          <h4>Top 3</h4>
+          <ol id="gpStatusStandings"></ol>
+          <p id="gpStatusEmpty" class="emptyHint">Noch keine Punkte vergeben – starte den Grand Prix!</p>
+        </div>
+      </section>
+      <section class="menuTeasers" aria-label="Integrationen &amp; Roadmap">
+        <article class="integrationCard">
+          <header>
+            <img src="assets/sprites/twitch_badge.svg" alt="Twitch Mode" loading="lazy">
+            <div>
+              <h3>Twitch Broadcast Mode</h3>
+              <p class="status upcoming">Preview Build · Q3</p>
+            </div>
+          </header>
+          <p>Chat-votierte Rennregeln, Overlays für Bits &amp; Channel-Points sowie automatische Szenenwechsel für OBS.</p>
+        </article>
+        <article class="integrationCard">
+          <header>
+            <img src="assets/sprites/streamdeck_badge.svg" alt="Stream Deck Plugin" loading="lazy">
+            <div>
+              <h3>Elgato Stream Deck</h3>
+              <p class="status in-progress">Developer Preview</p>
+            </div>
+          </header>
+          <p>Makros für Rennkontrolle, Szenen-Trigger und Live-Callouts – ausgelegt für Spacer‑X Produktions-Desks.</p>
+        </article>
+        <article class="integrationCard">
+          <header>
+            <img src="assets/sprites/codex_badge.svg" alt="Codex Lore" loading="lazy">
+            <div>
+              <h3>Lore Drops &amp; Worldbuilding</h3>
+              <p class="status active">Aktiv</p>
+            </div>
+          </header>
+          <p>Tägliche Codex-Einträge, Fraktions-Stories und Rennarchiv-Erweiterungen halten die Spacer‑X‑Welt lebendig.</p>
+        </article>
+      </section>
+      <div class="spriteShowcase" aria-label="Sprite Atelier">
+        <figure>
+          <img src="assets/sprites/craft_variants.svg" alt="Spacer Gleiter Varianten" loading="lazy">
+          <figcaption>Neue Retro-Sprites für Chassis-Profile – nutzen die gleichen Farben wie die Team-Garage.</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/sprites/track_posters.svg" alt="Neue Streckenposter Glacier Traverse &amp; Maelstrom Gauntlet" loading="lazy">
+          <figcaption>Frische Track-Poster setzen Glacier Traverse &amp; Maelstrom Gauntlet als neue Locations in Szene.</figcaption>
+        </figure>
       </div>
     </section>
 
@@ -52,12 +116,45 @@
             <div class="delta">--</div>
             <div class="gapBar"><span class="fill"></span></div>
           </div>
+          <div id="marshalOverlay" class="marshalOverlay hidden" aria-hidden="true">
+            <img src="assets/sprites/slime_marshal.svg" alt="Spacer-X Slime Marshal" class="marshalAvatar" loading="lazy">
+            <div class="marshalFlags" aria-hidden="true">
+              <span class="flag left"></span>
+              <span class="flag right"></span>
+            </div>
+            <div id="marshalMessage" class="marshalMessage">Bereit</div>
+          </div>
+          <div id="startLights" class="startLights hidden" aria-hidden="true">
+            <span class="light"></span>
+            <span class="light"></span>
+            <span class="light"></span>
+            <span class="light"></span>
+            <span class="light"></span>
+          </div>
           <div id="cameraHud" class="cameraHud hidden" aria-live="polite"></div>
           <div id="leaderboardHud" class="leaderboardHud hidden" aria-live="polite">
             <div class="leaderboardTitle">Leaderboard</div>
             <ol></ol>
           </div>
+          <div id="eventBanner" class="eventBanner hidden" aria-live="assertive">
+            <div class="primary"></div>
+            <div class="secondary hiddenLine"></div>
+          </div>
           <div id="top3Banner" class="top3 hidden"></div>
+          <div id="restartHoldBanner" class="restartHold hidden" aria-live="assertive">No Overtake</div>
+          <div id="broadcastIntro" class="broadcastIntro hidden" aria-hidden="true">
+            <article class="broadcastCard">
+              <header class="broadcastHeader">
+                <div class="title">Spacer-X Newsdesk</div>
+                <button id="broadcastIntroSkip" type="button">Zum Grid</button>
+              </header>
+              <div class="broadcastLead">
+                <h3 id="broadcastIntroHeadline">Renn-Überblick</h3>
+                <p id="broadcastIntroSummary">Countdown zum Start läuft.</p>
+              </div>
+              <ol id="broadcastIntroLeaders" class="broadcastLeaders"></ol>
+            </article>
+          </div>
           <div id="gridIntro" class="gridIntro hidden" aria-hidden="true">
             <div class="gridIntroCard">
               <header class="gridIntroHeader">
@@ -176,6 +273,7 @@
             <div>Woche: <span id="managerWeekLabel"></span></div>
             <div>Budget: <strong id="managerBudget"></strong></div>
             <div>Chassis: <span id="managerChassisLabel"></span></div>
+            <div>Facilities: <span id="managerFacilityLabel"></span></div>
             <div>Nächster Lauf: <span id="managerNextTrack"></span></div>
           </div>
           <div class="upgradeControls">
@@ -194,6 +292,8 @@
           <div id="contractList" class="contractList"></div>
           <h3>Upgrade Status</h3>
           <div id="upgradeStatus" class="upgradeStatus"></div>
+          <h3>Facilities &amp; Infrastruktur</h3>
+          <div id="facilityList" class="facilityList"></div>
           <h3>Transfermarkt</h3>
           <div id="freeAgentList" class="freeAgentList"></div>
           <div class="managerActions">
@@ -241,8 +341,18 @@
         <article class="codexColumn">
           <h3>Weltenatlas &amp; Strecken</h3>
           <div id="loreEntries" class="loreEntries"></div>
+          <h3>Fahrer &amp; Persönlichkeiten</h3>
+          <div id="driverCodex" class="driverCodex"></div>
           <h3>Teams &amp; Chassis</h3>
           <div id="codexGarage" class="codexGarage"></div>
+          <h3>Content Roadmap</h3>
+          <div id="contentRoadmap" class="contentRoadmap"></div>
+          <h3>Broadcast Ops &amp; Tools</h3>
+          <div id="integrationRoadmap" class="contentRoadmap"></div>
+          <div class="spriteGallery" aria-label="Sprite Preview">
+            <img src="assets/sprites/holo_flags.svg" alt="Holo Flaggen Sprites" loading="lazy">
+            <p>Pixel-Hologramme für Startlichter, Safety Calls und Podiumsszenen sorgen für mehr Retro-Flair.</p>
+          </div>
         </article>
         <aside class="codexColumn archive">
           <h3>Rennarchiv</h3>
@@ -279,6 +389,8 @@
           <option value="atlas">Atlas Skyway</option>
           <option value="fracture">Fracture Belt</option>
           <option value="lumen">Lumen Cascades</option>
+          <option value="eclipse">Eclipse Citadel</option>
+          <option value="rift">Rift Meridian</option>
         </select>
       </p>
       <p>Wetter:
@@ -287,6 +399,7 @@
           <option value="overcast">Bewölkt</option>
           <option value="storm">Sturmregen</option>
           <option value="night">Nachtrennen</option>
+          <option value="ionstorm">Ionensturm</option>
         </select>
       </p>
       <p>Runden:
@@ -301,6 +414,9 @@
         <label><input type="checkbox" id="toggleRaceControl" checked> Race-Control Protokoll</label>
         <label><input type="checkbox" id="toggleFocusPanel" checked> Fahrerfokus</label>
         <label><input type="checkbox" id="toggleMiniMap" checked> Mini-Map</label>
+        <label><input type="checkbox" id="toggleTicker" checked> Live-Ticker &amp; Banner</label>
+        <label><input type="checkbox" id="toggleBroadcastIntro"> Broadcast-Intro überspringen</label>
+        <label><input type="checkbox" id="toggleAudio" checked> Audio-Signale</label>
         <label>Broadcast Kamera:
           <select id="cameraSetting">
             <option value="auto" selected>Broadcast Auto</option>
@@ -309,6 +425,34 @@
             <option value="manual">Manuell</option>
           </select>
         </label>
+      </div>
+      <div class="simSettings">
+        <h3>Simulation</h3>
+        <label>Renn-Tempo:
+          <select id="racePaceSetting">
+            <option value="slow">Entspannt</option>
+            <option value="normal" selected>Standard</option>
+            <option value="fast">Intensiv</option>
+          </select>
+        </label>
+        <label>Caution-Regelwerk:
+          <select id="cautionSetting">
+            <option value="relaxed">Locker</option>
+            <option value="standard" selected>Standard</option>
+            <option value="strict">Strikt</option>
+          </select>
+        </label>
+      </div>
+      <div class="dataSettings">
+        <h3>Profil &amp; Speicher</h3>
+        <div class="saveActions">
+          <button id="exportProfileBtn" type="button">Profil exportieren</button>
+          <button id="importProfileBtn" type="button">Profil importieren</button>
+          <input id="importProfileInput" type="file" accept="application/json" hidden>
+        </div>
+        <button id="wipeProfileBtn" type="button" class="danger">Speicher löschen</button>
+        <p class="dataHint">Export umfasst Karriere, Grand Prix, Wetten, Archiv, Chassis &amp; Einstellungen.</p>
+        <p id="settingsNotice" class="settingsNotice" role="status" aria-live="polite"></p>
       </div>
       <button id="backToMenuFromSettings">Zum Hauptmenü</button>
     </section>

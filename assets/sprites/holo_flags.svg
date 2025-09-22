@@ -1,0 +1,43 @@
+<svg width="320" height="120" viewBox="0 0 320 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Holo Flag Sprites</title>
+  <desc id="desc">Animated flag cues for race control overlays</desc>
+  <defs>
+    <linearGradient id="green" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#14532d"/>
+    </linearGradient>
+    <linearGradient id="yellow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#facc15"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+    <linearGradient id="sc" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#1e3a8a"/>
+    </linearGradient>
+    <linearGradient id="restart" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#7c2d12"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="120" rx="18" fill="#040910"/>
+  <g transform="translate(20 24)" fill="#040910">
+    <rect x="0" y="0" width="60" height="72" rx="12" fill="#0b1220" stroke="#22c55e" stroke-width="2"/>
+    <path d="M12 18h36l8 12-8 12H12z" fill="url(#green)"/>
+    <text x="30" y="62" text-anchor="middle" font-family="'Orbitron',sans-serif" font-size="12" fill="#bbf7d0">GREEN</text>
+  </g>
+  <g transform="translate(100 24)">
+    <rect x="0" y="0" width="60" height="72" rx="12" fill="#0b1220" stroke="#facc15" stroke-width="2"/>
+    <path d="M12 18h36l8 12-8 12H12z" fill="url(#yellow)"/>
+    <text x="30" y="62" text-anchor="middle" font-family="'Orbitron',sans-serif" font-size="12" fill="#fde68a">YELLOW</text>
+  </g>
+  <g transform="translate(180 24)">
+    <rect x="0" y="0" width="60" height="72" rx="12" fill="#0b1220" stroke="#38bdf8" stroke-width="2"/>
+    <path d="M12 18h36l8 12-8 12H12z" fill="url(#sc)"/>
+    <text x="30" y="62" text-anchor="middle" font-family="'Orbitron',sans-serif" font-size="12" fill="#bfdbfe">SAFETY</text>
+  </g>
+  <g transform="translate(260 24)">
+    <rect x="0" y="0" width="60" height="72" rx="12" fill="#0b1220" stroke="#f97316" stroke-width="2"/>
+    <path d="M12 18h36l8 12-8 12H12z" fill="url(#restart)"/>
+    <text x="30" y="62" text-anchor="middle" font-family="'Orbitron',sans-serif" font-size="12" fill="#fed7aa">RESTART</text>
+  </g>
+</svg>
