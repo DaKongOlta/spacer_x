@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="800" viewBox="0 0 1400 800">
+  <defs>
+    <radialGradient id="badgeGlow" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#2dd9ff" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#041225" stop-opacity="0.1" />
+    </radialGradient>
+    <linearGradient id="panelGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#16253a" />
+      <stop offset="100%" stop-color="#0b1322" />
+    </linearGradient>
+    <style>
+      .title { font: 28px 'Eurostile', sans-serif; fill: #d7f4ff; letter-spacing: 4px; }
+      .caption { font: 18px 'Rajdhani', sans-serif; fill: #89a7c6; }
+      .stat { font: 36px 'Orbitron', sans-serif; fill: #2dd9ff; }
+    </style>
+  </defs>
+  <rect width="1400" height="800" fill="#050b18" />
+  <rect x="60" y="50" width="1280" height="700" rx="32" fill="url(#panelGradient)" stroke="#203a60" stroke-width="3" />
+
+  <text x="120" y="130" class="title">FACILITY UPGRADE ICONS</text>
+  <text x="120" y="160" class="caption">Manager-Modus Module • Mehrstufige Verbesserungen • Budget vs Performance Trade-offs</text>
+
+  <!-- Aero Lab -->
+  <g transform="translate(120,220)">
+    <rect width="260" height="240" rx="24" fill="#0f1f33" stroke="#2dd9ff" stroke-width="2" />
+    <circle cx="130" cy="100" r="78" fill="#071322" />
+    <path d="M90 120 l40 -80 40 80" fill="none" stroke="#2dd9ff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M70 135 h120" stroke="#54ffcd" stroke-width="6" stroke-linecap="round" />
+    <circle cx="130" cy="170" r="36" fill="url(#badgeGlow)" />
+    <text x="130" y="183" class="stat" text-anchor="middle">+5</text>
+    <text x="130" y="220" class="caption" text-anchor="middle">AERO EFFIZIENZ</text>
+  </g>
+
+  <!-- Dyno Hub -->
+  <g transform="translate(420,220)">
+    <rect width="260" height="240" rx="24" fill="#111b2e" stroke="#ff9c3a" stroke-width="2" />
+    <rect x="50" y="70" width="160" height="100" rx="20" fill="#1d2b44" stroke="#ff9c3a" stroke-width="4" />
+    <path d="M80 110 h100" stroke="#ff9c3a" stroke-width="6" stroke-linecap="round" />
+    <path d="M80 140 h100" stroke="#ff9c3a" stroke-width="6" stroke-linecap="round" />
+    <circle cx="130" cy="170" r="36" fill="url(#badgeGlow)" />
+    <text x="130" y="183" class="stat" text-anchor="middle" fill="#ffb469">+8</text>
+    <text x="130" y="220" class="caption" text-anchor="middle">POWERTRAIN</text>
+  </g>
+
+  <!-- Systems Bay -->
+  <g transform="translate(720,220)">
+    <rect width="260" height="240" rx="24" fill="#101627" stroke="#b585ff" stroke-width="2" />
+    <polygon points="80,70 180,70 210,140 50,140" fill="#1a243c" stroke="#b585ff" stroke-width="4" />
+    <circle cx="130" cy="110" r="30" fill="#0d1424" stroke="#b585ff" stroke-width="4" />
+    <path d="M130 80 v60" stroke="#b585ff" stroke-width="6" stroke-linecap="round" />
+    <path d="M100 110 h60" stroke="#b585ff" stroke-width="6" stroke-linecap="round" />
+    <circle cx="130" cy="170" r="36" fill="url(#badgeGlow)" />
+    <text x="130" y="183" class="stat" text-anchor="middle" fill="#dab4ff">+6</text>
+    <text x="130" y="220" class="caption" text-anchor="middle">SYSTEM-KONTROLLE</text>
+  </g>
+
+  <!-- Pilot Academy -->
+  <g transform="translate(1020,220)">
+    <rect width="260" height="240" rx="24" fill="#0f1f33" stroke="#5fffd4" stroke-width="2" />
+    <path d="M70 150 q60 -120 120 0" fill="none" stroke="#5fffd4" stroke-width="6" stroke-linecap="round" />
+    <circle cx="70" cy="150" r="18" fill="#5fffd4" />
+    <circle cx="190" cy="150" r="18" fill="#5fffd4" />
+    <circle cx="130" cy="90" r="32" fill="#0b1628" stroke="#5fffd4" stroke-width="4" />
+    <path d="M130 70 l22 40 h-44 Z" fill="#5fffd4" opacity="0.7" />
+    <circle cx="130" cy="170" r="36" fill="url(#badgeGlow)" />
+    <text x="130" y="183" class="stat" text-anchor="middle" fill="#5fffd4">+7</text>
+    <text x="130" y="220" class="caption" text-anchor="middle">PILOTEN-FORM</text>
+  </g>
+
+  <!-- Upgrade Ladder -->
+  <g transform="translate(120,500)">
+    <rect width="1160" height="200" rx="24" fill="#0a1526" stroke="#243f64" stroke-width="2" />
+    <text x="60" y="560" class="title" font-size="22">AUSBAUSTUFEN</text>
+    <g transform="translate(60,580)">
+      <rect width="200" height="80" rx="18" fill="#132238" stroke="#2dd9ff" stroke-width="2" />
+      <text x="100" y="52" class="caption" text-anchor="middle">TIER I</text>
+    </g>
+    <g transform="translate(300,580)">
+      <rect width="200" height="80" rx="18" fill="#142136" stroke="#ff9c3a" stroke-width="2" />
+      <text x="100" y="52" class="caption" text-anchor="middle">TIER II</text>
+    </g>
+    <g transform="translate(540,580)">
+      <rect width="200" height="80" rx="18" fill="#1a1f32" stroke="#b585ff" stroke-width="2" />
+      <text x="100" y="52" class="caption" text-anchor="middle">TIER III</text>
+    </g>
+    <g transform="translate(780,580)">
+      <rect width="200" height="80" rx="18" fill="#111b2c" stroke="#5fffd4" stroke-width="2" />
+      <text x="100" y="52" class="caption" text-anchor="middle">TIER IV</text>
+    </g>
+    <g transform="translate(1020,580)">
+      <rect width="200" height="80" rx="18" fill="#0d1522" stroke="#ffd966" stroke-width="2" />
+      <text x="100" y="52" class="caption" text-anchor="middle">LEGACY</text>
+    </g>
+    <text x="1090" y="560" class="caption" text-anchor="end">KOSTENBALANCE • MORAL BOOST • RISIKO-TRACKING</text>
+  </g>
+</svg>

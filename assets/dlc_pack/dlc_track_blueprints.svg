@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 800">
+  <defs>
+    <linearGradient id="gridGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0a1a3a"/>
+      <stop offset="100%" stop-color="#020812"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <rect width="40" height="40" fill="none" stroke="#15346b" stroke-width="0.6"/>
+    </pattern>
+  </defs>
+  <rect width="1400" height="800" fill="url(#gridGradient)"/>
+  <rect x="40" y="40" width="1320" height="720" fill="url(#grid)" opacity="0.4"/>
+  <g font-family="'Rajdhani', 'Arial', sans-serif" fill="#8fb9ff">
+    <text x="700" y="90" font-size="34" letter-spacing="8" text-anchor="middle">DLC TRACK BLUEPRINT CLUSTER</text>
+    <text x="700" y="130" font-size="18" text-anchor="middle" fill="#4aa2ff">REVISION 3.2 // HELIX PROGRAM</text>
+  </g>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g transform="translate(140,220)">
+      <rect x="0" y="0" width="360" height="360" rx="26" fill="rgba(10,36,74,0.6)" stroke="#1c5cff" stroke-width="2"/>
+      <text x="180" y="42" fill="#b8d9ff" font-family="'Orbitron', 'Arial', sans-serif" font-size="22" text-anchor="middle">HELIX DOWNFORCE</text>
+      <path d="M80 280 C30 200 120 120 200 140 C300 170 340 260 260 320 C200 360 130 340 80 280" stroke="#4aa2ff" stroke-width="5"/>
+      <circle cx="115" cy="205" r="8" fill="#4aa2ff"/>
+      <circle cx="260" cy="300" r="8" fill="#4aa2ff"/>
+      <text x="180" y="330" font-family="'Roboto Mono', monospace" font-size="14" fill="#6dbdff" text-anchor="middle">VERTICAL FLUX RAMPS // MAGNETIC HAIRPINS</text>
+    </g>
+    <g transform="translate(520,220)">
+      <rect x="0" y="0" width="360" height="360" rx="26" fill="rgba(12,26,68,0.6)" stroke="#ff7c4a" stroke-width="2"/>
+      <text x="180" y="42" fill="#ffd2b8" font-family="'Orbitron', 'Arial', sans-serif" font-size="22" text-anchor="middle">SOLARIS VORTEX</text>
+      <path d="M110 110 Q210 40 280 120 T280 260 Q220 340 140 300 T70 170" stroke="#ff9468" stroke-width="5"/>
+      <circle cx="210" cy="90" r="8" fill="#ff9468"/>
+      <circle cx="160" cy="280" r="8" fill="#ff9468"/>
+      <text x="180" y="330" font-family="'Roboto Mono', monospace" font-size="14" fill="#ffcfa5" text-anchor="middle">SOLAR MIRROR STRAIGHTS // VORTEX LOOP</text>
+    </g>
+    <g transform="translate(900,220)">
+      <rect x="0" y="0" width="360" height="360" rx="26" fill="rgba(6,20,52,0.6)" stroke="#73ffb6" stroke-width="2"/>
+      <text x="180" y="42" fill="#cbffe6" font-family="'Orbitron', 'Arial', sans-serif" font-size="22" text-anchor="middle">LAGRANGE DRIFT</text>
+      <path d="M80 150 C60 100 150 60 230 90 C300 120 320 180 280 240 C240 300 150 320 120 270" stroke="#73ffb6" stroke-width="5"/>
+      <circle cx="135" cy="120" r="8" fill="#73ffb6"/>
+      <circle cx="260" cy="250" r="8" fill="#73ffb6"/>
+      <text x="180" y="330" font-family="'Roboto Mono', monospace" font-size="14" fill="#a0ffd7" text-anchor="middle">ZEROG DRIFT ARCHES // LAGRANGE TRANSFER</text>
+    </g>
+  </g>
+  <g font-family="'Roboto Mono', monospace" font-size="16" fill="#4aa2ff">
+    <text x="220" y="640">NOTES: EXPAND CROWD CAPACITY WITH MODULAR TRIBUNE / INSTALL HELIX SUPPORT LIGHTS</text>
+    <text x="220" y="670">BROADCAST: UPDATE TRACK HUD COLORS TO MATCH NEW SPECTRUM IDS</text>
+    <text x="220" y="700">QA: TEST NIGHT WEATHER &amp; PARTICLE DENSITY ON SOLARIS VORTEX LOOP SEQUENCE</text>
+  </g>
+  <g font-family="'Rajdhani', 'Arial', sans-serif" font-size="18" fill="#4aa2ff">
+    <text x="1180" y="640" text-anchor="end">// DLC PACK 01 : ASTRAL RUSH</text>
+    <text x="1180" y="670" text-anchor="end">// DELIVERABLE: PATCH 2.6.1</text>
+    <text x="1180" y="700" text-anchor="end">// ARCHIVE GRID SNAPSHOT</text>
+  </g>
+</svg>

@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1000" viewBox="0 0 1800 1000">
+  <defs>
+    <linearGradient id="nightSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#050d1a" />
+      <stop offset="100%" stop-color="#010308" />
+    </linearGradient>
+    <linearGradient id="duskSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1a1d4f" />
+      <stop offset="70%" stop-color="#b4386d" />
+      <stop offset="100%" stop-color="#ffb26f" />
+    </linearGradient>
+    <linearGradient id="auroraSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1c264f" />
+      <stop offset="60%" stop-color="#0ca7a7" />
+      <stop offset="100%" stop-color="#062035" />
+    </linearGradient>
+    <linearGradient id="trackGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2dd9ff" />
+      <stop offset="100%" stop-color="#7f5bff" />
+    </linearGradient>
+    <style>
+      .title { font: 32px 'Orbitron', sans-serif; letter-spacing: 4px; fill: #e4f1ff; }
+      .caption { font: 20px 'Rajdhani', sans-serif; fill: #a7bfde; letter-spacing: 2px; }
+      .label { font: 22px 'Rajdhani', sans-serif; fill: #f4f7ff; }
+    </style>
+  </defs>
+  <rect width="1800" height="1000" fill="#02060f" />
+  <text x="120" y="110" class="title">TRACK ATMOSPHERE PANEL SET</text>
+  <text x="120" y="150" class="caption">GRID BRIEFING BACKDROPS • SKYLINES • CUSTOM LOGOS</text>
+
+  <!-- Panel 1: Nebula Amphitheatre -->
+  <g transform="translate(120,200)">
+    <rect width="520" height="720" rx="40" fill="#071125" stroke="#17294a" stroke-width="3" />
+    <rect x="30" y="30" width="460" height="260" rx="30" fill="url(#nightSky)" />
+    <g fill="#ffffff" opacity="0.7">
+      <circle cx="110" cy="120" r="2" />
+      <circle cx="200" cy="80" r="3" />
+      <circle cx="320" cy="140" r="1.5" />
+      <circle cx="400" cy="60" r="2" />
+      <circle cx="420" cy="200" r="1.5" />
+    </g>
+    <path d="M50 250 Q260 180 470 250" fill="none" stroke="#2dd9ff" stroke-width="6" stroke-linecap="round" />
+    <path d="M50 250 L50 320 L470 320 L470 250" fill="#08152c" />
+    <rect x="50" y="330" width="420" height="80" rx="20" fill="#101d35" stroke="#2dd9ff" stroke-width="2" />
+    <text x="260" y="380" text-anchor="middle" class="label">NEBULA AMPHITHEATRE</text>
+    <path d="M60 450 q200 -60 400 0" fill="none" stroke="#7f5bff" stroke-width="8" stroke-linecap="round" />
+    <text x="60" y="520" class="caption">Spectator arcs float above the anti-grav lagoon with layered holo-billboards.</text>
+    <text x="60" y="560" class="caption">Lighting pack: cyan pulse track edge, magenta pit concourse, violet sponsor lattice.</text>
+    <text x="60" y="640" class="label">LOGO BADGE</text>
+    <rect x="60" y="660" width="140" height="80" rx="24" fill="#101d35" stroke="#2dd9ff" stroke-width="2" />
+    <path d="M90 700 l40 -40 40 40 -40 40 Z" fill="#2dd9ff" opacity="0.7" />
+  </g>
+
+  <!-- Panel 2: Solstice Cascade -->
+  <g transform="translate(680,200)">
+    <rect width="520" height="720" rx="40" fill="#0a1329" stroke="#262e55" stroke-width="3" />
+    <rect x="30" y="30" width="460" height="260" rx="30" fill="url(#duskSky)" />
+    <path d="M30 230 C160 160 300 200 490 220" fill="none" stroke="#ffb26f" stroke-width="8" stroke-linecap="round" />
+    <path d="M30 250 L30 320 L490 320 L490 250" fill="#1d0f2a" opacity="0.9" />
+    <rect x="50" y="330" width="420" height="80" rx="20" fill="#291537" stroke="#ff4f8b" stroke-width="2" />
+    <text x="260" y="380" text-anchor="middle" class="label">SOLSTICE CASCADE</text>
+    <path d="M60 450 q120 -50 240 0 t240 0" fill="none" stroke="#ff8bd0" stroke-width="8" stroke-linecap="round" />
+    <text x="60" y="520" class="caption">Crystalline waterfalls project vapor halos that tint the grid briefing.</text>
+    <text x="60" y="560" class="caption">Lighting pack: rose horizon sweep, ember apex flares, gold podium spotlight.</text>
+    <text x="60" y="640" class="label">LOGO BADGE</text>
+    <rect x="60" y="660" width="140" height="80" rx="24" fill="#291537" stroke="#ff8bd0" stroke-width="2" />
+    <circle cx="130" cy="700" r="32" fill="#ff8bd0" opacity="0.7" />
+    <path d="M130 680 l14 24 h-28 Z" fill="#291537" />
+  </g>
+
+  <!-- Panel 3: Aurora Skyway -->
+  <g transform="translate(1240,200)">
+    <rect width="440" height="720" rx="40" fill="#061125" stroke="#13334f" stroke-width="3" />
+    <rect x="30" y="30" width="380" height="240" rx="26" fill="url(#auroraSky)" />
+    <path d="M40 230 q180 -90 360 0" fill="none" stroke="#2dd9ff" stroke-width="6" stroke-linecap="round" />
+    <path d="M40 250 L40 320 L410 320 L410 250" fill="#05202b" opacity="0.85" />
+    <rect x="50" y="330" width="340" height="80" rx="20" fill="#0a2435" stroke="#39ffd7" stroke-width="2" />
+    <text x="220" y="380" text-anchor="middle" class="label">AURORA SKYWAY</text>
+    <path d="M60 450 q160 -70 320 0" fill="none" stroke="#39ffd7" stroke-width="8" stroke-linecap="round" />
+    <text x="60" y="520" class="caption">Polar shield columns emit ribboned aurora energy that pulses with lap leader changes.</text>
+    <text x="60" y="560" class="caption">Lighting pack: teal ribbon chaser, jade apex beacons, cyan pit halo.</text>
+    <text x="60" y="640" class="label">LOGO BADGE</text>
+    <rect x="60" y="660" width="140" height="80" rx="24" fill="#0a2435" stroke="#39ffd7" stroke-width="2" />
+    <path d="M90 700 q40 -40 80 0" fill="none" stroke="#39ffd7" stroke-width="6" stroke-linecap="round" />
+  </g>
+</svg>

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900">
+  <rect width="1400" height="900" fill="#02030a"/>
+  <defs>
+    <linearGradient id="overlayGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0a1a35"/>
+      <stop offset="100%" stop-color="#1e0f35"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#42f5ff"/>
+      <stop offset="100%" stop-color="#5f5cff"/>
+    </linearGradient>
+    <linearGradient id="accent2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff6ee0"/>
+      <stop offset="100%" stop-color="#ff9f4a"/>
+    </linearGradient>
+  </defs>
+  <g font-family="'Orbitron', 'Arial', sans-serif" fill="#f1f4ff" text-anchor="middle">
+    <text x="700" y="80" font-size="40" letter-spacing="10">SPACER-X BROADCAST OVERLAY KIT</text>
+    <text x="700" y="120" font-size="20" fill="#6ddcff" letter-spacing="4">DLC CIRCUIT PACK 01 // PRODUCTION PACKAGE</text>
+  </g>
+  <g>
+    <rect x="120" y="160" width="520" height="160" rx="24" fill="url(#overlayGradient)" stroke="#42f5ff" stroke-width="3"/>
+    <polygon points="120,160 200,160 170,320 120,320" fill="#42f5ff" opacity="0.35"/>
+    <polygon points="640,160 560,160 590,320 640,320" fill="#5f5cff" opacity="0.35"/>
+    <text x="380" y="220" font-family="'Rajdhani', 'Arial', sans-serif" font-size="28" fill="#c8f8ff" text-anchor="middle">RACE HUD LOWER THIRD</text>
+    <text x="380" y="260" font-family="'Roboto Mono', monospace" font-size="16" fill="#7ddcff" text-anchor="middle">INSERT DRIVER + SPLIT + ENERGY</text>
+  </g>
+  <g>
+    <rect x="760" y="160" width="520" height="160" rx="24" fill="url(#overlayGradient)" stroke="#ff6ee0" stroke-width="3"/>
+    <polygon points="760,160 820,160 800,320 760,320" fill="#ff6ee0" opacity="0.25"/>
+    <polygon points="1280,160 1220,160 1240,320 1280,320" fill="#ff9f4a" opacity="0.25"/>
+    <text x="1020" y="220" font-family="'Rajdhani', 'Arial', sans-serif" font-size="28" fill="#ffdfff" text-anchor="middle">PIT STRATEGY PANEL</text>
+    <text x="1020" y="260" font-family="'Roboto Mono', monospace" font-size="16" fill="#ffb1e8" text-anchor="middle">TYRES • CHARGE • WINDOW</text>
+  </g>
+  <g>
+    <rect x="120" y="360" width="520" height="200" rx="28" fill="#060d1e" stroke="#42f5ff" stroke-width="2"/>
+    <rect x="140" y="380" width="480" height="80" rx="16" fill="#091738"/>
+    <rect x="140" y="470" width="480" height="70" rx="16" fill="#101d40"/>
+    <text x="380" y="420" font-family="'Press Start 2P', monospace" font-size="18" fill="#71e8ff" text-anchor="middle">LAP DELTA STACK</text>
+    <text x="380" y="505" font-family="'Roboto Mono', monospace" font-size="16" fill="#a0d8ff" text-anchor="middle">+00.152  |  ENERGY 78%  |  BOOST READY</text>
+  </g>
+  <g>
+    <rect x="760" y="360" width="520" height="200" rx="28" fill="#180622" stroke="#ff6ee0" stroke-width="2"/>
+    <rect x="780" y="380" width="480" height="150" rx="20" fill="#2a0b3a"/>
+    <text x="1020" y="440" font-family="'Press Start 2P', monospace" font-size="18" fill="#ff9ff4" text-anchor="middle">OVERTAKE ALERT</text>
+    <text x="1020" y="495" font-family="'Roboto Mono', monospace" font-size="16" fill="#ffc2f7" text-anchor="middle">FLASH • SHAKE • AUDIO PING</text>
+  </g>
+  <g>
+    <rect x="120" y="600" width="1160" height="220" rx="32" fill="#060d1e" stroke="#5f5cff" stroke-width="3"/>
+    <rect x="140" y="620" width="1120" height="60" rx="26" fill="#091736"/>
+    <rect x="140" y="690" width="540" height="110" rx="26" fill="#101f45"/>
+    <rect x="720" y="690" width="540" height="110" rx="26" fill="#1a264f"/>
+    <text x="700" y="660" font-family="'Rajdhani', 'Arial', sans-serif" font-size="26" fill="#d2ddff" text-anchor="middle">DLC CIRCUIT INTRO BUMPER</text>
+    <text x="410" y="750" font-family="'Roboto Mono', monospace" font-size="16" fill="#98beff" text-anchor="middle">LEFT: TRACK STATS / WEATHER / HAZARD</text>
+    <text x="980" y="750" font-family="'Roboto Mono', monospace" font-size="16" fill="#a0a8ff" text-anchor="middle">RIGHT: TEAM CRESTS / GRID SHUFFLE</text>
+  </g>
+  <g font-family="'Roboto Mono', monospace" font-size="14" fill="#4ca4ff">
+    <text x="120" y="840">NOTES: INCLUDE ANIMATED NEBULA PARTICLES &amp; WIPE-SYNC AUDIO. DELIVER AS ALPHA PNG + SVG.</text>
+  </g>
+</svg>

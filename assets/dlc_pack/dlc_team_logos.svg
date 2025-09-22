@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 700">
+  <rect width="1400" height="700" fill="#04040c"/>
+  <g font-family="'Orbitron', 'Arial', sans-serif" fill="#ffffff" text-anchor="middle">
+    <text x="700" y="70" font-size="40" letter-spacing="12">DLC TEAM CREST COLLECTION</text>
+    <text x="700" y="110" font-size="20" fill="#7ddcff" letter-spacing="6">PACK 01 // CONSTELLATION BRIGADE</text>
+  </g>
+  <g transform="translate(140,160)">
+    <rect x="0" y="0" width="340" height="200" rx="24" fill="#0f1d3a" stroke="#4ffbff" stroke-width="2"/>
+    <polygon points="60,60 120,20 180,60 200,110 120,180 40,110" fill="#0a3459"/>
+    <polygon points="120,50 160,80 140,130 120,160 100,130 80,80" fill="#4ffbff"/>
+    <circle cx="120" cy="110" r="18" fill="#0a1226" stroke="#4ffbff" stroke-width="4"/>
+    <text x="250" y="90" font-family="'Rajdhani', 'Arial', sans-serif" font-size="30" fill="#bff9ff">LYNX PULSE</text>
+    <text x="250" y="130" font-family="'Roboto Mono', monospace" font-size="14" fill="#7ddcff">KINETIC RESPONSE UNIT</text>
+  </g>
+  <g transform="translate(520,160)">
+    <rect x="0" y="0" width="340" height="200" rx="24" fill="#220c38" stroke="#ff7ce4" stroke-width="2"/>
+    <polygon points="60,150 120,30 180,150" fill="#34104d"/>
+    <polygon points="60,150 120,70 180,150" fill="#ff7ce4"/>
+    <polygon points="80,140 120,90 160,140" fill="#ffb3f4"/>
+    <text x="250" y="90" font-family="'Rajdhani', 'Arial', sans-serif" font-size="30" fill="#ffc6fe">ORBIT SERAPH</text>
+    <text x="250" y="130" font-family="'Roboto Mono', monospace" font-size="14" fill="#ff9cea">STELLAR GUARD DETAIL</text>
+  </g>
+  <g transform="translate(900,160)">
+    <rect x="0" y="0" width="340" height="200" rx="24" fill="#1a2a0c" stroke="#8dff6e" stroke-width="2"/>
+    <polygon points="80,60 160,20 240,60 210,140 110,140" fill="#233810"/>
+    <polygon points="100,70 160,40 220,70 200,120 120,120" fill="#8dff6e"/>
+    <polygon points="120,85 160,60 200,85 188,110 132,110" fill="#c9ffb4"/>
+    <text x="250" y="90" font-family="'Rajdhani', 'Arial', sans-serif" font-size="30" fill="#cfffad">VERDANT ARROW</text>
+    <text x="250" y="130" font-family="'Roboto Mono', monospace" font-size="14" fill="#a0ff92">BIO-THRUST COLLECTIVE</text>
+  </g>
+  <g transform="translate(140,380)">
+    <rect x="0" y="0" width="340" height="200" rx="24" fill="#0f0f2a" stroke="#6d5cff" stroke-width="2"/>
+    <circle cx="120" cy="100" r="80" fill="#1a1a48"/>
+    <path d="M120 40 L160 80 L120 160 L80 120 Z" fill="#6d5cff"/>
+    <path d="M120 60 L145 85 L120 140 L95 115 Z" fill="#b1a9ff"/>
+    <text x="250" y="90" font-family="'Rajdhani', 'Arial', sans-serif" font-size="30" fill="#c9c3ff">NOVA MIRROR</text>
+    <text x="250" y="130" font-family="'Roboto Mono', monospace" font-size="14" fill="#a8a0ff">REFRACTION SYNDICATE</text>
+  </g>
+  <g transform="translate(520,380)">
+    <rect x="0" y="0" width="340" height="200" rx="24" fill="#0f1f1f" stroke="#42f5ff" stroke-width="2"/>
+    <polygon points="120,30 190,80 160,170 80,170 50,80" fill="#123030"/>
+    <polygon points="120,50 172,86 148,150 92,150 68,86" fill="#42f5ff"/>
+    <polygon points="120,70 156,96 140,140 100,140 84,96" fill="#a0fcff"/>
+    <text x="250" y="90" font-family="'Rajdhani', 'Arial', sans-serif" font-size="30" fill="#bdfaff">QUANTUM WARDEN</text>
+    <text x="250" y="130" font-family="'Roboto Mono', monospace" font-size="14" fill="#8ce6ff">SINGULARITY DEFENSE</text>
+  </g>
+  <g transform="translate(900,380)">
+    <rect x="0" y="0" width="340" height="200" rx="24" fill="#230f16" stroke="#ff945c" stroke-width="2"/>
+    <polygon points="60,140 120,40 200,40 220,140 140,180" fill="#331a1e"/>
+    <polygon points="80,130 130,60 190,60 204,130 140,160" fill="#ff945c"/>
+    <polygon points="100,120 140,70 180,70 192,120 140,145" fill="#ffd3b6"/>
+    <text x="250" y="90" font-family="'Rajdhani', 'Arial', sans-serif" font-size="30" fill="#ffbe94">EMBER VECTOR</text>
+    <text x="250" y="130" font-family="'Roboto Mono', monospace" font-size="14" fill="#ffb884">THERMAL STRIKE TEAM</text>
+  </g>
+</svg>
