@@ -1086,6 +1086,15 @@
   const eventBanner = document.getElementById('eventBanner');
   const eventBannerPrimary = eventBanner?.querySelector('.primary') || null;
   const eventBannerSecondary = eventBanner?.querySelector('.secondary') || null;
+  const battleSpotlight = document.getElementById('battleSpotlight');
+  const battleSpotlightLabel = battleSpotlight?.querySelector('.label') || null;
+  const battleSpotlightGap = battleSpotlight?.querySelector('.gap') || null;
+  const battleSpotlightTrend = battleSpotlight?.querySelector('.trend') || null;
+  let battleSpotlightState = null;
+  let battleSpotlightIdle = 0;
+  const BATTLE_SPOTLIGHT_THRESHOLD = 0.9;
+  const BATTLE_SPOTLIGHT_HIDE_DELAY = 2.8;
+  const BATTLE_SPOTLIGHT_TREND_DELTA = 0.08;
   const sectorWidget = document.getElementById('sectorWidget');
   const fastestLapLabel = document.getElementById('fastestLapLabel');
   const focusDriverPanel = document.getElementById('focusDriverPanel');
@@ -1175,6 +1184,111 @@
     }
   }
 
+  function resetBattleSpotlight(hide = true) {
+    battleSpotlightState = null;
+    battleSpotlightIdle = 0;
+    if (!battleSpotlight) return;
+    battleSpotlight.classList.remove('closing', 'widening');
+    if (battleSpotlightLabel) battleSpotlightLabel.textContent = '--';
+    if (battleSpotlightGap) battleSpotlightGap.textContent = 'Gap --';
+    if (battleSpotlightTrend) battleSpotlightTrend.textContent = 'Stabil';
+    if (hide) {
+      battleSpotlight.classList.add('hidden');
+    }
+  }
+
+  function hideBattleSpotlightIfIdle(force = false) {
+    if (!battleSpotlight) return;
+    if (force || battleSpotlightIdle > BATTLE_SPOTLIGHT_HIDE_DELAY) {
+      battleSpotlight.classList.add('hidden');
+      battleSpotlight.classList.remove('closing', 'widening');
+      battleSpotlightState = null;
+      battleSpotlightIdle = 0;
+    }
+  }
+
+  function updateBattleSpotlight(order, dt = 0) {
+    if (!battleSpotlight) return;
+    if (!raceActive) {
+      battleSpotlightIdle += dt;
+      hideBattleSpotlightIfIdle(true);
+      return;
+    }
+    if (!Array.isArray(order) || order.length < 2) {
+      battleSpotlightIdle += dt;
+      hideBattleSpotlightIfIdle(false);
+      return;
+    }
+    if (racePhase !== 'GREEN' && racePhase !== 'RESTART') {
+      battleSpotlightIdle += dt;
+      hideBattleSpotlightIfIdle(false);
+      return;
+    }
+    if (isRestartHoldActive()) {
+      battleSpotlightIdle += dt;
+      hideBattleSpotlightIfIdle(false);
+      return;
+    }
+    let bestLeader = null;
+    let bestChaser = null;
+    let bestIndex = -1;
+    let smallestGap = Infinity;
+    for (let idx = 1; idx < order.length; idx++) {
+      const ahead = order[idx - 1];
+      const car = order[idx];
+      if (!ahead || !car) continue;
+      if (ahead.finished || car.finished) continue;
+      const gap = Math.abs(computeTimeGap(ahead, car));
+      if (!Number.isFinite(gap)) continue;
+      if (gap < smallestGap) {
+        smallestGap = gap;
+        bestLeader = ahead;
+        bestChaser = car;
+        bestIndex = idx;
+      }
+    }
+    if (!bestLeader || !bestChaser || smallestGap > BATTLE_SPOTLIGHT_THRESHOLD) {
+      battleSpotlightIdle += dt;
+      hideBattleSpotlightIfIdle(false);
+      return;
+    }
+    battleSpotlightIdle = 0;
+    const previous = battleSpotlightState;
+    battleSpotlightState = {
+      leaderId: bestLeader.id,
+      chaserId: bestChaser.id,
+      gap: smallestGap
+    };
+    const leaderLine = `P${bestIndex} #${bestLeader.racingNumber} ${bestLeader.driver}`;
+    const chaserLine = `P${bestIndex + 1} #${bestChaser.racingNumber} ${bestChaser.driver}`;
+    if (battleSpotlightLabel) {
+      battleSpotlightLabel.textContent = `${leaderLine} vs ${chaserLine}`;
+    }
+    if (battleSpotlightGap) {
+      battleSpotlightGap.textContent = `Gap +${formatGap(smallestGap)}s`;
+    }
+    if (battleSpotlightTrend) {
+      let trendLabel = 'Stabil';
+      battleSpotlight.classList.remove('closing', 'widening');
+      if (
+        previous &&
+        previous.leaderId === bestLeader.id &&
+        previous.chaserId === bestChaser.id &&
+        Number.isFinite(previous.gap)
+      ) {
+        if (smallestGap < previous.gap - BATTLE_SPOTLIGHT_TREND_DELTA) {
+          trendLabel = 'Gap schrumpft';
+          battleSpotlight.classList.add('closing');
+        } else if (smallestGap > previous.gap + BATTLE_SPOTLIGHT_TREND_DELTA) {
+          trendLabel = 'Gap wächst';
+          battleSpotlight.classList.add('widening');
+        }
+      }
+      battleSpotlightTrend.textContent = trendLabel;
+    }
+    battleSpotlight.classList.remove('hidden');
+  }
+
   function showNextHighlightTicker() {
     if (!highlightTicker || highlightTickerActive) return;
     const next = highlightTickerQueue.shift();
@@ -1219,6 +1333,7 @@
     resetMarshalOverlay();
     resetEventBanner();
     resetHighlightTicker();
+    resetBattleSpotlight();
     setPauseButtonState(false, 'Pause');
     setStartButtonState(true, 'Rennen starten');
     restartHoldUntil = 0;
@@ -5630,6 +5745,7 @@
     if (leaderGapFill) leaderGapFill.style.width = '0%';
     if (leaderGapHud) leaderGapHud.classList.remove('leader', 'positive', 'negative', 'tight');
     resetHighlightTicker();
+    resetBattleSpotlight();
     resetLiveTicker();
     updateLeaderboardHud([]);
     resultsLabel.textContent = '';
@@ -5721,6 +5837,7 @@
     handleRestartRelease();
     updateRestartHoldHud();
     updateSessionInfo();
+    updateBattleSpotlight(orderAfter, dt);
     captureReplayFrame(orderAfter, dt);
 
     if (cars.every(car => car.finished)) {

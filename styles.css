@@ -114,6 +114,15 @@ button.secondary:disabled:hover{background:#0d1524}
 .eventBanner.caution{border-left:4px solid #facc15}
 .eventBanner.alert{border-left:4px solid #f87171}
 .eventBanner.success{border-left:4px solid #4ade80}
+.battleSpotlight{position:absolute;bottom:26px;left:24px;min-width:260px;max-width:340px;padding:12px 16px;border-radius:14px;backdrop-filter:blur(8px);background:#060912e6;border:1px solid #1e293b;box-shadow:0 18px 44px -30px rgba(14,165,233,.7);display:flex;flex-direction:column;gap:4px;transition:opacity .25s ease,transform .25s ease;z-index:6}
+.battleSpotlight.hidden{opacity:0;pointer-events:none;transform:translateY(10px)}
+.battleSpotlight .tag{display:inline-block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#38bdf8;margin-right:6px}
+.battleSpotlight .label{font-size:13px;font-weight:700;letter-spacing:.04em;color:#f8fafc}
+.battleSpotlight .secondary{font-size:12px;color:#cbd5f5;letter-spacing:.04em}
+.battleSpotlight .gap{font-variant-numeric:tabular-nums;font-weight:600;color:#facc15}
+.battleSpotlight .trend{font-style:italic;color:#94a3b8}
+.battleSpotlight.closing{border-left:4px solid #22c55e}
+.battleSpotlight.widening{border-left:4px solid #f97316}
 .marshalOverlay{position:absolute;left:50%;top:22%;transform:translate(-50%,-40%);display:flex;align-items:center;gap:12px;padding:10px 18px;border-radius:999px;background:rgba(5,9,18,.88);border:1px solid rgba(30,41,59,.9);box-shadow:0 18px 44px -22px rgba(15,23,42,.95);backdrop-filter:blur(6px);z-index:7;transition:opacity .25s ease,transform .25s ease}
 .marshalOverlay.hidden{opacity:0;pointer-events:none;transform:translate(-50%,-58%)}
 .marshalOverlay .marshalAvatar{width:58px;height:58px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 6px 10px rgba(15,23,42,.6))}
