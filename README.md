@@ -41,12 +41,15 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 20 Strecken (u. a. City Grand 
 - Live-Leaderboard-Overlay auf dem Canvas plus Meldungs-Panel mit Zeitstempeln für Überholungen, Flaggen und Specials
 - Battle-Spotlight blendet engste Duelle mit Gap-Trend (schrumpft/wächst) und Teamfarben im Broadcast-HUD ein
 - Incident-/Overtake-Banner-Queue blendet zweizeilige TV-Callouts für Flaggen, Safety-Car-Deployments und Überholmanöver ein
+- Highlight-Ticker zählt Safety-Laps mit und fasst Pit-Stops als Broadcast-Callouts zusammen, inklusive Service-Gewinnen
 - Mini-Map mit markierten Sektoren, Leader-Halo und Fokus-Ring für klarere TV-Analyse
 - Einstellbare HUD- und Audio-Optionen (Ticker, Race-Control, Fokus, Mini-Map, Broadcast-Sounds) werden pro Profil gespeichert
 - Skip-Toggle für das Broadcast-Intro erlaubt sofortigen Sprung ins Grid Briefing
 - Anpassbare Simulationsparameter: Renn-Tempo (Entspannt/Standard/Intensiv) und Caution-Regelwerk (Locker/Standard/Strikt) steuern
   Pace, Bunching-Aggressivität und Überholverbots-Kontrollen
 - Codex & Archiv: Lore-Einträge, Fahrer-Persönlichkeiten, Team-Garage, Hall-of-Fame und automatisches Rennarchiv mit Schnellzugriff auf Siege & Fastest Laps
+- Timing-&-Statistik-Overlay mit kompaktem Timing-Table, Replay-Markierungen für Formation/Starts und laufend aktualisierten Gap-/Statusdaten
+- Codex-Archiv erweitert um Race-Control-Verstöße, Pit-Stop-Zusammenfassungen und Caution-Statistiken je Event
 - Live-Gap-HUD mit Delta-Bar, Phasen-Timeline im Ergebnisbericht sowie `window.spacerxDiagnostics` für Race-Control-Diagnosen
 - Globale Speicherverwaltung: Profil-Export/Import (JSON) inkl. Manager, GP, Wetten, Archiv & UI-Settings sowie kompletter Speicher-Reset im Einstellungsmenü
 - Codex-Roadmap mit Status-Badges für Demo-, Broadcast- und Community-Meilensteine

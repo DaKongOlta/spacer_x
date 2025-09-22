@@ -6,12 +6,15 @@
 - ✅ State-Machine GREEN → YELLOW → SC → RESTART → GREEN
 - ✅ Bunching-Tuning & automatische Release-Trigger
 - ✅ Sim-Tuning: Renn-Tempo & Caution-Striktheit als Spielereinstellungen
+- ✅ Race-Control-Verstöße werden im Codex-Archiv mitgestempelt
 
 ## P2 — TV & Broadcast (⚙️ In Arbeit)
 - ✅ Permanent Leaderboard mit Gap-Trend & Leader-Halo
 - ✅ Sektor-Splits (S1/S2/S3) mit PB/FL Highlighting
 - ✅ Incident/Overtake-Banner-Queue & erweiterter Live-Ticker
 - ✅ Battle-Spotlight für engste Duelle mit Trend-Indikator
+- ✅ Safety-Lap-Counter & Pit-Stop-Highlights im Broadcast-Ticker
+- ✅ Timing-Overlay & Replay-Marken für Formation/Restarts
 
 ## P3 — Manager‑/Karriere v1 (🔜 Nächstes)
 - ✅ Budget, Verträge, Upgrades, Transfermarkt, JSON Export/Import

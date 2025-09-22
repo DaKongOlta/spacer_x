@@ -225,6 +225,8 @@ button.secondary:disabled:hover{background:#0d1524}
 .ticker.tone-fl{color:#fb7185}
 .ticker.tone-finish{color:#bae6fd}
 .ticker.tone-warn{color:#f97316}
+.ticker.tone-pit{color:#fbbf24}
+.ticker.tone-stats{color:#38bdf8}
 .sidebar{display:flex;flex-direction:column;gap:10px}
 .optionsRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0}
 .eventBriefing{background:#0d1524;border:1px solid #1e293b;border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;min-height:88px}
@@ -299,8 +301,28 @@ button.secondary:disabled:hover{background:#0d1524}
 .replayControls input[type=range]{flex:1;accent-color:#38bdf8;height:4px}
 .replayControls .replayTime{min-width:120px;text-align:center;font-variant-numeric:tabular-nums;font-size:12px;color:#94a3b8}
 .replayControls .replaySpeedLabel{display:flex;align-items-center;gap:6px;font-size:12px;color:#cbd5f5}
+.replayControls .replayBookmarkLabel{display:flex;align-items-center;gap:6px;font-size:12px;color:#94a3b8}
 .replayControls select{background:#0f172a;border:1px solid #1f2937;color:#e2e8f0;border-radius:8px;padding:4px 8px;font-size:12px}
 .replayControls select:focus{outline:1px solid #38bdf8;outline-offset:1px}
+.timingModal{position:fixed;inset:0;background:rgba(2,6,23,.84);display:flex;align-items:center;justify-content:center;z-index:50;backdrop-filter:blur(6px);padding:20px;transition:opacity .25s ease,transform .25s ease}
+.timingModal.hidden{pointer-events:none;opacity:0;transform:translateY(6px)}
+.timingModalInner{background:#050910;border:1px solid #1e293b;border-radius:16px;padding:20px 24px;box-shadow:0 32px 72px -28px #000;width:min(820px,calc(100% - 32px));max-height:80vh;display:flex;flex-direction:column;gap:16px}
+.timingModalHeader{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.timingModalHeader h3{margin:0;font-size:18px;color:#f8fafc;letter-spacing:.08em;text-transform:uppercase}
+.timingModalHeader button{background:transparent;border:none;color:#f1f5f9;font-size:24px;line-height:1;cursor:pointer;padding:4px}
+.timingModalHeader button:hover{color:#38bdf8}
+.timingModalBody{overflow:auto;border-top:1px solid #1f2937;padding-top:8px}
+.timingModalBody table{width:100%;border-collapse:collapse;font-size:12px;color:#e2e8f0}
+.timingModalBody thead th{text-align:left;padding:6px 8px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;border-bottom:1px solid #1f2937;position:sticky;top:0;background:#050910}
+.timingModalBody tbody tr:nth-child(even){background:rgba(15,23,42,.45)}
+.timingModalBody td{padding:6px 8px;border-bottom:1px solid rgba(30,41,59,.6);vertical-align:middle;white-space:nowrap}
+.timingModalBody td .driverTag{display:flex;flex-direction:column;line-height:1.2}
+.timingModalBody td .driverTag strong{color:#38bdf8;font-weight:600}
+.timingModalBody td .driverTag span{font-size:10px;color:#94a3b8}
+.timingModalBody td .statusBadge{display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border-radius:999px;font-size:10px;text-transform:uppercase;letter-spacing:.08em;background:rgba(56,189,248,.16);border:1px solid rgba(56,189,248,.32);color:#7dd3fc}
+.timingModalBody td .statusBadge.danger{background:rgba(248,113,113,.16);border-color:rgba(248,113,113,.32);color:#fca5a5}
+.timingModalBody td .statusBadge.ok{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.26);color:#86efac}
+.timingModalBody td .statusBadge.pit{background:rgba(251,191,36,.16);border-color:rgba(251,191,36,.28);color:#facc15}
 .results{white-space:pre-wrap;background:#0d1524;border:1px solid #1e293b;border-radius:12px;padding:8px;min-height:90px}
 .posFlash{animation:flash .45s ease}
 @keyframes flash{0%{background:#052e2b}100%{background:transparent}}
@@ -422,6 +444,9 @@ button.danger:hover{background:#991b1b}
 .archiveEntry header{display:flex;justify-content:space-between;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#38bdf8}
 .archiveEntry .podium{display:flex;flex-direction:column;gap:4px;font-size:12px}
 .archiveEntry .meta{font-size:11px;opacity:.75}
+.violationLog{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:11px;color:#fca5a5}
+.violationLog li{display:flex;align-items:center;gap:6px}
+.violationLog .stamp{font-variant-numeric:tabular-nums;color:#94a3b8}
 .hallOfFame .fameEntry{border-color:#334155}
 .fameEntry strong{font-size:14px;color:#facc15}
 .fameEntry span{font-size:12px;opacity:.8}

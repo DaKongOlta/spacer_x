@@ -234,6 +234,7 @@
           <div class="controls">
             <button id="startRaceBtn">Rennen starten</button>
             <button id="pauseRaceBtn" disabled>Pause</button>
+            <button id="timingModalBtn" type="button">Timing &amp; Statistik</button>
             <button id="replayRaceBtn" style="display:none;">Replay</button>
             <button id="nextRaceBtn" style="display:none;">Nächstes Rennen</button>
             <button id="backToMenuFromRace">Zum Hauptmenü</button>
@@ -251,11 +252,42 @@
                 <option value="2">2×</option>
               </select>
             </label>
+            <label class="replayBookmarkLabel">Marken
+              <select id="replayBookmarkSelect" aria-label="Replay-Markierungen">
+                <option value="">– Szene wählen –</option>
+              </select>
+            </label>
           </div>
           <pre id="resultsLabel" class="results"></pre>
         </aside>
       </div>
     </section>
+
+    <div id="timingModal" class="timingModal hidden" role="dialog" aria-modal="true" aria-labelledby="timingModalTitle">
+      <div class="timingModalInner">
+        <header class="timingModalHeader">
+          <h3 id="timingModalTitle">Timing &amp; Statistik</h3>
+          <button id="timingModalClose" type="button" aria-label="Timing-Overlay schließen">×</button>
+        </header>
+        <div id="timingModalBody" class="timingModalBody">
+          <table>
+            <thead>
+              <tr>
+                <th>Pos</th>
+                <th>Fahrer</th>
+                <th>Gap</th>
+                <th>Runde</th>
+                <th>Letzte</th>
+                <th>Beste</th>
+                <th>Stopps</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="timingModalTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
     <!-- Teams/Fahrer -->
     <section id="teamsScreen" class="screen">
