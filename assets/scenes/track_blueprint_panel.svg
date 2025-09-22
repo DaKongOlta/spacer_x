@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
+  <title id="title">Spacer-X Track Blueprint Panel</title>
+  <desc id="desc">Konzeptart für drei futuristische Rennstrecken mit Beschleunigungszonen und Notizen.</desc>
+  <defs>
+    <linearGradient id="panelBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#020617"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="gridLines" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="420" rx="28" fill="url(#panelBg)"/>
+  <g transform="translate(48 48)" font-family="'Rajdhani', sans-serif">
+    <rect x="0" y="0" width="336" height="324" rx="20" fill="#040c1a" stroke="#1f2937" stroke-width="2"/>
+    <rect x="0" y="0" width="336" height="324" rx="20" fill="url(#gridLines)" opacity="0.35"/>
+    <g fill="none" stroke="#38f9d7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M60 248 C82 170 150 132 210 150 C250 162 272 206 276 244 C280 282 248 300 216 300 C184 300 150 276 126 256"/>
+      <path d="M80 252 C106 196 158 170 200 182 C242 194 260 236 262 262" stroke-dasharray="12 12" opacity="0.6"/>
+      <circle cx="60" cy="248" r="9" fill="#22d3ee"/>
+      <circle cx="262" cy="262" r="9" fill="#22d3ee"/>
+    </g>
+    <text x="24" y="44" fill="#a5f3fc" font-size="26" letter-spacing="0.22em">AURORA SKYWAY</text>
+    <text x="24" y="74" fill="#bae6fd" font-size="16">• Polar Wind Shear erzeugt Hochgeschwindigkeits-Seitendrifts</text>
+    <text x="24" y="98" fill="#bae6fd" font-size="16">• Antigrav-Ringe heben den Pulk vor Sektor 3 an</text>
+    <text x="24" y="122" fill="#bae6fd" font-size="16">• Wechselnde Nordlichtfelder stören Sensorik</text>
+  </g>
+  <g transform="translate(432 48)" font-family="'Rajdhani', sans-serif">
+    <rect x="0" y="0" width="336" height="324" rx="20" fill="#12011f" stroke="#2d1b4f" stroke-width="2"/>
+    <rect x="0" y="0" width="336" height="324" rx="20" fill="url(#gridLines)" opacity="0.35"/>
+    <g fill="none" stroke="#f472b6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M68 256 C94 182 152 142 214 118 C260 100 304 128 300 188 C296 248 260 288 210 306 C160 324 108 300 84 268"/>
+      <path d="M94 252 C124 204 182 168 232 156 C268 148 290 166 288 198" stroke-dasharray="12 12" opacity="0.55"/>
+      <circle cx="68" cy="256" r="9" fill="#f472b6"/>
+      <circle cx="288" cy="198" r="9" fill="#f472b6"/>
+    </g>
+    <text x="24" y="44" fill="#f9a8d4" font-size="26" letter-spacing="0.22em">ION SPINE</text>
+    <text x="24" y="74" fill="#fbcfe8" font-size="16">• Bioleuchtende Tunnel mit Refraktions-Gefahren</text>
+    <text x="24" y="98" fill="#fbcfe8" font-size="16">• Doppelhelix-Loop verlangt perfekte Boost-Synchronisation</text>
+    <text x="24" y="122" fill="#fbcfe8" font-size="16">• Magnetische Ströme verschieben Ideallinie</text>
+  </g>
+  <g transform="translate(816 48)" font-family="'Rajdhani', sans-serif">
+    <rect x="0" y="0" width="336" height="324" rx="20" fill="#1f0a00" stroke="#7c2d12" stroke-width="2"/>
+    <rect x="0" y="0" width="336" height="324" rx="20" fill="url(#gridLines)" opacity="0.35"/>
+    <g fill="none" stroke="#facc15" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M58 250 C90 170 154 110 218 126 C266 138 306 200 296 250 C286 300 236 318 188 314 C140 310 92 284 74 258"/>
+      <path d="M90 242 C122 184 178 146 230 164 C270 178 290 214 284 248" stroke-dasharray="12 12" opacity="0.6"/>
+      <circle cx="58" cy="250" r="9" fill="#facc15"/>
+      <circle cx="284" cy="248" r="9" fill="#facc15"/>
+    </g>
+    <text x="24" y="44" fill="#ffedd5" font-size="26" letter-spacing="0.22em">SOLAR CASCADE</text>
+    <text x="24" y="74" fill="#fed7aa" font-size="16">• Lavafall-Sprung mit Staffel-Boosts</text>
+    <text x="24" y="98" fill="#fed7aa" font-size="16">• Hitze-Korridore verlangen Kühldrift-Management</text>
+    <text x="24" y="122" fill="#fed7aa" font-size="16">• Heliostat-Felder reflektieren Gegner-Positionen</text>
+  </g>
+  <text x="600" y="380" fill="#38bdf8" font-family="'Orbitron', sans-serif" font-size="20" text-anchor="middle" letter-spacing="0.24em">ADVANCED TRACK OPS · FIELD DOSSIER</text>
+</svg>

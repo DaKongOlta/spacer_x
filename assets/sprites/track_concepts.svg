@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="360" viewBox="0 0 1320 360" role="img" aria-labelledby="title desc">
+  <title id="title">Spacer-X Track Concept Posters</title>
+  <desc id="desc">Drei neue Rennstrecken-Konzepte mit Farbwelten und Top-Down Layoutlinien.</desc>
+  <defs>
+    <linearGradient id="auroraSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#081226"/>
+      <stop offset="100%" stop-color="#1b9aaa"/>
+    </linearGradient>
+    <linearGradient id="auroraRim" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#38f9d7" stop-opacity="0"/>
+      <stop offset="45%" stop-color="#38f9d7" stop-opacity="0.75"/>
+      <stop offset="100%" stop-color="#4f46e5" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="ionSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#230045"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+    <linearGradient id="ionRim" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#fda4af" stop-opacity="0"/>
+      <stop offset="35%" stop-color="#fb7185" stop-opacity="0.75"/>
+      <stop offset="100%" stop-color="#be123c" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="solarSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#150614"/>
+      <stop offset="100%" stop-color="#f97316"/>
+    </linearGradient>
+    <linearGradient id="solarRim" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#fde68a" stop-opacity="0"/>
+      <stop offset="40%" stop-color="#facc15" stop-opacity="0.75"/>
+      <stop offset="100%" stop-color="#fb923c" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="focalGlow" cx="0.5" cy="0.35" r="0.65">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <g transform="translate(40 40)">
+    <rect width="360" height="280" rx="24" fill="url(#auroraSky)"/>
+    <rect width="360" height="280" rx="24" fill="url(#auroraRim)" opacity="0.7"/>
+    <rect x="24" y="32" width="312" height="216" rx="18" fill="url(#focalGlow)" opacity="0.35"/>
+    <g fill="none" stroke="#5eead4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M60 220 C120 120 120 80 180 90 S260 150 304 110" opacity="0.8"/>
+      <path d="M88 214 Q134 160 174 146 T260 150" stroke-dasharray="10 8" opacity="0.6"/>
+      <circle cx="180" cy="90" r="8" fill="#22d3ee"/>
+      <circle cx="304" cy="110" r="8" fill="#22d3ee"/>
+    </g>
+    <text x="36" y="82" fill="#a5f3fc" font-family="'Orbitron', sans-serif" font-size="30" letter-spacing="0.22em">AURORA</text>
+    <text x="36" y="120" fill="#bae6fd" font-family="'Orbitron', sans-serif" font-size="22" letter-spacing="0.32em">SKYWAY</text>
+    <text x="36" y="152" fill="#cffafe" font-family="'Rajdhani', sans-serif" font-size="14" opacity="0.8">Polar Lumen Fields · Antigrav Jets · Split Stream Sectors</text>
+  </g>
+  <g transform="translate(480 40)">
+    <rect width="360" height="280" rx="24" fill="url(#ionSky)"/>
+    <rect width="360" height="280" rx="24" fill="url(#ionRim)" opacity="0.65"/>
+    <rect x="24" y="32" width="312" height="216" rx="18" fill="#ffffff" opacity="0.08"/>
+    <g fill="none" stroke="#f9a8d4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M72 224 C112 140 188 140 232 96 S310 112 308 202" opacity="0.85"/>
+      <path d="M96 214 C148 168 196 168 242 130" stroke-dasharray="12 10" opacity="0.6"/>
+      <circle cx="232" cy="96" r="8" fill="#f472b6"/>
+      <circle cx="308" cy="202" r="8" fill="#f472b6"/>
+    </g>
+    <text x="36" y="82" fill="#fdf2f8" font-family="'Orbitron', sans-serif" font-size="30" letter-spacing="0.18em">ION</text>
+    <text x="36" y="120" fill="#fbcfe8" font-family="'Orbitron', sans-serif" font-size="22" letter-spacing="0.34em">SPINE</text>
+    <text x="36" y="152" fill="#fecdd3" font-family="'Rajdhani', sans-serif" font-size="14" opacity="0.8">Bio-Lum Overpass · Flux Gates · Double Helix Drop</text>
+  </g>
+  <g transform="translate(920 40)">
+    <rect width="360" height="280" rx="24" fill="url(#solarSky)"/>
+    <rect width="360" height="280" rx="24" fill="url(#solarRim)" opacity="0.7"/>
+    <rect x="24" y="32" width="312" height="216" rx="18" fill="#ffffff" opacity="0.05"/>
+    <g fill="none" stroke="#fde68a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M70 210 C100 140 150 110 202 130 S290 190 310 236" opacity="0.9"/>
+      <path d="M102 200 C142 158 190 142 230 162 T292 210" stroke-dasharray="10 8" opacity="0.6"/>
+      <circle cx="202" cy="130" r="8" fill="#facc15"/>
+      <circle cx="310" cy="236" r="8" fill="#facc15"/>
+    </g>
+    <text x="36" y="82" fill="#fff7ed" font-family="'Orbitron', sans-serif" font-size="30" letter-spacing="0.2em">SOLAR</text>
+    <text x="36" y="120" fill="#ffedd5" font-family="'Orbitron', sans-serif" font-size="22" letter-spacing="0.32em">CASCADE</text>
+    <text x="36" y="152" fill="#fed7aa" font-family="'Rajdhani', sans-serif" font-size="14" opacity="0.8">Heliostat Arches · Lavafall Sprint · Superheated Apex</text>
+  </g>
+</svg>

@@ -10,6 +10,23 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 18 Strecken (u. a. Atlas Skywa
 - `index.html` – UI & Screens (Main Menu, Race, Teams, Settings)
 - `styles.css` – Dark/Neo‑Noir Theme, Banner, Ticker, Mini‑Map
 - `script.js` – Game‑Core (Track, Cars, Flags, GP‑Flow, UI Bindings)
+- `assets/sprites/track_concepts.svg` – Poster-Konzepte für Aurora Skyway, Ion Spine & Solar Cascade
+- `assets/sprites/track_concepts_set2.svg` – Panorama-Triptychon mit Comet Trench, Quantum Bloom & Umbra Expanse
+- `assets/sprites/track_concepts_set3.svg` – Stadion-Triptychon mit Luminaria Circuit, Ion Velodrome & Parallax Forum
+- `assets/sprites/space_glider_pixelart.svg` – Pixelart-Sheet für die neuen Aether-Lance- & Violet-Flare-Gleiter
+- `assets/sprites/space_glider_pixelart_set2.svg` – Vanguard-Pixelset für Prism Rider, Eclipse Talon & Grav Seraph
+- `assets/sprites/space_glider_pixelart_set3.svg` – Vanguard-Pixelset für Zenith Wyvern, Halo Riptide & Comet Barricade
+- `assets/sprites/team_crests.svg` – Wappen-Set für Aurora Wardens, Nova Paladins, Ember Vanguard, Tidal Oracle, Prism Lilith & Greenline Rally
+- `assets/scenes/track_blueprint_panel.svg` – Blueprint-Panel mit Strecken-Notizen für Broadcast & Manager-Modus
+- `assets/scenes/track_keyart_triptych.svg` – Key-Art-Triptychon als atmosphärisches Widescreen-Konzept der neuen Kurse
+- `assets/scenes/track_grandstand_panorama.svg` – Stadion-Atmosphäre mit Neon-Tribünen, Sponsorflächen und Oval-Linienführung
+- `assets/dlc_pack/` – DLC-Ordner mit frischen Kurs-Postern, Blueprints, Broadcast-Overlays, Teamwappen & Gleiter-Konzepten
+- `assets/dlc_pack/dlc_track_posters.svg` – Poster-Trio für Nova Rift, Cygnus Spiral & Obsidian Mirage samt DLC-Branding
+- `assets/dlc_pack/dlc_track_blueprints.svg` – Blueprint-Cluster für Helix Downforce, Solaris Vortex & Lagrange Drift
+- `assets/dlc_pack/dlc_track_environments.svg` – Skyline-Parallaxen und Tribünen für Aurora Skyway, Nebula Spiral & Lagrange Drift
+- `assets/dlc_pack/dlc_space_gliders.svg` – Pixel-Garage mit Photon Lynx, Nebula Aegis & Meteor Viper inkl. Spec-Notes
+- `assets/dlc_pack/dlc_broadcast_overlay_kit.svg` – Overlay-Paket (Lower Third, Pit Panel, Intro-Bumper) für TV-Produktionen
+- `assets/dlc_pack/dlc_team_logos.svg` – Neues Crest-Set (Lynx Pulse, Orbit Seraph, Verdant Arrow, Nova Mirror, Quantum Warden, Ember Vector)
 
 ## Steuerung
 - Alles per UI (Start/Pause/Replay/Nächstes Rennen)

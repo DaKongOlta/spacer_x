@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="440" viewBox="0 0 960 440" role="img" aria-labelledby="title desc">
+  <title id="title">Spacer-X Team Crests Collection</title>
+  <desc id="desc">Sechs Wappen-Designs für die Rennteams von Spacer-X mit Neon-Rand, Heraldik-Icons und Farbvarianten.</desc>
+  <defs>
+    <linearGradient id="panelBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#020617"/>
+      <stop offset="100%" stop-color="#0b1120"/>
+    </linearGradient>
+    <pattern id="grid" x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse">
+      <rect width="16" height="16" fill="none"/>
+      <path d="M0 0H16M0 8H16M0 16H16" stroke="#1e293b" stroke-width="1" opacity="0.35"/>
+      <path d="M0 0V16M8 0V16M16 0V16" stroke="#1e293b" stroke-width="1" opacity="0.35"/>
+    </pattern>
+    <linearGradient id="crestGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#a855f7" stop-opacity="0.25"/>
+    </linearGradient>
+    <style>
+      text { font-family: 'Orbitron', 'Rajdhani', sans-serif; }
+    </style>
+  </defs>
+
+  <rect width="960" height="440" fill="url(#panelBg)"/>
+  <rect width="960" height="440" fill="url(#grid)" opacity="0.35"/>
+  <rect x="32" y="32" width="896" height="376" rx="28" fill="#0b1220" stroke="#38bdf8" stroke-width="3" opacity="0.9"/>
+  <text x="64" y="92" fill="#38bdf8" font-size="30" letter-spacing="0.32em">TEAM CRESTS</text>
+  <text x="64" y="122" fill="#cbd5f5" font-family="'Rajdhani', sans-serif" font-size="18" opacity="0.75">Heraldik-Icons · Rivalry Highlights · Branding Hooks</text>
+
+  <g transform="translate(64 148)" fill="none" stroke-linejoin="round" stroke-width="4">
+    <g transform="translate(0 0)">
+      <path d="M0 0H160V180L80 212L0 180Z" fill="#0f172a" stroke="#38bdf8"/>
+      <path d="M20 24H140V164L80 188L20 164Z" fill="#111c34" stroke="#38bdf8" opacity="0.85"/>
+      <path d="M60 48L80 16L100 48V120C100 128 92 144 80 152C68 144 60 128 60 120Z" fill="#0ea5e9" stroke="#7dd3fc"/>
+      <circle cx="80" cy="64" r="16" fill="#111827" stroke="#38bdf8" stroke-width="3"/>
+      <path d="M72 64L80 52L88 64L80 76Z" fill="#38bdf8"/>
+      <text x="80" y="208" fill="#e0f2fe" font-size="16" text-anchor="middle">AURORA WARDENS</text>
+    </g>
+
+    <g transform="translate(200 0)">
+      <path d="M0 0H160V180L80 212L0 180Z" fill="#130b1f" stroke="#a855f7"/>
+      <path d="M20 24H140V164L80 188L20 164Z" fill="#1f1130" stroke="#a855f7" opacity="0.85"/>
+      <path d="M52 48L108 48L134 90L108 132H52L26 90Z" fill="#a855f7" stroke="#d8b4fe"/>
+      <path d="M64 68L96 68L110 90L96 112H64L50 90Z" fill="#581c87"/>
+      <path d="M80 46L92 32L108 42L112 60L94 54L80 62L66 54L48 60L52 42L68 32Z" fill="#f0abfc" opacity="0.8"/>
+      <text x="80" y="208" fill="#f5f3ff" font-size="16" text-anchor="middle">NOVA PALADINS</text>
+    </g>
+
+    <g transform="translate(400 0)">
+      <path d="M0 0H160V180L80 212L0 180Z" fill="#0f172a" stroke="#f97316"/>
+      <path d="M20 24H140V164L80 188L20 164Z" fill="#17120d" stroke="#f97316" opacity="0.85"/>
+      <path d="M40 60H120L140 96L120 132H40L20 96Z" fill="#fb923c" stroke="#fed7aa"/>
+      <path d="M56 80H104L116 96L104 112H56L44 96Z" fill="#9a3412"/>
+      <path d="M80 38L96 64L132 72L106 94L112 128L80 110L48 128L54 94L28 72L64 64Z" fill="#f97316"/>
+      <text x="80" y="208" fill="#fed7aa" font-size="16" text-anchor="middle">EMBER VANGUARD</text>
+    </g>
+
+    <g transform="translate(0 212)">
+      <path d="M0 0H160V180L80 212L0 180Z" fill="#041f1f" stroke="#2dd4bf"/>
+      <path d="M20 24H140V164L80 188L20 164Z" fill="#052e2e" stroke="#2dd4bf" opacity="0.85"/>
+      <path d="M48 52L80 26L112 52V128L80 152L48 128Z" fill="#0f766e" stroke="#5eead4"/>
+      <path d="M64 78L80 62L96 78V108L80 122L64 108Z" fill="#134e4a"/>
+      <path d="M40 132H120V148H40Z" fill="#14b8a6" opacity="0.75"/>
+      <text x="80" y="208" fill="#a7f3d0" font-size="16" text-anchor="middle">TIDAL ORACLE</text>
+    </g>
+
+    <g transform="translate(200 212)">
+      <path d="M0 0H160V180L80 212L0 180Z" fill="#1b1121" stroke="#ec4899"/>
+      <path d="M20 24H140V164L80 188L20 164Z" fill="#240c1f" stroke="#ec4899" opacity="0.85"/>
+      <path d="M48 60L80 32L112 60V124L80 152L48 124Z" fill="#ec4899" stroke="#f472b6"/>
+      <circle cx="80" cy="92" r="24" fill="#f472b6" stroke="#fbcfe8" stroke-width="3"/>
+      <path d="M80 70L90 92L80 114L70 92Z" fill="#be185d"/>
+      <path d="M56 130H104V150H56Z" fill="#fda4af" opacity="0.75"/>
+      <text x="80" y="208" fill="#fce7f3" font-size="16" text-anchor="middle">PRISM LILITH</text>
+    </g>
+
+    <g transform="translate(400 212)">
+      <path d="M0 0H160V180L80 212L0 180Z" fill="#1e1b4b" stroke="#4ade80"/>
+      <path d="M20 24H140V164L80 188L20 164Z" fill="#111827" stroke="#4ade80" opacity="0.85"/>
+      <path d="M32 68H128L144 92L128 116H32L16 92Z" fill="#22c55e" stroke="#86efac"/>
+      <path d="M52 88H108L118 100L108 112H52L42 100Z" fill="#0f172a"/>
+      <path d="M80 38L104 56L120 46L128 66L110 70L120 92L96 82L80 104L64 82L40 92L50 70L32 66L40 46L56 56Z" fill="#4ade80"/>
+      <text x="80" y="208" fill="#bbf7d0" font-size="16" text-anchor="middle">GREENLINE RALLY</text>
+    </g>
+  </g>
+</svg>

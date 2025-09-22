@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="520" viewBox="0 0 1440 520" role="img" aria-labelledby="title desc">
+  <title id="title">Spacer-X Key Art Triptych</title>
+  <desc id="desc">Widescreen-Konzeptillustrationen der neuen Strecken-Atmosphären für Comet Trench, Quantum Bloom und Umbra Expanse.</desc>
+  <defs>
+    <linearGradient id="nightSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#020617"/>
+      <stop offset="100%" stop-color="#0b1120"/>
+    </linearGradient>
+    <linearGradient id="panelOverlay" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="panelBase" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#020617"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+  </defs>
+  <rect width="1440" height="520" rx="32" fill="url(#nightSky)"/>
+  <g transform="translate(40 40)">
+    <g transform="translate(0 0)">
+      <rect width="440" height="440" rx="30" fill="url(#panelBase)" stroke="#1e293b" stroke-width="3"/>
+      <rect width="440" height="440" rx="30" fill="url(#panelOverlay)"/>
+      <g clip-path="url(#clipComet)">
+        <defs>
+          <clipPath id="clipComet"><rect width="440" height="440" rx="30"/></clipPath>
+          <linearGradient id="cometHorizon" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#061124"/>
+            <stop offset="50%" stop-color="#0a274a"/>
+            <stop offset="100%" stop-color="#0f325c"/>
+          </linearGradient>
+          <linearGradient id="cometGround" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#06121f"/>
+            <stop offset="100%" stop-color="#0d233a"/>
+          </linearGradient>
+          <linearGradient id="cometGlow" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#38bdf8" stop-opacity="0"/>
+            <stop offset="50%" stop-color="#38bdf8" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <rect width="440" height="440" fill="url(#cometHorizon)"/>
+        <g opacity="0.4" fill="#7dd3fc">
+          <circle cx="320" cy="80" r="4"/>
+          <circle cx="340" cy="110" r="6"/>
+          <circle cx="360" cy="92" r="3"/>
+          <circle cx="300" cy="50" r="5"/>
+          <circle cx="260" cy="70" r="4"/>
+        </g>
+        <path d="M0 260 C80 200 180 184 260 200 C340 216 400 244 440 232 V440 H0 Z" fill="url(#cometGround)"/>
+        <path d="M0 320 C100 280 220 260 320 280 C360 288 420 310 440 316" fill="none" stroke="#38bdf8" stroke-width="6" stroke-linecap="round"/>
+        <path d="M0 332 C120 292 240 284 340 302 C380 309 420 322 440 330" fill="none" stroke="#bae6fd" stroke-width="4" stroke-linecap="round" stroke-dasharray="16 14" opacity="0.7"/>
+        <rect x="60" y="156" width="180" height="12" rx="6" fill="#38bdf8" opacity="0.4"/>
+        <rect x="220" y="140" width="120" height="10" rx="5" fill="#bae6fd" opacity="0.35"/>
+        <rect x="160" y="120" width="140" height="10" rx="5" fill="#67e8f9" opacity="0.45"/>
+        <rect x="0" y="280" width="440" height="160" fill="url(#cometGlow)" opacity="0.4"/>
+      </g>
+      <text x="40" y="392" fill="#e0f2fe" font-family="'Orbitron', sans-serif" font-size="26" letter-spacing="0.18em">COMET TRENCH</text>
+      <text x="40" y="420" fill="#7dd3fc" font-family="'Rajdhani', sans-serif" font-size="16">Meteor Cascades · Ice Rift Bridges · Antigrav Sling</text>
+    </g>
+
+    <g transform="translate(480 0)">
+      <rect width="440" height="440" rx="30" fill="#140021" stroke="#2d0d3a" stroke-width="3"/>
+      <rect width="440" height="440" rx="30" fill="url(#panelOverlay)" opacity="0.8"/>
+      <g clip-path="url(#clipQuantum)">
+        <defs>
+          <clipPath id="clipQuantum"><rect width="440" height="440" rx="30"/></clipPath>
+          <linearGradient id="quantumHorizon" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2b0038"/>
+            <stop offset="50%" stop-color="#420053"/>
+            <stop offset="100%" stop-color="#5e0076"/>
+          </linearGradient>
+          <linearGradient id="quantumGround" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1b0024"/>
+            <stop offset="100%" stop-color="#2d0036"/>
+          </linearGradient>
+          <radialGradient id="quantumBloom" cx="0.5" cy="0.2" r="0.5">
+            <stop offset="0%" stop-color="#f472b6" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="#f472b6" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="440" height="440" fill="url(#quantumHorizon)"/>
+        <circle cx="200" cy="120" r="90" fill="url(#quantumBloom)"/>
+        <circle cx="320" cy="140" r="70" fill="url(#quantumBloom)" opacity="0.6"/>
+        <circle cx="120" cy="100" r="50" fill="url(#quantumBloom)" opacity="0.6"/>
+        <path d="M0 280 C100 240 200 220 280 240 C360 260 420 300 440 320 V440 H0 Z" fill="url(#quantumGround)"/>
+        <path d="M0 332 C120 288 220 274 320 288 C380 296 420 314 440 326" fill="none" stroke="#f472b6" stroke-width="6" stroke-linecap="round"/>
+        <path d="M0 344 C120 298 238 288 332 302 C372 308 420 322 440 334" fill="none" stroke="#fbcfe8" stroke-width="4" stroke-linecap="round" stroke-dasharray="16 12" opacity="0.7"/>
+        <g fill="#f472b6" opacity="0.5">
+          <rect x="60" y="170" width="60" height="12" rx="6"/>
+          <rect x="132" y="152" width="72" height="10" rx="5"/>
+          <rect x="214" y="134" width="92" height="10" rx="5"/>
+          <rect x="320" y="148" width="58" height="10" rx="5"/>
+        </g>
+      </g>
+      <text x="40" y="392" fill="#fee2f2" font-family="'Orbitron', sans-serif" font-size="26" letter-spacing="0.18em">QUANTUM BLOOM</text>
+      <text x="40" y="420" fill="#f9a8d4" font-family="'Rajdhani', sans-serif" font-size="16">Floral Nebulae · Bio-Circuit Causeways · Lumina Petals</text>
+    </g>
+
+    <g transform="translate(960 0)">
+      <rect width="440" height="440" rx="30" fill="#1c0600" stroke="#7c2d12" stroke-width="3"/>
+      <rect width="440" height="440" rx="30" fill="url(#panelOverlay)" opacity="0.7"/>
+      <g clip-path="url(#clipUmbra)">
+        <defs>
+          <clipPath id="clipUmbra"><rect width="440" height="440" rx="30"/></clipPath>
+          <linearGradient id="umbraHorizon" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#150008"/>
+            <stop offset="50%" stop-color="#2d0713"/>
+            <stop offset="100%" stop-color="#43111d"/>
+          </linearGradient>
+          <linearGradient id="umbraGround" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1f0a00"/>
+            <stop offset="100%" stop-color="#33110a"/>
+          </linearGradient>
+          <radialGradient id="umbraGlow" cx="0.6" cy="0.24" r="0.6">
+            <stop offset="0%" stop-color="#facc15" stop-opacity="0.38"/>
+            <stop offset="100%" stop-color="#facc15" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="440" height="440" fill="url(#umbraHorizon)"/>
+        <circle cx="280" cy="120" r="90" fill="url(#umbraGlow)"/>
+        <circle cx="160" cy="130" r="60" fill="url(#umbraGlow)" opacity="0.55"/>
+        <path d="M0 270 C90 210 190 190 280 210 C340 222 380 250 440 248 V440 H0 Z" fill="url(#umbraGround)"/>
+        <path d="M0 320 C110 276 220 260 320 276 C370 284 410 300 440 312" fill="none" stroke="#facc15" stroke-width="6" stroke-linecap="round"/>
+        <path d="M0 334 C120 288 226 272 320 286 C370 294 410 306 440 318" fill="none" stroke="#fde68a" stroke-width="4" stroke-linecap="round" stroke-dasharray="16 12" opacity="0.7"/>
+        <g fill="#fde68a" opacity="0.45">
+          <rect x="70" y="168" width="60" height="12" rx="6"/>
+          <rect x="152" y="150" width="70" height="10" rx="5"/>
+          <rect x="236" y="140" width="88" height="10" rx="5"/>
+        </g>
+        <path d="M0 360 L80 320 L160 348 L240 308 L320 332 L400 296 L440 320 V440 H0 Z" fill="#1f2937" opacity="0.3"/>
+      </g>
+      <text x="40" y="392" fill="#fef3c7" font-family="'Orbitron', sans-serif" font-size="26" letter-spacing="0.18em">UMBRA EXPANSE</text>
+      <text x="40" y="420" fill="#fde68a" font-family="'Rajdhani', sans-serif" font-size="16">Solar Wreckage · Penumbra Pillars · Ember Fountains</text>
+    </g>
+  </g>
+  <text x="720" y="496" fill="#38bdf8" font-family="'Orbitron', sans-serif" font-size="20" text-anchor="middle" letter-spacing="0.24em">VANGUARD CIRCUIT KEY ART</text>
+</svg>
