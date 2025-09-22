@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="480" viewBox="0 0 1440 480" role="img" aria-labelledby="title desc">
+  <title id="title">Spacer-X Arena Grandstand Panorama</title>
+  <desc id="desc">Widescreen-Visual mit vollbesetzten Publikumsrängen, Neon-Sponsorflächen und einem zentralen Rennoval.</desc>
+  <defs>
+    <linearGradient id="nightSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#020617"/>
+      <stop offset="60%" stop-color="#0b1733"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="trackGlow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="seatGradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1f2937"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="neonRibbon" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#f97316"/>
+    </linearGradient>
+    <linearGradient id="infield" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#042f2e"/>
+      <stop offset="100%" stop-color="#0f766e"/>
+    </linearGradient>
+    <radialGradient id="lightPylon" cx="0.5" cy="0" r="1">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="crowdDots" x="0" y="0" width="18" height="12" patternUnits="userSpaceOnUse">
+      <rect width="18" height="12" fill="none"/>
+      <circle cx="4" cy="4" r="1.2" fill="#38bdf8" opacity="0.55"/>
+      <circle cx="9" cy="6" r="1.2" fill="#f472b6" opacity="0.6"/>
+      <circle cx="14" cy="3" r="1.2" fill="#fde68a" opacity="0.55"/>
+      <circle cx="7" cy="9" r="1.1" fill="#c084fc" opacity="0.5"/>
+    </pattern>
+  </defs>
+
+  <rect width="1440" height="480" fill="url(#nightSky)"/>
+  <g opacity="0.35">
+    <rect width="1440" height="480" fill="#0f172a"/>
+    <rect width="1440" height="480" fill="url(#crowdDots)"/>
+  </g>
+
+  <g transform="translate(0 60)">
+    <polygon points="-40,120 1440,120 1440,80 -40,80" fill="#0f172a" opacity="0.5"/>
+    <polygon points="-60,180 1440,180 1440,120 -60,120" fill="#020617" opacity="0.9"/>
+    <polygon points="-80,240 1440,240 1440,180 -80,180" fill="url(#seatGradient)"/>
+    <polygon points="-120,312 1440,312 1440,240 -120,240" fill="url(#seatGradient)" opacity="0.8"/>
+    <polygon points="-160,360 1440,360 1440,312 -160,312" fill="url(#seatGradient)" opacity="0.75"/>
+
+    <g fill="url(#crowdDots)" opacity="0.85">
+      <polygon points="-80,240 1440,240 1440,180 -80,180"/>
+      <polygon points="-120,312 1440,312 1440,240 -120,240"/>
+      <polygon points="-160,360 1440,360 1440,312 -160,312"/>
+    </g>
+
+    <g fill="url(#neonRibbon)" opacity="0.85">
+      <rect x="-80" y="220" width="1520" height="6" rx="3"/>
+      <rect x="-120" y="292" width="1600" height="6" rx="3"/>
+      <rect x="-160" y="340" width="1680" height="6" rx="3"/>
+    </g>
+
+    <g fill="#1f2937" opacity="0.7">
+      <rect x="40" y="188" width="140" height="34" rx="8"/>
+      <rect x="240" y="188" width="140" height="34" rx="8"/>
+      <rect x="440" y="188" width="140" height="34" rx="8"/>
+      <rect x="640" y="188" width="140" height="34" rx="8"/>
+      <rect x="840" y="188" width="140" height="34" rx="8"/>
+      <rect x="1040" y="188" width="140" height="34" rx="8"/>
+      <rect x="1240" y="188" width="140" height="34" rx="8"/>
+    </g>
+
+    <g fill="#38bdf8" opacity="0.8">
+      <rect x="60" y="196" width="96" height="18" rx="6"/>
+      <rect x="260" y="196" width="96" height="18" rx="6"/>
+      <rect x="460" y="196" width="96" height="18" rx="6"/>
+      <rect x="660" y="196" width="96" height="18" rx="6"/>
+      <rect x="860" y="196" width="96" height="18" rx="6"/>
+      <rect x="1060" y="196" width="96" height="18" rx="6"/>
+      <rect x="1260" y="196" width="96" height="18" rx="6"/>
+    </g>
+  </g>
+
+  <g transform="translate(0 120)">
+    <ellipse cx="720" cy="258" rx="520" ry="150" fill="#020817" stroke="#38bdf8" stroke-width="6" opacity="0.8"/>
+    <ellipse cx="720" cy="258" rx="450" ry="118" fill="url(#trackGlow)" stroke="#a855f7" stroke-width="6" opacity="0.9"/>
+    <ellipse cx="720" cy="258" rx="320" ry="80" fill="url(#infield)" opacity="0.95"/>
+    <ellipse cx="720" cy="258" rx="220" ry="52" fill="#064e3b" opacity="0.8"/>
+
+    <g fill="none" stroke="#0ea5e9" stroke-width="4" stroke-dasharray="18 14" opacity="0.7">
+      <ellipse cx="720" cy="258" rx="520" ry="150"/>
+      <ellipse cx="720" cy="258" rx="450" ry="118"/>
+    </g>
+
+    <g fill="#38bdf8" opacity="0.6">
+      <circle cx="220" cy="190" r="10"/>
+      <circle cx="1240" cy="200" r="10"/>
+      <circle cx="720" cy="370" r="10"/>
+    </g>
+
+    <g fill="#38bdf8" opacity="0.45">
+      <path d="M220 190 L220 90" stroke="#38bdf8" stroke-width="6" stroke-linecap="round" opacity="0.5"/>
+      <path d="M1240 200 L1240 90" stroke="#38bdf8" stroke-width="6" stroke-linecap="round" opacity="0.5"/>
+    </g>
+
+    <g opacity="0.85">
+      <rect x="212" y="86" width="16" height="120" fill="#0f172a"/>
+      <rect x="1232" y="86" width="16" height="120" fill="#0f172a"/>
+      <rect x="712" y="58" width="16" height="146" fill="#0f172a"/>
+      <ellipse cx="220" cy="86" rx="36" ry="12" fill="url(#lightPylon)"/>
+      <ellipse cx="1240" cy="86" rx="36" ry="12" fill="url(#lightPylon)"/>
+      <ellipse cx="720" cy="58" rx="42" ry="16" fill="url(#lightPylon)"/>
+    </g>
+  </g>
+
+  <text x="80" y="84" fill="#38bdf8" font-family="'Orbitron', sans-serif" font-size="36" letter-spacing="0.28em">STADIUM ATMOSPHERE</text>
+  <text x="80" y="120" fill="#e0f2fe" font-family="'Rajdhani', sans-serif" font-size="20" opacity="0.85">Publikumstribünen · Neon-Sponsoren · Ringförmige Rennlinie</text>
+</svg>

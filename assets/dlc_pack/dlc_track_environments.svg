@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 600">
+  <rect width="1400" height="600" fill="#01040d"/>
+  <defs>
+    <linearGradient id="sky1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#101a46"/>
+      <stop offset="100%" stop-color="#050918"/>
+    </linearGradient>
+    <linearGradient id="sky2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#220c3a"/>
+      <stop offset="100%" stop-color="#070313"/>
+    </linearGradient>
+    <linearGradient id="sky3" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#152b1e"/>
+      <stop offset="100%" stop-color="#050b0a"/>
+    </linearGradient>
+  </defs>
+  <g>
+    <rect x="40" y="60" width="420" height="480" rx="24" fill="url(#sky1)" stroke="#3ad9ff" stroke-width="2"/>
+    <rect x="40" y="360" width="420" height="80" rx="18" fill="#081027"/>
+    <rect x="40" y="430" width="420" height="80" rx="18" fill="#091a32"/>
+    <circle cx="140" cy="140" r="18" fill="#fff3a0"/>
+    <polygon points="60,420 110,360 210,330 320,360 380,420" fill="#0f1a3a"/>
+    <polygon points="80,420 130,380 200,360 300,380 360,420" fill="#1b3454" opacity="0.7"/>
+    <text x="250" y="520" font-family="'Rajdhani', 'Arial', sans-serif" font-size="20" fill="#98e7ff" text-anchor="middle">AURORA SKYWAY - SKYLINE PASS</text>
+  </g>
+  <g>
+    <rect x="490" y="60" width="420" height="480" rx="24" fill="url(#sky2)" stroke="#ff6ede" stroke-width="2"/>
+    <rect x="490" y="360" width="420" height="80" rx="18" fill="#190628"/>
+    <rect x="490" y="430" width="420" height="80" rx="18" fill="#2a0b3c"/>
+    <circle cx="580" cy="140" r="14" fill="#ffa8f0"/>
+    <polygon points="520,420 600,340 690,320 760,360 830,420" fill="#2a0b3c"/>
+    <polygon points="540,420 610,360 700,340 750,360 810,420" fill="#ff6ede" opacity="0.45"/>
+    <text x="700" y="520" font-family="'Rajdhani', 'Arial', sans-serif" font-size="20" fill="#ffb1f6" text-anchor="middle">NEBULA SPIRAL - STELLAR TERRACES</text>
+  </g>
+  <g>
+    <rect x="940" y="60" width="420" height="480" rx="24" fill="url(#sky3)" stroke="#8dff6e" stroke-width="2"/>
+    <rect x="940" y="360" width="420" height="80" rx="18" fill="#0c1c11"/>
+    <rect x="940" y="430" width="420" height="80" rx="18" fill="#18351f"/>
+    <circle cx="1040" cy="140" r="16" fill="#b6ff9e"/>
+    <polygon points="980,420 1060,350 1140,330 1240,360 1320,420" fill="#12301b"/>
+    <polygon points="1000,420 1070,360 1140,340 1220,360 1290,420" fill="#8dff6e" opacity="0.35"/>
+    <text x="1150" y="520" font-family="'Rajdhani', 'Arial', sans-serif" font-size="20" fill="#baffb4" text-anchor="middle">LAGRANGE DRIFT - ORBITAL GARDENS</text>
+  </g>
+  <g font-family="'Roboto Mono', monospace" font-size="14" fill="#4db4ff">
+    <text x="60" y="560">ENVIRONMENT PASS 1.1  //  PARALLAX LAYERS + CROWD BAYS</text>
+  </g>
+</svg>
