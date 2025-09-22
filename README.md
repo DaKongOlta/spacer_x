@@ -1,5 +1,5 @@
 # SPACER‑X (Playable Prototype)
-Futuristisches Top‑Down‑Racing mit TV‑UI, 18 Strecken (u. a. Atlas Skyway, Glacier Traverse, Maelstrom Gauntlet, Fracture Belt, Eclipse Citadel, Rift Meridian, Lumen Cascades), Grand‑Prix‑Modus (5 Rennen), Flags (Green/Yellow/Safety), Mini‑Map, Grid-Briefing-Overlay sowie persistente Profile und Rennarchiv (localStorage).
+Futuristisches Top‑Down‑Racing mit TV‑UI, 20 Strecken (u. a. City Grand Prix, Canyon Sprint, Atlas Skyway, Glacier Traverse, Maelstrom Gauntlet, Fracture Belt, Eclipse Citadel, Rift Meridian, Lumen Cascades), Grand‑Prix‑Modus (5 Rennen), Flags (Green/Yellow/Safety), Mini‑Map, Grid-Briefing-Overlay sowie persistente Profile und Rennarchiv (localStorage).
 
 ## Quickstart
 1. ZIP entpacken
@@ -16,7 +16,7 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 18 Strecken (u. a. Atlas Skywa
 - Keine Tastatureingaben erforderlich
 
 ## Features (Stand)
-- 18 Tracks inklusive Glacier Traverse, Maelstrom Gauntlet, Atlas Skyway, Fracture Belt, Eclipse Citadel, Rift Meridian und Lumen Cascades; TV‑UI (Top‑3, Ticker, Mini‑Map) & Grid-Briefing; Grand Prix (5 Rennen, Punkte, localStorage)
+- 20 Tracks inklusive City Grand Prix, Canyon Sprint, Glacier Traverse, Maelstrom Gauntlet, Atlas Skyway, Fracture Belt, Eclipse Citadel, Rift Meridian und Lumen Cascades; TV‑UI (Top‑3, Ticker, Mini‑Map) & Grid-Briefing; Grand Prix (5 Rennen, Punkte, localStorage)
 - Hauptmenü mit separatem „Neuer GP“ und „Fortsetzen“-Button samt Fortschrittsanzeige
 - Grand-Prix-Statuskarte im Hauptmenü mit Track-Vorschau, Wetterausblick und Top-3-Standing
 - Grand-Prix-Runden springen nach dem Zieleinlauf automatisch zum nächsten Track – Startbutton & Briefing zeigen sofort das folgende Event

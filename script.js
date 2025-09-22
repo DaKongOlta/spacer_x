@@ -375,7 +375,7 @@
     aero: 'Aero & Balance',
     systems: 'Systeme & Reliability'
   };
-  const managerCalendar = ['oval', 'aurora', 'delta', 'canyon', 'atlas', 'solstice', 'zenith', 'wavy', 'nebula', 'fig8', 'mirage', 'fracture', 'helix', 'lumen', 'glacier', 'eclipse', 'maelstrom', 'rift'];
+  const managerCalendar = ['oval', 'city', 'aurora', 'delta', 'canyon', 'canyonSprint', 'atlas', 'solstice', 'zenith', 'wavy', 'nebula', 'fig8', 'mirage', 'fracture', 'helix', 'lumen', 'glacier', 'eclipse', 'maelstrom', 'rift'];
   const MANAGER_SEASON_LENGTH = managerCalendar.length;
 
   function clamp(value, min, max) {
@@ -701,7 +701,7 @@
     ]
   };
 
-  const gpTrackRotation = ['oval', 'atlas', 'glacier', 'mirage', 'maelstrom', 'rift'];
+  const gpTrackRotation = ['oval', 'city', 'atlas', 'glacier', 'mirage', 'canyonSprint', 'maelstrom', 'rift'];
 
   function sanitizeUiSnapshot(data) {
     const defaults = {
@@ -2386,6 +2386,31 @@
         };
       }
     },
+    canyonSprint: {
+      label: 'Canyon Sprint',
+      theme: { background: '#120d16', asphalt: '#251b29', lane: '#fbbf24', accent: '#fb7185' },
+      backdrop: buildBackdrop({
+        skyTop: '#20142a',
+        skyBottom: '#07040b',
+        horizon: '#281a2f',
+        accent: '#fb7185',
+        haze: 'rgba(251,113,133,0.14)',
+        pulses: 5,
+        gridSpacing: 32
+      }),
+      traits: { straightBias: 1.14, cornerFocus: 1.05, surfaceGrip: 0.98, wearRate: 1.16, turbulence: 1.28 },
+      weatherBias: { clear: 0.34, overcast: 0.28, storm: 0.24, night: 0.14 },
+      lore: 'Ein gestreckter Achterkurs zwischen Felsnadeln – Highspeed-Sweeps wechseln mit engen Überwurfhairpins über dem Canyon.',
+      geometry(t) {
+        const angle = t % (Math.PI * 2);
+        const sweep = Math.sin(angle);
+        const cross = Math.sin(angle) * Math.cos(angle);
+        const ridge = 0.24 * Math.sin(1.8 * angle);
+        const x = trackCenter.x + baseRadiusX * 0.92 * sweep * (1 + 0.12 * Math.sin(2 * angle + ridge));
+        const y = trackCenter.y + baseRadiusY * (0.58 + 0.34 * Math.sin(angle + ridge)) * (Math.sin(2 * angle) + 0.18 * cross);
+        return { x, y };
+      }
+    },
     delta: {
       label: 'Delta Spiral',
       theme: { background: '#0d101f', asphalt: '#1f2435', lane: '#7dd3fc', accent: '#34d399' },
@@ -2408,6 +2433,36 @@
         return {
           x: trackCenter.x + rx * Math.sin(t + wave * 0.3),
           y: trackCenter.y + ry * Math.cos(t)
+        };
+      }
+    },
+    city: {
+      label: 'City Grand Prix',
+      theme: { background: '#050a16', asphalt: '#111d2c', lane: '#f8fafc', accent: '#38bdf8' },
+      backdrop: buildBackdrop({
+        skyTop: '#091d32',
+        skyBottom: '#02060f',
+        horizon: '#0f2438',
+        accent: '#38bdf8',
+        haze: 'rgba(56,189,248,0.12)',
+        towers: 8,
+        pulses: 4
+      }),
+      traits: { straightBias: 1.08, cornerFocus: 1.18, surfaceGrip: 1.1, wearRate: 1.06, turbulence: 1.22 },
+      weatherBias: { clear: 0.38, overcast: 0.34, storm: 0.18, night: 0.1 },
+      lore: 'Neon-Schluchten, niedrige Mauern und verkantete Schikanen mitten in Neo-Atlantis – jede Gerade endet in einem 90°-Ankerpunkt.',
+      geometry(t) {
+        const angle = t % (Math.PI * 2);
+        const rectX = baseRadiusX * 0.78 * Math.sign(Math.cos(angle));
+        const rectY = baseRadiusY * 0.62 * Math.sign(Math.sin(angle));
+        const blendX = baseRadiusX * 0.24 * Math.cos(angle);
+        const blendY = baseRadiusY * 0.22 * Math.sin(angle);
+        const chicaneX = baseRadiusX * 0.08 * Math.sin(angle * 6);
+        const chicaneY = baseRadiusY * 0.05 * Math.sin(angle * 4);
+        const hairpin = Math.max(0, 1 - Math.abs(Math.cos(angle))) * baseRadiusX * 0.06 * Math.sin(angle * 2);
+        return {
+          x: trackCenter.x + rectX + blendX + chicaneX - hairpin * Math.sign(Math.cos(angle)),
+          y: trackCenter.y + rectY + blendY + chicaneY + hairpin * 0.6 * Math.sign(Math.sin(angle))
         };
       }
     },
