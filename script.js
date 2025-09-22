@@ -1131,10 +1131,13 @@
   function setStartButtonState(enabled, label = 'Rennen starten') {
     if (!startRaceBtn) return;
     startRaceBtn.disabled = !enabled;
-    if (typeof startRaceBtn.toggleAttribute === 'function') {
-      startRaceBtn.toggleAttribute('disabled', !enabled);
+    if (enabled) {
+      startRaceBtn.removeAttribute('disabled');
+    } else {
+      startRaceBtn.setAttribute('disabled', 'disabled');
     }
     startRaceBtn.setAttribute('aria-disabled', String(!enabled));
+    startRaceBtn.setAttribute('data-state', enabled ? 'ready' : 'disabled');
     if (label) {
       startRaceBtn.textContent = label;
     }
@@ -1143,10 +1146,13 @@
   function setPauseButtonState(enabled, label = 'Pause') {
     if (!pauseRaceBtn) return;
     pauseRaceBtn.disabled = !enabled;
-    if (typeof pauseRaceBtn.toggleAttribute === 'function') {
-      pauseRaceBtn.toggleAttribute('disabled', !enabled);
+    if (enabled) {
+      pauseRaceBtn.removeAttribute('disabled');
+    } else {
+      pauseRaceBtn.setAttribute('disabled', 'disabled');
     }
     pauseRaceBtn.setAttribute('aria-disabled', String(!enabled));
+    pauseRaceBtn.setAttribute('data-state', enabled ? 'armed' : 'locked');
     if (label) {
       pauseRaceBtn.textContent = label;
     }
