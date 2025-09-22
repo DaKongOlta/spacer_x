@@ -1,0 +1,102 @@
+# Spacer-X Name Registry
+# Struktur für prozedurale Verwendung in Manager-, Draft- und Dialogsystemen
+
+pilots:
+  veteran:
+    - "Vega Gant"
+    - "Irina Solis"
+    - "Kael Meridian"
+    - "Sera Lyris"
+    - "Talon Rhys"
+    - "Cassiel Draven"
+    - "Noctis Vale"
+  rookies:
+    - "Mira Elowen"
+    - "Jun Kestrel"
+    - "Orion Vale"
+    - "Lyra Voss"
+    - "Ember Calix"
+    - "Neri Solara"
+    - "Ashen Tyrel"
+  legends:
+    - "Nova Paladin"
+    - "Rift Juno"
+    - "Spectra Myrr"
+
+engineers:
+  systems:
+    - "Dr. Helia Corbin"
+    - "Niko Thane"
+    - "Sable Imani"
+    - "Varyn Locke"
+  aero:
+    - "Quill Astre"
+    - "Rhea Solenne"
+    - "Jax Kavor"
+    - "Elian Tresk"
+  resonance:
+    - "Maia Rhyss"
+    - "Kadin Liora"
+    - "Seraph Quin"
+
+support_staff:
+  medics:
+    - "Dr. Lysa Perrin"
+    - "Havel Oric"
+  strategists:
+    - "Taryn Vel"
+    - "Ossa Delane"
+
+managers:
+  - "Ari Veylan"
+  - "Mina Rauth"
+  - "Cassian Dreyl"
+  - "Nora Juno"
+  - "Edrin Solk"
+  - "Vela Hart"
+
+announcers:
+  hosts:
+    - "Tessa Nyx"
+    - "Corin Morrow"
+    - "Riven Hale"
+  analysts:
+    - "Elior Brann"
+    - "Selene Quay"
+    - "Varra Mide"
+  pit_reporters:
+    - "Yara Finch"
+    - "Halden Pryce"
+    - "Kira Solen"
+  lorecasters:
+    - "Aster Lyell"
+    - "Dorian Keph"
+
+locations:
+  megacities:
+    - "Luminaria Prime"
+    - "Ionis Megaspire"
+    - "Obsidian Arkology"
+    - "Nebula Atrium"
+  outposts:
+    - "Rift Meridian Station"
+    - "Aurora Ward"
+    - "Zephyr Relay"
+    - "Harmonia Halo Dock"
+  arenas:
+    - "Twilight Cascade"
+    - "Atlas Skyway"
+    - "Cygnus Spiral Coliseum"
+
+phrases:
+  victory_calls:
+    - "Neon surge confirmed – Spacer-X victory flare released!"
+    - "Grid ascendancy achieved, harmonic accord acknowledged."
+    - "Pulse-Choir in sync, resonance crown secured!"
+  caution_calls:
+    - "Safety veil deployed, all wings to vector hold."
+    - "Null-drift channel compromised, initiate amber sync."
+    - "Chrono-Stewards request data freeze, maintain formation."
+  lore_tags:
+    - "Archivlink aktiv – Spurensprung zum Eclipse Accord."
+    - "Atlas-Pakt protokolliert, Citizen-Foundries live."

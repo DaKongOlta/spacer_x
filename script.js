@@ -13,7 +13,6 @@
   };
   const PROFILE_EXPORT_VERSION = '0.9.0-demo';
   const MANAGER_SAVE_VERSION = 2;
-
   const MANAGER_POINTS_TABLE = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
   const MAX_SEASON_ARCHIVE = 12;
   const MAX_ACTIVE_SPONSORS = 3;
@@ -891,6 +890,7 @@
       return createDefaultManagerState();
     }
   }
+  applyUiSettings();
 
   function persistManagerState() {
     try {
@@ -1452,7 +1452,6 @@
   const codexScreen = document.getElementById('codexScreen');
   const settingsScreen = document.getElementById('settingsScreen');
   const bodyElement = document.body;
-
   const newRaceBtn = document.getElementById('newRaceBtn');
   const grandPrixBtn = document.getElementById('grandPrixBtn');
   const resumeGrandPrixBtn = document.getElementById('resumeGrandPrixBtn');
@@ -1467,14 +1466,12 @@
   const teamsBtn = document.getElementById('teamsBtn');
   const codexBtn = document.getElementById('codexBtn');
   const settingsBtn = document.getElementById('settingsBtn');
-
   const backToMenuFromRace = document.getElementById('backToMenuFromRace');
   const backToMenuFromTeams = document.getElementById('backToMenuFromTeams');
   const backToMenuFromManager = document.getElementById('backToMenuFromManager');
   const backToMenuFromBetting = document.getElementById('backToMenuFromBetting');
   const backToMenuFromCodex = document.getElementById('backToMenuFromCodex');
   const backToMenuFromSettings = document.getElementById('backToMenuFromSettings');
-
   const canvas = document.getElementById('raceCanvas');
   const ctx = canvas.getContext('2d');
   const miniMap = document.getElementById('miniMapCanvas');
@@ -2819,7 +2816,6 @@
   const eventWeatherLabel = document.getElementById('eventWeatherLabel');
   const eventWeatherDesc = document.getElementById('eventWeatherDesc');
   const eventTraitSummary = document.getElementById('eventTraitSummary');
-
   const managerTeamSelect = document.getElementById('managerTeamSelect');
   const managerBudget = document.getElementById('managerBudget');
   const managerSeasonLabel = document.getElementById('managerSeasonLabel');
@@ -2841,7 +2837,6 @@
   const customTeamNameInput = document.getElementById('customTeamName');
   const customTeamColorInput = document.getElementById('customTeamColor');
   const createCustomTeamBtn = document.getElementById('createCustomTeamBtn');
-
   const betBalance = document.getElementById('betBalance');
   const betDriverSelect = document.getElementById('betDriverSelect');
   const betAmount = document.getElementById('betAmount');
@@ -2871,7 +2866,6 @@
   const togglePerformanceHud = document.getElementById('togglePerformanceHud');
   const performanceHud = { samples: [], enabled: false, lastUpdate: 0 };
   let betHistoryChartFallback = null;
-
   const uiSettings = loadUiSettings();
   const leaderboardGapHistory = new Map();
   const eventBannerQueue = [];

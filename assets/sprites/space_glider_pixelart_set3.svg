@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="340" viewBox="0 0 920 340" role="img" aria-labelledby="title desc">
+  <title id="title">Spacer-X Vanguard Pixelart – Set 03</title>
+  <desc id="desc">Pixelart-Sheet mit den neuen Space-Glidern: Zenith Wyvern, Halo Riptide und Comet Barricade.</desc>
+  <defs>
+    <linearGradient id="panelGradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#020617"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <pattern id="scanlines" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+      <rect width="4" height="4" fill="#000" opacity="0.15"/>
+      <rect y="2" width="4" height="2" fill="#38bdf8" opacity="0.08"/>
+    </pattern>
+    <style>
+      text { font-family: 'Share Tech Mono', 'Roboto Mono', monospace; }
+    </style>
+  </defs>
+
+  <rect width="920" height="340" fill="url(#panelGradient)"/>
+  <rect width="920" height="340" fill="url(#scanlines)" opacity="0.45"/>
+  <rect x="32" y="32" width="856" height="276" rx="22" fill="#0b1220" stroke="#38bdf8" stroke-width="3" opacity="0.9"/>
+
+  <g transform="translate(64 64)">
+    <rect width="240" height="224" rx="20" fill="#111c34" stroke="#38bdf8" stroke-width="2"/>
+    <text x="20" y="36" fill="#38bdf8" font-size="18" letter-spacing="0.25em">ZENITH WYVERN</text>
+    <text x="20" y="60" fill="#bae6fd" font-size="12">Hybrid Arc-Wing · Stadium Sprint</text>
+    <g transform="translate(44 84)">
+      <rect x="0" y="46" width="152" height="28" rx="10" fill="#1e3a8a"/>
+      <polygon points="76,0 116,28 76,56 36,28" fill="#60a5fa"/>
+      <polygon points="76,8 110,30 76,52 42,30" fill="#1d4ed8"/>
+      <rect x="22" y="22" width="108" height="12" fill="#0f172a"/>
+      <rect x="30" y="28" width="92" height="6" fill="#38bdf8"/>
+      <rect x="52" y="12" width="48" height="8" fill="#bae6fd"/>
+      <rect x="52" y="44" width="48" height="8" fill="#bae6fd"/>
+      <circle cx="24" cy="30" r="6" fill="#bae6fd"/>
+      <circle cx="128" cy="30" r="6" fill="#bae6fd"/>
+    </g>
+    <text x="20" y="206" fill="#7dd3fc" font-size="11">Callouts:</text>
+    <text x="20" y="222" fill="#7dd3fc" font-size="11">Spectra Rudder · Aurora Stabilizer · Vaulted Canards</text>
+  </g>
+
+  <g transform="translate(336 64)">
+    <rect width="240" height="224" rx="20" fill="#130b1f" stroke="#a855f7" stroke-width="2"/>
+    <text x="20" y="36" fill="#c084fc" font-size="18" letter-spacing="0.24em">HALO RIPTIDE</text>
+    <text x="20" y="60" fill="#f0abfc" font-size="12">Amphib Orbit Skimmer · Surge Defense</text>
+    <g transform="translate(44 84)">
+      <rect x="-2" y="54" width="156" height="22" rx="10" fill="#4c1d95"/>
+      <polygon points="78,0 122,38 78,64 34,38" fill="#a855f7"/>
+      <polygon points="78,12 114,38 78,58 42,38" fill="#6d28d9"/>
+      <rect x="26" y="28" width="104" height="10" fill="#0f172a"/>
+      <rect x="36" y="32" width="84" height="6" fill="#c084fc"/>
+      <rect x="56" y="14" width="44" height="8" fill="#f5f3ff"/>
+      <rect x="56" y="46" width="44" height="8" fill="#f5f3ff"/>
+      <circle cx="28" cy="36" r="6" fill="#f5f3ff"/>
+      <circle cx="128" cy="36" r="6" fill="#f5f3ff"/>
+    </g>
+    <text x="20" y="206" fill="#d8b4fe" font-size="11">Callouts:</text>
+    <text x="20" y="222" fill="#d8b4fe" font-size="11">Flux Fins · Riptide Echo Pods · Tidal Scoop Intake</text>
+  </g>
+
+  <g transform="translate(608 64)">
+    <rect width="240" height="224" rx="20" fill="#160b0f" stroke="#f97316" stroke-width="2"/>
+    <text x="20" y="36" fill="#fb923c" font-size="18" letter-spacing="0.28em">COMET BARRICADE</text>
+    <text x="20" y="60" fill="#fed7aa" font-size="12">Shield Runner · Hazard Rally Pack</text>
+    <g transform="translate(44 84)">
+      <rect x="-4" y="50" width="160" height="26" rx="12" fill="#9a3412"/>
+      <polygon points="80,0 124,34 80,68 36,34" fill="#fb923c"/>
+      <polygon points="80,14 114,34 80,60 46,34" fill="#f97316"/>
+      <rect x="30" y="30" width="100" height="12" fill="#2d1607"/>
+      <rect x="40" y="34" width="80" height="6" fill="#fed7aa"/>
+      <rect x="58" y="16" width="44" height="8" fill="#fed7aa"/>
+      <rect x="58" y="48" width="44" height="8" fill="#fed7aa"/>
+      <circle cx="32" cy="38" r="6" fill="#fed7aa"/>
+      <circle cx="128" cy="38" r="6" fill="#fed7aa"/>
+    </g>
+    <text x="20" y="206" fill="#fdba74" font-size="11">Callouts:</text>
+    <text x="20" y="222" fill="#fdba74" font-size="11">Meteor Shield Array · Kinetic Ramps · Ember Thrusters</text>
+  </g>
+</svg>

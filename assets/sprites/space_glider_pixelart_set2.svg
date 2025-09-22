@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="280" viewBox="0 0 640 280" role="img" aria-labelledby="title desc">
+  <title id="title">Spacer-X Pixel Gliders – Vanguard Set</title>
+  <desc id="desc">Pixelart-Sheet mit drei neuen Space-Glidern: Prism Rider, Eclipse Talon und Grav Seraph.</desc>
+  <defs>
+    <linearGradient id="sheetBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#040712"/>
+      <stop offset="100%" stop-color="#0b1224"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="280" rx="28" fill="url(#sheetBg)"/>
+  <g transform="translate(48 44)">
+    <rect x="0" y="0" width="160" height="168" rx="16" fill="#0f172a" stroke="#1f2937" stroke-width="2"/>
+    <g transform="translate(24 20) scale(2)" shape-rendering="crispEdges">
+      <rect x="16" y="0" width="16" height="4" fill="#22d3ee"/>
+      <rect x="12" y="4" width="24" height="4" fill="#0ea5e9"/>
+      <rect x="8" y="8" width="32" height="4" fill="#2563eb"/>
+      <rect x="4" y="12" width="40" height="4" fill="#1d4ed8"/>
+      <rect x="0" y="16" width="48" height="4" fill="#1e3a8a"/>
+      <rect x="6" y="20" width="36" height="4" fill="#312e81"/>
+      <rect x="12" y="24" width="24" height="6" fill="#38bdf8"/>
+      <rect x="18" y="30" width="12" height="8" fill="#0f172a"/>
+      <rect x="18" y="38" width="12" height="4" fill="#38bdf8"/>
+      <rect x="6" y="26" width="6" height="10" fill="#67e8f9"/>
+      <rect x="36" y="26" width="6" height="10" fill="#67e8f9"/>
+      <rect x="4" y="14" width="4" height="8" fill="#38bdf8" opacity="0.8"/>
+      <rect x="40" y="14" width="4" height="8" fill="#38bdf8" opacity="0.8"/>
+      <rect x="18" y="42" width="12" height="6" fill="#172554"/>
+      <rect x="20" y="48" width="8" height="6" fill="#0ea5e9"/>
+      <rect x="10" y="34" width="6" height="4" fill="#1d4ed8"/>
+      <rect x="32" y="34" width="6" height="4" fill="#1d4ed8"/>
+    </g>
+    <text x="80" y="190" fill="#bfdbfe" font-family="'Press Start 2P', monospace" font-size="12" text-anchor="middle">PRISM RIDER</text>
+    <text x="80" y="208" fill="#93c5fd" font-family="'Rajdhani', sans-serif" font-size="12" text-anchor="middle">Photon Spoilers · Facet Intake</text>
+  </g>
+
+  <g transform="translate(240 44)">
+    <rect x="0" y="0" width="160" height="168" rx="16" fill="#111827" stroke="#1f2937" stroke-width="2"/>
+    <g transform="translate(24 20) scale(2)" shape-rendering="crispEdges">
+      <rect x="18" y="2" width="12" height="4" fill="#f472b6"/>
+      <rect x="12" y="6" width="24" height="4" fill="#fb7185"/>
+      <rect x="8" y="10" width="32" height="4" fill="#be123c"/>
+      <rect x="4" y="14" width="40" height="4" fill="#831843"/>
+      <rect x="0" y="18" width="48" height="4" fill="#4c0519"/>
+      <rect x="10" y="22" width="28" height="4" fill="#fda4af"/>
+      <rect x="18" y="26" width="12" height="6" fill="#fef2f2"/>
+      <rect x="6" y="22" width="4" height="12" fill="#fca5a5"/>
+      <rect x="38" y="22" width="4" height="12" fill="#fca5a5"/>
+      <rect x="12" y="30" width="24" height="4" fill="#fb7185"/>
+      <rect x="10" y="34" width="28" height="4" fill="#450a0a"/>
+      <rect x="18" y="38" width="12" height="6" fill="#f472b6"/>
+      <rect x="18" y="44" width="12" height="4" fill="#111827"/>
+      <rect x="20" y="48" width="8" height="6" fill="#fb7185" opacity="0.9"/>
+      <rect x="8" y="26" width="6" height="6" fill="#fef3f4" opacity="0.8"/>
+      <rect x="34" y="26" width="6" height="6" fill="#fef3f4" opacity="0.8"/>
+    </g>
+    <text x="80" y="190" fill="#f9a8d4" font-family="'Press Start 2P', monospace" font-size="12" text-anchor="middle">ECLIPSE TALON</text>
+    <text x="80" y="208" fill="#fbcfe8" font-family="'Rajdhani', sans-serif" font-size="12" text-anchor="middle">Nightfall Ram · Ion Blade</text>
+  </g>
+
+  <g transform="translate(432 44)">
+    <rect x="0" y="0" width="160" height="168" rx="16" fill="#0f172a" stroke="#1f2937" stroke-width="2"/>
+    <g transform="translate(24 20) scale(2)" shape-rendering="crispEdges">
+      <rect x="20" y="0" width="8" height="4" fill="#fde68a"/>
+      <rect x="14" y="4" width="20" height="4" fill="#facc15"/>
+      <rect x="10" y="8" width="28" height="4" fill="#d97706"/>
+      <rect x="6" y="12" width="36" height="4" fill="#b45309"/>
+      <rect x="2" y="16" width="44" height="4" fill="#92400e"/>
+      <rect x="0" y="20" width="48" height="4" fill="#78350f"/>
+      <rect x="8" y="24" width="32" height="4" fill="#facc15"/>
+      <rect x="14" y="28" width="20" height="4" fill="#fef3c7"/>
+      <rect x="18" y="32" width="12" height="8" fill="#f8fafc"/>
+      <rect x="6" y="26" width="6" height="8" fill="#fde68a" opacity="0.75"/>
+      <rect x="36" y="26" width="6" height="8" fill="#fde68a" opacity="0.75"/>
+      <rect x="10" y="36" width="28" height="4" fill="#451a03"/>
+      <rect x="18" y="40" width="12" height="6" fill="#78350f"/>
+      <rect x="20" y="46" width="8" height="6" fill="#facc15"/>
+      <rect x="14" y="18" width="20" height="4" fill="#f59e0b" opacity="0.8"/>
+    </g>
+    <text x="80" y="190" fill="#fde68a" font-family="'Press Start 2P', monospace" font-size="12" text-anchor="middle">GRAV SERAPH</text>
+    <text x="80" y="208" fill="#fef3c7" font-family="'Rajdhani', sans-serif" font-size="12" text-anchor="middle">Sunline Dihedral · Halo Thrusters</text>
+  </g>
+</svg>
