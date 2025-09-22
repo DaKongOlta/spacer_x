@@ -7,6 +7,7 @@
 - ✅ Bunching-Tuning & automatische Release-Trigger
 - ✅ Sim-Tuning: Renn-Tempo & Caution-Striktheit als Spielereinstellungen
 - ✅ Race-Control-Verstöße werden im Codex-Archiv mitgestempelt
+- ✅ KI-Zustandsmaschine & Incident-Archiv sorgen für nachvollziehbare Kontakte und Pace-Anpassungen
 
 ## P2 — TV & Broadcast (⚙️ In Arbeit)
 - ✅ Permanent Leaderboard mit Gap-Trend & Leader-Halo
@@ -15,6 +16,7 @@
 - ✅ Battle-Spotlight für engste Duelle mit Trend-Indikator
 - ✅ Safety-Lap-Counter & Pit-Stop-Highlights im Broadcast-Ticker
 - ✅ Timing-Overlay & Replay-Marken für Formation/Restarts
+- ✅ Grid-Briefing-Sweeps mit Minimap-Artwork (City GP & Canyon Sprint)
 
 ## P3 — Manager‑/Karriere v1 (🔜 Nächstes)
 - ✅ Budget, Verträge, Upgrades, Transfermarkt, JSON Export/Import
@@ -28,6 +30,7 @@
 ## P5 — Optik & Assets (🎨 Aufbau)
 - ✅ Neo-Noir Hero-Szene, Track-Poster-SVGs & Chassis/Flag-Assets, Theme-Polish
 - ✅ Track-Katalog in `assets/data/tracks.json` ausgelagert (Theme, Traits, Lore, Rotation)
+- ✅ Safety-/Restart-/Finish-SFX plus Accessibility-Toggles (Reduced Motion, High Contrast)
 - ⚙️ Dynamische Track-Backdrops (Himmel, Haze, Parallax-Pulse)
 - ⏳ Sponsor-Pakete, Cinematic Camera Paths & Title Theme Layers
 

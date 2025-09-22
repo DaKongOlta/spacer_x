@@ -722,6 +722,8 @@
       showTicker: true,
       skipBroadcastIntro: false,
       enableAudio: true,
+      reducedMotion: false,
+      highContrast: false,
       cameraMode: 'auto',
       racePace: 'normal',
       cautionStrictness: 'standard'
@@ -738,6 +740,8 @@
       showTicker: data.showTicker !== false,
       skipBroadcastIntro: data.skipBroadcastIntro === true,
       enableAudio: data.enableAudio !== false,
+      reducedMotion: data.reducedMotion === true,
+      highContrast: data.highContrast === true,
       cameraMode: cameraModes.has(data.cameraMode) ? data.cameraMode : defaults.cameraMode,
       racePace: paceModes.has(data.racePace) ? data.racePace : defaults.racePace,
       cautionStrictness: cautionModes.has(data.cautionStrictness) ? data.cautionStrictness : defaults.cautionStrictness
@@ -1029,6 +1033,7 @@
   const bettingScreen = document.getElementById('bettingScreen');
   const codexScreen = document.getElementById('codexScreen');
   const settingsScreen = document.getElementById('settingsScreen');
+  const bodyElement = document.body;
 
   const newRaceBtn = document.getElementById('newRaceBtn');
   const grandPrixBtn = document.getElementById('grandPrixBtn');
@@ -1119,6 +1124,11 @@
   const gridIntroMeta = document.getElementById('gridIntroMeta');
   const gridIntroDismiss = document.getElementById('gridIntroDismiss');
   const gridIntroTimer = document.getElementById('gridIntroTimer');
+  const gridIntroShot = document.getElementById('gridIntroShot');
+  const gridIntroSweepCanvas = document.getElementById('gridIntroSweepCanvas');
+  const gridIntroSweepLabel = document.getElementById('gridIntroSweepLabel');
+  const gridIntroSweepDetail = document.getElementById('gridIntroSweepDetail');
+  const gridIntroSweepImage = document.getElementById('gridIntroSweepImage');
   const replayControls = document.getElementById('replayControls');
   const replayPlayPauseBtn = document.getElementById('replayPlayPause');
   const replayScrubber = document.getElementById('replayScrubber');
@@ -1878,6 +1888,71 @@
     amp.gain.exponentialRampToValueAtTime(0.001, now + duration);
   }
 
+  function playCueSequence(sequence, options = {}) {
+    if (uiSettings && uiSettings.enableAudio === false) {
+      return;
+    }
+    if (!Array.isArray(sequence) || sequence.length === 0) return;
+    const ctx = ensureAudioContext();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+    const now = ctx.currentTime;
+    const master = ctx.createGain();
+    const baseGain = typeof options.masterGain === 'number' ? options.masterGain : 0.18;
+    master.gain.setValueAtTime(baseGain, now);
+    master.connect(ctx.destination);
+    let longest = 0;
+    sequence.forEach(step => {
+      if (!step) return;
+      const {
+        freq = 440,
+        duration = 0.22,
+        type = 'sine',
+        gain = baseGain,
+        delay = 0,
+        attack = 0.02,
+        release = 0.08
+      } = step;
+      const start = now + Math.max(0, delay);
+      const end = start + Math.max(0.05, duration);
+      const osc = ctx.createOscillator();
+      const amp = ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, start);
+      amp.gain.setValueAtTime(0.0001, start);
+      amp.gain.linearRampToValueAtTime(gain, start + Math.max(0.005, attack));
+      amp.gain.setValueAtTime(gain, Math.max(start + attack, end - release));
+      amp.gain.linearRampToValueAtTime(0.0001, end);
+      osc.connect(amp);
+      amp.connect(master);
+      osc.start(start);
+      osc.stop(end + 0.02);
+      osc.onended = () => {
+        try {
+          osc.disconnect();
+        } catch (err) {
+          /* noop */
+        }
+        try {
+          amp.disconnect();
+        } catch (err) {
+          /* noop */
+        }
+      };
+      longest = Math.max(longest, end + 0.02);
+    });
+    const releaseMs = Math.max(0, Math.ceil((longest - now + 0.16) * 1000));
+    window.setTimeout(() => {
+      try {
+        master.disconnect();
+      } catch (err) {
+        /* noop */
+      }
+    }, releaseMs);
+  }
+
   function playRaceCue(kind) {
     switch (kind) {
       case 'light':
@@ -1888,17 +1963,35 @@
         window.setTimeout(() => playTone(840, 0.18, 'sine', 0.1), 120);
         break;
       case 'yellow':
-        playTone(340, 0.22, 'square', 0.14);
+        playCueSequence([
+          { freq: 360, duration: 0.28, type: 'square', gain: 0.16 },
+          { freq: 300, duration: 0.32, type: 'triangle', gain: 0.12, delay: 0.2 },
+          { freq: 420, duration: 0.2, type: 'sine', gain: 0.1, delay: 0.35 }
+        ], { masterGain: 0.17 });
         break;
       case 'safety':
-        playTone(300, 0.28, 'square', 0.16);
+        playCueSequence([
+          { freq: 280, duration: 0.3, type: 'square', gain: 0.18 },
+          { freq: 210, duration: 0.38, type: 'sawtooth', gain: 0.14, delay: 0.22 },
+          { freq: 320, duration: 0.26, type: 'triangle', gain: 0.12, delay: 0.4 }
+        ], { masterGain: 0.2 });
+        break;
+      case 'restart':
+        playCueSequence([
+          { freq: 520, duration: 0.22, type: 'triangle', gain: 0.15 },
+          { freq: 620, duration: 0.2, type: 'square', gain: 0.14, delay: 0.18 },
+          { freq: 760, duration: 0.18, type: 'sine', gain: 0.12, delay: 0.34 }
+        ], { masterGain: 0.18 });
         break;
       case 'green':
         playTone(660, 0.18, 'triangle', 0.16);
         break;
       case 'finish':
-        playTone(540, 0.26, 'sawtooth', 0.18);
-        window.setTimeout(() => playTone(720, 0.32, 'triangle', 0.12), 220);
+        playCueSequence([
+          { freq: 520, duration: 0.32, type: 'sawtooth', gain: 0.18 },
+          { freq: 660, duration: 0.3, type: 'triangle', gain: 0.16, delay: 0.24 },
+          { freq: 880, duration: 0.36, type: 'sine', gain: 0.14, delay: 0.48 }
+        ], { masterGain: 0.22 });
         break;
       default:
         break;
@@ -2297,6 +2390,8 @@
   const toggleBroadcastIntro = document.getElementById('toggleBroadcastIntro');
   const toggleTicker = document.getElementById('toggleTicker');
   const toggleAudio = document.getElementById('toggleAudio');
+  const toggleReducedMotion = document.getElementById('toggleReducedMotion');
+  const toggleHighContrast = document.getElementById('toggleHighContrast');
   const cameraSetting = document.getElementById('cameraSetting');
   const racePaceSetting = document.getElementById('racePaceSetting');
   const cautionSetting = document.getElementById('cautionSetting');
@@ -2395,6 +2490,9 @@
   let countdownRunning = false;
   let gridIntroInterval = null;
   let gridIntroCountdown = 0;
+  let gridIntroSweepTimer = null;
+  let gridIntroSweepCursor = 0;
+  let gridIntroCurrentTrack = null;
   let broadcastIntroTimer = null;
   let broadcastIntroCallback = null;
   let podiumTimer = null;
@@ -2496,6 +2594,12 @@
     }
   }
   const cautionPhases = new Set(['YELLOW', 'SAFETY', 'RESTART']);
+  const AI_STATES = Object.freeze({
+    ATTACK: 'ATTACK',
+    DEFEND: 'DEFEND',
+    CONSERVE: 'CONSERVE',
+    FOLLOW_SC: 'FOLLOW_SC'
+  });
   const RESTART_HOLD_DURATION = 2.5;
   const JUMP_START_THRESHOLD = 0.06;
   const JUMP_START_SPEED_THRESHOLD = 24;
@@ -2871,6 +2975,7 @@ const fallbackTrackData = [
     geometryId: 'canyonSprint',
     theme: {"background": "#120d16", "asphalt": "#251b29", "lane": "#fbbf24", "accent": "#fb7185"},
     backdrop: {"skyTop": "#20142a", "skyBottom": "#07040b", "horizon": "#281a2f", "accent": "#fb7185", "haze": "rgba(251,113,133,0.14)", "pulses": 5, "gridSpacing": 32},
+    minimapAsset: 'assets/sprites/minimap_canyon.svg',
     traits: {"straightBias": 1.14, "cornerFocus": 1.05, "surfaceGrip": 0.98, "wearRate": 1.16, "turbulence": 1.28},
     weatherBias: {"clear": 0.34, "overcast": 0.28, "storm": 0.24, "night": 0.14},
     lore: 'Ein gestreckter Achterkurs zwischen Felsnadeln – Highspeed-Sweeps wechseln mit engen Überwurfhairpins über dem Canyon.'
@@ -2891,6 +2996,7 @@ const fallbackTrackData = [
     geometryId: 'city',
     theme: {"background": "#050a16", "asphalt": "#111d2c", "lane": "#f8fafc", "accent": "#38bdf8"},
     backdrop: {"skyTop": "#091d32", "skyBottom": "#02060f", "horizon": "#0f2438", "accent": "#38bdf8", "haze": "rgba(56,189,248,0.12)", "towers": 8, "pulses": 4},
+    minimapAsset: 'assets/sprites/minimap_city.svg',
     traits: {"straightBias": 1.08, "cornerFocus": 1.18, "surfaceGrip": 1.1, "wearRate": 1.06, "turbulence": 1.22},
     weatherBias: {"clear": 0.38, "overcast": 0.34, "storm": 0.18, "night": 0.1},
     lore: 'Neon-Schluchten, niedrige Mauern und verkantete Schikanen mitten in Neo-Atlantis – jede Gerade endet in einem 90°-Ankerpunkt.'
@@ -3096,7 +3202,8 @@ const fallbackTrackData = [
       weatherBias: normalizeWeatherBias(descriptor.weatherBias),
       lore: descriptor.lore || '',
       geometry: geometryFn,
-      backdrop: buildBackdrop(descriptor.backdrop || {})
+      backdrop: buildBackdrop(descriptor.backdrop || {}),
+      minimapAsset: descriptor.minimapAsset || null
     };
   }
 
@@ -3299,6 +3406,7 @@ const fallbackTrackData = [
   let lastTelemetryOrder = [];
   const raceControlEvents = [];
   const racePitLog = [];
+  const raceIncidentLog = [];
   const replayBookmarks = [];
   let cautionLapHistory = [];
   let currentCautionEntry = null;
@@ -3408,6 +3516,18 @@ const fallbackTrackData = [
       audioCtx.suspend().catch(() => {});
       showSettingsNotice('Audio-Benachrichtigungen deaktiviert.', 'info');
     }
+  });
+  toggleReducedMotion?.addEventListener('change', () => {
+    uiSettings.reducedMotion = !!toggleReducedMotion.checked;
+    applyUiSettings();
+    persistUiSettings();
+    showSettingsNotice(uiSettings.reducedMotion ? 'Animationen reduziert.' : 'Vollständige Animationen aktiv.', 'info');
+  });
+  toggleHighContrast?.addEventListener('change', () => {
+    uiSettings.highContrast = !!toggleHighContrast.checked;
+    applyUiSettings();
+    persistUiSettings();
+    showSettingsNotice(uiSettings.highContrast ? 'Hoher Kontrast aktiviert.' : 'Standarddarstellung aktiv.', 'info');
   });
   cameraSetting?.addEventListener('change', () => {
     uiSettings.cameraMode = cameraSetting.value;
@@ -3584,6 +3704,194 @@ const fallbackTrackData = [
     eventTraitSummary.innerHTML = tags.map(tag => `<span>${tag}</span>`).join('');
   }
 
+  const GRID_CAMERA_SWEEPS = [
+    {
+      id: 'orbital',
+      label: 'Orbital Sweep',
+      detail: 'Totale über Start/Ziel und Startlichter',
+      rotate: 0.38,
+      zoom: 0.9
+    },
+    {
+      id: 'pitlane',
+      label: 'Pitlane Glide',
+      detail: 'Seitliche Kamerafahrt entlang der Boxengasse',
+      rotate: -0.16,
+      zoom: 1.08,
+      offset: { x: -0.24, y: 0.18 }
+    },
+    {
+      id: 'stadium',
+      label: 'Stadium Hover',
+      detail: 'Weitwinkel über Tribünen und Grid-Aufstellung',
+      rotate: 0.08,
+      zoom: 0.86,
+      offset: { x: 0.16, y: -0.12 }
+    }
+  ];
+  const GRID_SWEEP_INTERVAL = 5200;
+
+  function sampleTrackGeometryForSweep(track) {
+    if (!track || typeof track.geometry !== 'function') {
+      return null;
+    }
+    const points = [];
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+    const segments = 240;
+    for (let i = 0; i < segments; i++) {
+      const t = (Math.PI * 2) * (i / segments);
+      const point = track.geometry(t);
+      if (!point) continue;
+      points.push({ x: point.x, y: point.y });
+      if (point.x < minX) minX = point.x;
+      if (point.x > maxX) maxX = point.x;
+      if (point.y < minY) minY = point.y;
+      if (point.y > maxY) maxY = point.y;
+    }
+    if (!points.length || !Number.isFinite(minX) || !Number.isFinite(maxX)) {
+      return null;
+    }
+    return {
+      points,
+      centerX: (minX + maxX) / 2,
+      centerY: (minY + maxY) / 2,
+      spanX: Math.max(1, maxX - minX),
+      spanY: Math.max(1, maxY - minY)
+    };
+  }
+
+  function renderGridSweepCanvas(track, sweep) {
+    if (!gridIntroSweepCanvas) return;
+    const ctx = gridIntroSweepCanvas.getContext('2d');
+    if (!ctx) return;
+    const width = gridIntroSweepCanvas.width;
+    const height = gridIntroSweepCanvas.height;
+    ctx.clearRect(0, 0, width, height);
+    const theme = track?.theme || defaultTrackTheme;
+    const background = theme.background || '#050912';
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, background);
+    gradient.addColorStop(1, lightenHex(background, 0.28));
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+    const sample = sampleTrackGeometryForSweep(track);
+    if (!sample) return;
+    const spanX = sample.spanX;
+    const spanY = sample.spanY;
+    const zoom = typeof sweep.zoom === 'number' ? sweep.zoom : 0.9;
+    const baseScale = Math.min(width / spanX, height / spanY) * zoom * 0.92;
+    ctx.save();
+    ctx.translate(width / 2, height / 2);
+    if (typeof sweep.rotate === 'number') {
+      ctx.rotate(sweep.rotate);
+    }
+    ctx.scale(baseScale, baseScale);
+    if (sweep.offset) {
+      ctx.translate((sweep.offset.x || 0) * spanX, (sweep.offset.y || 0) * spanY);
+    }
+    ctx.translate(-sample.centerX, -sample.centerY);
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.globalAlpha = 0.32;
+    ctx.strokeStyle = theme.accent || '#38bdf8';
+    ctx.lineWidth = 7 / baseScale;
+    ctx.beginPath();
+    sample.points.forEach((point, index) => {
+      if (index === 0) ctx.moveTo(point.x, point.y);
+      else ctx.lineTo(point.x, point.y);
+    });
+    ctx.closePath();
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = theme.lane || '#94a3b8';
+    ctx.lineWidth = 4 / baseScale;
+    ctx.shadowColor = hexToRgba(theme.accent || '#38bdf8', 0.28);
+    ctx.shadowBlur = 18;
+    ctx.beginPath();
+    sample.points.forEach((point, index) => {
+      if (index === 0) ctx.moveTo(point.x, point.y);
+      else ctx.lineTo(point.x, point.y);
+    });
+    ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function applyGridSweep(trackId, advance = true) {
+    if (!gridIntroShot) return;
+    const track = trackCatalog[trackId] || trackCatalog.oval;
+    if (!track) return;
+    if (!GRID_CAMERA_SWEEPS.length) return;
+    const sweep = GRID_CAMERA_SWEEPS[gridIntroSweepCursor % GRID_CAMERA_SWEEPS.length];
+    if (advance) {
+      gridIntroSweepCursor = (gridIntroSweepCursor + 1) % GRID_CAMERA_SWEEPS.length;
+    }
+    gridIntroShot.classList.remove('hidden');
+    gridIntroShot.setAttribute('aria-hidden', 'false');
+    gridIntroShot.dataset.sweep = sweep.id || '';
+    if (gridIntroSweepLabel) {
+      gridIntroSweepLabel.textContent = sweep.label;
+    }
+    if (gridIntroSweepDetail) {
+      gridIntroSweepDetail.textContent = sweep.detail;
+    }
+    if (track.minimapAsset && gridIntroSweepImage) {
+      gridIntroSweepImage.src = track.minimapAsset;
+      gridIntroSweepImage.classList.remove('hidden');
+      if (gridIntroSweepCanvas) {
+        gridIntroSweepCanvas.classList.add('hidden');
+        const ctx = gridIntroSweepCanvas.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, gridIntroSweepCanvas.width, gridIntroSweepCanvas.height);
+      }
+    } else {
+      if (gridIntroSweepImage) {
+        gridIntroSweepImage.classList.add('hidden');
+        gridIntroSweepImage.removeAttribute('src');
+      }
+      if (gridIntroSweepCanvas) {
+        gridIntroSweepCanvas.classList.remove('hidden');
+        renderGridSweepCanvas(track, sweep);
+      }
+    }
+  }
+
+  function startGridIntroSweep(trackId) {
+    if (!gridIntroShot) return;
+    gridIntroCurrentTrack = trackId;
+    stopGridIntroSweep();
+    gridIntroSweepCursor = 0;
+    applyGridSweep(trackId, true);
+    gridIntroSweepTimer = window.setInterval(() => {
+      applyGridSweep(trackId, true);
+    }, GRID_SWEEP_INTERVAL);
+  }
+
+  function stopGridIntroSweep() {
+    if (gridIntroSweepTimer) {
+      clearInterval(gridIntroSweepTimer);
+      gridIntroSweepTimer = null;
+    }
+    gridIntroCurrentTrack = null;
+    if (gridIntroShot) {
+      gridIntroShot.classList.add('hidden');
+      gridIntroShot.setAttribute('aria-hidden', 'true');
+    }
+    if (gridIntroSweepImage) {
+      gridIntroSweepImage.classList.add('hidden');
+      gridIntroSweepImage.removeAttribute('src');
+    }
+    if (gridIntroSweepCanvas) {
+      const ctx = gridIntroSweepCanvas.getContext('2d');
+      if (ctx) {
+        ctx.clearRect(0, 0, gridIntroSweepCanvas.width, gridIntroSweepCanvas.height);
+      }
+      gridIntroSweepCanvas.classList.add('hidden');
+    }
+  }
+
   function updateGridIntroCountdownDisplay() {
     if (gridIntroTimer) {
       gridIntroTimer.textContent = Math.max(0, Math.ceil(gridIntroCountdown)).toString();
@@ -3660,6 +3968,7 @@ const fallbackTrackData = [
       clearInterval(gridIntroInterval);
       gridIntroInterval = null;
     }
+    stopGridIntroSweep();
     gridIntroCountdown = 0;
     updateGridIntroCountdownDisplay();
     gridIntroOverlay.classList.add('hidden');
@@ -3774,15 +4083,15 @@ const fallbackTrackData = [
     }
     gridIntroOverlay.classList.remove('hidden');
     gridIntroOverlay.setAttribute('aria-hidden', 'false');
+    startGridIntroSweep(currentTrackType);
     gridIntroCountdown = 4;
     updateGridIntroCountdownDisplay();
     auditRaceFlow('gridIntro', { field: cars?.length || 0 });
     gridIntroInterval = setInterval(() => {
       gridIntroCountdown -= 1;
+      updateGridIntroCountdownDisplay();
       if (gridIntroCountdown <= 0) {
         beginRaceCountdown();
-      } else {
-        updateGridIntroCountdownDisplay();
       }
     }, 1000);
   }
@@ -3950,6 +4259,8 @@ const fallbackTrackData = [
       showTicker: true,
       skipBroadcastIntro: false,
       enableAudio: true,
+      reducedMotion: false,
+      highContrast: false,
       cameraMode: 'auto',
       racePace: 'normal',
       cautionStrictness: 'standard'
@@ -3969,6 +4280,8 @@ const fallbackTrackData = [
         showTicker: parsed.showTicker !== false,
         skipBroadcastIntro: parsed.skipBroadcastIntro === true,
         enableAudio: parsed.enableAudio !== false,
+        reducedMotion: parsed.reducedMotion === true,
+        highContrast: parsed.highContrast === true,
         cameraMode: cameraModes.has(parsed.cameraMode) ? parsed.cameraMode : defaults.cameraMode,
         racePace: paceModes.has(parsed.racePace) ? parsed.racePace : defaults.racePace,
         cautionStrictness: cautionModes.has(parsed.cautionStrictness) ? parsed.cautionStrictness : defaults.cautionStrictness
@@ -4015,6 +4328,10 @@ const fallbackTrackData = [
   }
 
   function applyUiSettings() {
+    if (bodyElement) {
+      bodyElement.classList.toggle('reducedMotion', uiSettings.reducedMotion === true);
+      bodyElement.classList.toggle('highContrast', uiSettings.highContrast === true);
+    }
     if (canvasWrap) {
       canvasWrap.classList.toggle('zoomOff', uiSettings.zoom === 'off');
       canvasWrap.classList.toggle('zoomOn', uiSettings.zoom !== 'off');
@@ -4069,6 +4386,12 @@ const fallbackTrackData = [
     }
     if (toggleAudio) {
       toggleAudio.checked = uiSettings.enableAudio !== false;
+    }
+    if (toggleReducedMotion) {
+      toggleReducedMotion.checked = uiSettings.reducedMotion === true;
+    }
+    if (toggleHighContrast) {
+      toggleHighContrast.checked = uiSettings.highContrast === true;
     }
   }
 
@@ -4174,6 +4497,108 @@ const fallbackTrackData = [
   }
 
   let nextId = 1;
+  function registerIncident(type, instigator, victim, severity = 'minor', meta = {}) {
+    if (!instigator && !victim) return;
+    const entry = {
+      type,
+      severity,
+      time: Number(raceTime.toFixed(2)),
+      lap: instigator?.lap ?? victim?.lap ?? 0,
+      instigator: instigator
+        ? { driver: instigator.driver, number: instigator.racingNumber, team: instigator.team }
+        : null,
+      victim: victim
+        ? { driver: victim.driver, number: victim.racingNumber, team: victim.team }
+        : null,
+      state: instigator?.aiState || null,
+      details: meta && Object.keys(meta).length ? { ...meta } : null
+    };
+    raceIncidentLog.unshift(entry);
+    if (raceIncidentLog.length > 20) {
+      raceIncidentLog.pop();
+    }
+    const tone = severity === 'major' ? 'alert' : 'warn';
+    if (instigator && victim) {
+      pushTicker(`Kontakt: #${instigator.racingNumber} ${instigator.driver} vs #${victim.racingNumber} ${victim.driver}`, severity === 'major' ? 'yellow' : 'warn');
+      logRaceControl(`Kontakt ${instigator.driver} vs ${victim.driver} (${severity === 'major' ? 'schwer' : 'leicht'})`, tone);
+    } else if (instigator) {
+      pushTicker(`Incident: #${instigator.racingNumber} ${instigator.driver}`, severity === 'major' ? 'yellow' : 'warn');
+      logRaceControl(`#${instigator.racingNumber} ${instigator.driver}: Incident (${severity})`, tone);
+    }
+    const damage = severity === 'major' ? 0.18 : 0.1;
+    [instigator, victim].forEach(car => {
+      if (!car) return;
+      car.systemIntegrity = clamp((car.systemIntegrity || 1) - damage, 0.3, 1.15);
+      car.tireWear = clamp((car.tireWear || 0) + damage * 0.6, 0, 1.2);
+      car.speedVariance -= damage * 0.35;
+      car.incidentCooldown = Math.max(car.incidentCooldown || 0, severity === 'major' ? 6 : 3.5);
+    });
+    if (severity === 'major' && instigator && victim && !isCautionPhase()) {
+      queueYellow(instigator);
+    }
+  }
+
+  const aiStateController = {
+    update(order, dt = 0.016) {
+      if (!Array.isArray(order) || order.length === 0) return;
+      const caution = isCautionPhase();
+      order.forEach((car, idx) => {
+        if (!car || car.finished) return;
+        const ahead = idx > 0 ? order[idx - 1] : null;
+        const behind = idx < order.length - 1 ? order[idx + 1] : null;
+        const aheadGap = ahead ? Math.abs(computeTimeGap(ahead, car)) : Infinity;
+        const behindGap = behind ? Math.abs(computeTimeGap(car, behind)) : Infinity;
+        const wear = car.tireWear ?? 0;
+        const integrity = car.systemIntegrity ?? 1;
+        let nextState = car.aiState || AI_STATES.ATTACK;
+        if (caution || isRestartHoldActive()) {
+          nextState = AI_STATES.FOLLOW_SC;
+        } else if (wear > 0.72 || integrity < 0.58) {
+          nextState = behindGap < 1.2 ? AI_STATES.DEFEND : AI_STATES.CONSERVE;
+        } else if (behindGap < 0.9 && (behind?.risk ?? 0.3) >= car.risk) {
+          nextState = AI_STATES.DEFEND;
+        } else if (aheadGap < 0.8 && car.risk > 0.32) {
+          nextState = AI_STATES.ATTACK;
+        } else if (aheadGap > 3.4 && wear < 0.6) {
+          nextState = AI_STATES.CONSERVE;
+        } else {
+          nextState = AI_STATES.ATTACK;
+        }
+        if (car.aiState !== nextState) {
+          car.aiState = nextState;
+          car.aiStateSince = raceTime;
+        }
+        const riskWindow = {
+          ahead: ahead ? `#${ahead.racingNumber} ${ahead.driver}` : null,
+          aheadGap: Number.isFinite(aheadGap) ? Number(aheadGap.toFixed(2)) : null,
+          behind: behind ? `#${behind.racingNumber} ${behind.driver}` : null,
+          behindGap: Number.isFinite(behindGap) ? Number(behindGap.toFixed(2)) : null,
+          tireWear: Number((car.tireWear || 0).toFixed(3)),
+          integrity: Number((car.systemIntegrity || 0).toFixed(3)),
+          caution,
+          state: car.aiState,
+          timestamp: Number(raceTime.toFixed(3))
+        };
+        car.riskWindow = riskWindow;
+        if (!caution && ahead && (car.incidentCooldown || 0) <= 0) {
+          const relativeSpeed = (car.currentSpeed || 0) - (ahead.currentSpeed || 0);
+          const aggression = clamp(car.risk * 0.65 + (1 - car.consist) * 0.45, 0.08, 1.25);
+          const attackFactor = car.aiState === AI_STATES.ATTACK ? 1.25 : car.aiState === AI_STATES.DEFEND ? 0.9 : car.aiState === AI_STATES.CONSERVE ? 0.72 : 0.68;
+          const defenceFactor = ahead.aiState === AI_STATES.DEFEND ? 1.12 : 0.94;
+          const gap = aheadGap;
+          if (gap < 0.65 && relativeSpeed > -35) {
+            const probability = Math.max(0, (0.24 + relativeSpeed / 520) * aggression * attackFactor * defenceFactor) * dt;
+            if (Math.random() < probability) {
+              const severity = probability > 0.018 || relativeSpeed > 26 ? 'major' : 'minor';
+              registerIncident('contact', car, ahead, severity, { gap: Number(gap.toFixed(2)), delta: Number(relativeSpeed.toFixed(1)) });
+            }
+          }
+        }
+      });
+    },
+    states: AI_STATES
+  };
+
   class Car {
     constructor(team, driver, number, baseSpeed, risk, intel, consist, extras = {}) {
       this.id = nextId++;
@@ -4226,6 +4651,10 @@ const fallbackTrackData = [
       this.wearSignals = { tire: false, system: false, critical: false, pitCall: false, pitClear: false };
       this.currentSpeed = 0;
       this.peakSpeed = 0;
+      this.aiState = AI_STATES.ATTACK;
+      this.aiStateSince = 0;
+      this.riskWindow = null;
+      this.incidentCooldown = 0;
     }
     getPosition() {
       const pos = trackPos(this.progress);
@@ -4239,7 +4668,26 @@ const fallbackTrackData = [
       const prevNorm = (this.lap - 1) + this.progress / (Math.PI * 2);
 
       const traits = this.trackTraits || activeTrackTraits;
-      let speed = this.baseSpeed + this.speedVariance;
+      if (this.incidentCooldown > 0) {
+        this.incidentCooldown = Math.max(0, this.incidentCooldown - dt);
+      }
+      const aiState = this.aiState || AI_STATES.ATTACK;
+      let aggressionBoost = 1;
+      let wearMultiplier = 1;
+      if (aiState === AI_STATES.ATTACK) {
+        aggressionBoost = 1.08 + this.risk * 0.06;
+        wearMultiplier = 1.12;
+      } else if (aiState === AI_STATES.DEFEND) {
+        aggressionBoost = 0.96;
+        wearMultiplier = 0.94;
+      } else if (aiState === AI_STATES.CONSERVE) {
+        aggressionBoost = 0.9;
+        wearMultiplier = 0.78;
+      } else if (aiState === AI_STATES.FOLLOW_SC) {
+        aggressionBoost = 0.88;
+        wearMultiplier = 0.82;
+      }
+      let speed = (this.baseSpeed + this.speedVariance) * aggressionBoost;
       speed *= 1 + (traits.straightBias - 1) * 0.12;
       speed *= 1 + (this.form || 0) * 0.02 + (this.morale - 0.5) * 0.04;
 
@@ -4257,7 +4705,7 @@ const fallbackTrackData = [
 
       if (raceClockArmed) {
         this.tireWear = clamp(
-          this.tireWear + dt * (0.035 + this.risk * 0.025) * (traits.wearRate || 1) * (this.profile.wear || 1),
+          this.tireWear + dt * (0.035 + this.risk * 0.025) * (traits.wearRate || 1) * (this.profile.wear || 1) * wearMultiplier,
           0,
           1.2
         );
@@ -4265,7 +4713,7 @@ const fallbackTrackData = [
         speed -= wearPenalty;
 
         this.systemIntegrity = clamp(
-          this.systemIntegrity - dt * (0.004 + this.risk * 0.003) * (traits.wearRate || 1) / Math.max(0.75, this.profile.systems || 1),
+          this.systemIntegrity - dt * (0.004 + this.risk * 0.003) * (traits.wearRate || 1) * wearMultiplier / Math.max(0.75, this.profile.systems || 1),
           0.35,
           1.15
         );
@@ -4874,10 +5322,12 @@ const fallbackTrackData = [
   }
 
   function triggerIncident(car) {
-    if (Math.random() < 0.5) {
-      queueYellow(car);
-    } else {
+    const severity = Math.random() < 0.55 ? 'major' : 'minor';
+    registerIncident('mechanical', car, null, severity, { random: true });
+    if (severity === 'major') {
       queueSafety(car);
+    } else {
+      queueYellow(car);
     }
   }
 
@@ -5081,7 +5531,7 @@ const fallbackTrackData = [
       phaseStats.restart += 1;
       pushTicker('Restart-Prozedur läuft', 'info');
       logRaceControl('Restart Vorbereitung', 'info');
-      playRaceCue('light');
+      playRaceCue('restart');
       const hold = typeof meta?.holdDuration === 'number' ? Math.max(0, meta.holdDuration) : RESTART_HOLD_DURATION;
       const stamp = formatTickerStamp();
       const detail = hold > 0
@@ -5904,6 +6354,34 @@ const fallbackTrackData = [
     }
   }
 
+  function formatAiStateLabel(state) {
+    switch (state) {
+      case AI_STATES.DEFEND:
+        return 'Verteidigen';
+      case AI_STATES.CONSERVE:
+        return 'Schonmodus';
+      case AI_STATES.FOLLOW_SC:
+        return 'SC-Folge';
+      default:
+        return 'Angriff';
+    }
+  }
+
+  function formatRiskWindowSummary(window) {
+    if (!window) return '---';
+    const parts = [];
+    if (window.aheadGap != null) {
+      parts.push(`V ${formatGap(window.aheadGap)}s`);
+    }
+    if (window.behindGap != null) {
+      parts.push(`H ${formatGap(window.behindGap)}s`);
+    }
+    if (!parts.length && window.caution) {
+      parts.push('Caution');
+    }
+    return parts.length ? parts.join(' · ') : '---';
+  }
+
   function updateFocusPanel(order) {
     if (!focusDriverPanel || !focusDriverName || !focusDriverMeta || !focusDriverStats || !focusDriverTrend) {
       return;
@@ -5942,6 +6420,8 @@ const fallbackTrackData = [
     const bestLap = formatTime(car.bestLapTime);
     const formValue = car.form ? `${car.form >= 0 ? '+' : ''}${car.form.toFixed(2)}` : '0.00';
     const chassisLabel = car.chassisLabel || 'Spec';
+    const aiLabel = formatAiStateLabel(car.aiState);
+    const riskSummary = formatRiskWindowSummary(car.riskWindow);
     focusDriverMeta.textContent = `${car.team} • P${position} (${gap}) • ${profileLabel} • ${chassisLabel}`;
     let trendClass = 'neutral';
     let trendText = 'Stabil';
@@ -5960,6 +6440,8 @@ const fallbackTrackData = [
       <div class="row"><span class="label">Top Speed</span><span class="value">${topSpeed} km/h</span></div>
       <div class="row"><span class="label">Systeme</span><span class="value">${systemPct}%</span></div>
       <div class="row"><span class="label">Reifen</span><span class="value">${wearPct}%</span></div>
+      <div class="row"><span class="label">AI-Modus</span><span class="value">${aiLabel}</span></div>
+      <div class="row"><span class="label">Fenster</span><span class="value">${riskSummary}</span></div>
       <div class="row"><span class="label">Form</span><span class="value">${formValue}</span></div>
     `;
   }
@@ -6075,11 +6557,22 @@ const fallbackTrackData = [
       detail: item.detail,
       time: item.time
     }));
+    const incidents = raceIncidentLog.slice(0, 10).map(item => ({
+      type: item.type,
+      severity: item.severity,
+      time: item.time,
+      lap: item.lap,
+      instigator: item.instigator,
+      victim: item.victim,
+      state: item.state,
+      details: item.details || null
+    }));
     const cautionSummary = cautionLapHistory
       .filter(item => item && item.laps > 0)
       .map(item => ({ phase: item.phase, laps: item.laps, startedAt: item.startedAt }));
     if (violationLogs.length) entry.violations = violationLogs;
     if (pitSummary.length) entry.pitStops = pitSummary;
+    if (incidents.length) entry.incidents = incidents;
     if (cautionSummary.length) entry.cautionLaps = cautionSummary;
     raceChronicle.events.unshift(entry);
     if (raceChronicle.events.length > MAX_ARCHIVE_ENTRIES) {
@@ -6201,6 +6694,7 @@ const fallbackTrackData = [
     resetBattleSpotlight();
     resetLiveTicker();
     racePitLog.length = 0;
+    raceIncidentLog.length = 0;
     resetCautionHistory();
     replayBookmarks.length = 0;
     updateReplayBookmarksUI();
@@ -6286,6 +6780,7 @@ const fallbackTrackData = [
       }
     }
     const leader = snapshotOrder.find(car => !car.finished) || snapshotOrder[0] || null;
+    aiStateController.update(snapshotOrder, dt);
     cars.forEach(car => car.update(dt, leader));
     trackCautionLaps(leader);
 
@@ -6869,6 +7364,27 @@ const fallbackTrackData = [
           const message = document.createElement('span');
           message.textContent = log.message;
           li.append(stamp, message);
+          list.appendChild(li);
+        });
+        container.appendChild(list);
+      }
+      if (Array.isArray(entry.incidents) && entry.incidents.length) {
+        const list = document.createElement('ul');
+        list.className = 'incidentLog';
+        entry.incidents.slice(0, 4).forEach(incident => {
+          const li = document.createElement('li');
+          const actors = [];
+          if (incident.instigator) {
+            actors.push(`#${incident.instigator.number} ${incident.instigator.driver}`);
+          }
+          if (incident.victim) {
+            actors.push(`#${incident.victim.number} ${incident.victim.driver}`);
+          }
+          const headline = actors.length ? actors.join(' vs ') : 'Solo-Event';
+          const severity = incident.severity === 'major' ? 'HEFTIG' : incident.severity === 'minor' ? 'LEICHT' : '';
+          const severityClass = incident.severity === 'major' ? 'major' : incident.severity === 'minor' ? 'minor' : '';
+          const lap = incident.lap ? `Runde ${incident.lap}` : '';
+          li.innerHTML = `<span class="severity ${severityClass}">${severity}</span><span class="actors">${headline}</span><span class="meta">${lap}</span>`;
           list.appendChild(li);
         });
         container.appendChild(list);
@@ -7518,6 +8034,7 @@ const fallbackTrackData = [
     clearReplayData();
     resetCautionHistory();
     racePitLog.length = 0;
+    raceIncidentLog.length = 0;
     replayBookmarks.length = 0;
     updateReplayBookmarksUI();
     if (currentMode === 'gp') {
@@ -7564,6 +8081,10 @@ const fallbackTrackData = [
   });
 
   gridIntroDismiss?.addEventListener('click', () => beginRaceCountdown());
+  gridIntroShot?.addEventListener('click', () => {
+    if (!gridIntroCurrentTrack) return;
+    applyGridSweep(gridIntroCurrentTrack, true);
+  });
 
   startRaceBtn?.addEventListener('click', () => startRace());
   pauseRaceBtn?.addEventListener('click', pauseToggle);
@@ -7659,6 +8180,23 @@ const fallbackTrackData = [
             }
           : null
       }),
+      getAiStates: () => cars.map(car => ({
+        id: car.id,
+        driver: car.driver,
+        team: car.team,
+        state: car.aiState || AI_STATES.ATTACK,
+        since: Number((car.aiStateSince || 0).toFixed(2)),
+        riskWindow: car.riskWindow || null
+      })),
+      getIncidentLog: () => raceIncidentLog.slice().map(entry => ({
+        type: entry.type,
+        severity: entry.severity,
+        time: entry.time,
+        lap: entry.lap,
+        instigator: entry.instigator,
+        victim: entry.victim,
+        state: entry.state
+      })),
       reset: () => {
         phaseTimeline.length = 0;
         flowAudit.length = 0;

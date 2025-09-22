@@ -165,6 +165,16 @@
                 <div class="title">Grid Briefing</div>
                 <div id="gridIntroMeta" class="meta"></div>
               </header>
+              <div id="gridIntroShot" class="gridIntroShot hidden" aria-hidden="true">
+                <div class="gridIntroShotFrame">
+                  <img id="gridIntroSweepImage" alt="" class="hidden" loading="lazy" />
+                  <canvas id="gridIntroSweepCanvas" width="360" height="220" aria-hidden="true"></canvas>
+                  <div class="gridIntroSweepInfo">
+                    <span id="gridIntroSweepLabel" class="label"></span>
+                    <span id="gridIntroSweepDetail" class="detail"></span>
+                  </div>
+                </div>
+              </div>
               <ol id="gridIntroList" class="gridIntroList"></ol>
               <footer class="gridIntroFooter">
                 <button id="gridIntroDismiss" type="button">Countdown starten</button>
@@ -446,6 +456,11 @@
             <option value="manual">Manuell</option>
           </select>
         </label>
+      </div>
+      <div class="accessibilitySettings">
+        <h3>Accessibility</h3>
+        <label><input type="checkbox" id="toggleReducedMotion"> Reduzierte Animationen</label>
+        <label><input type="checkbox" id="toggleHighContrast"> Hoher Kontrast</label>
       </div>
       <div class="simSettings">
         <h3>Simulation</h3>

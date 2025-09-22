@@ -46,6 +46,7 @@
       "geometryId": "canyonSprint",
       "theme": {"background": "#120d16", "asphalt": "#251b29", "lane": "#fbbf24", "accent": "#fb7185"},
       "backdrop": {"skyTop": "#20142a", "skyBottom": "#07040b", "horizon": "#281a2f", "accent": "#fb7185", "haze": "rgba(251,113,133,0.14)", "pulses": 5, "gridSpacing": 32},
+      "minimapAsset": "assets/sprites/minimap_canyon.svg",
       "traits": {"straightBias": 1.14, "cornerFocus": 1.05, "surfaceGrip": 0.98, "wearRate": 1.16, "turbulence": 1.28},
       "weatherBias": {"clear": 0.34, "overcast": 0.28, "storm": 0.24, "night": 0.14},
       "lore": "Ein gestreckter Achterkurs zwischen Felsnadeln – Highspeed-Sweeps wechseln mit engen Überwurfhairpins über dem Canyon."
@@ -66,6 +67,7 @@
       "geometryId": "city",
       "theme": {"background": "#050a16", "asphalt": "#111d2c", "lane": "#f8fafc", "accent": "#38bdf8"},
       "backdrop": {"skyTop": "#091d32", "skyBottom": "#02060f", "horizon": "#0f2438", "accent": "#38bdf8", "haze": "rgba(56,189,248,0.12)", "towers": 8, "pulses": 4},
+      "minimapAsset": "assets/sprites/minimap_city.svg",
       "traits": {"straightBias": 1.08, "cornerFocus": 1.18, "surfaceGrip": 1.1, "wearRate": 1.06, "turbulence": 1.22},
       "weatherBias": {"clear": 0.38, "overcast": 0.34, "storm": 0.18, "night": 0.1},
       "lore": "Neon-Schluchten, niedrige Mauern und verkantete Schikanen mitten in Neo-Atlantis – jede Gerade endet in einem 90°-Ankerpunkt."

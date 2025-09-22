@@ -30,9 +30,11 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 20 Strecken (u. a. City Grand 
 - Jump-Start-Detection für Standing/Staggered-Verfahren warnt Race Control & Ticker bei Frühstarts ohne das Rennen zu stoppen
 - Rolling-Start-Formation-Lap mit Countdown-Reintegration, dynamischem Race-Clock-Offset und Gap-Trends im Leaderboard
 - Startlicht-Sequenz mit Broadcast-Light-Overlay, Audio-Cues (Start, Green, Yellow, Safety) und TV-würdiger Countdown-Choreografie
+- Safety-, Restart- und Finish-SFX liefern markante Audio-Cues für jede Race-Control-Phase
 - Titelbildschirm-Jingle im Neo-Noir-Sounddesign, der nach der ersten Interaktion startet und beim Wechsel ins Spiel sauber ausfadet
 - Slime-Marshal-Overlay mit animierten Zielflaggen bringt das Maskottchen an die Startlinie und begleitet die Countdown-Signale
 - Broadcast-Newsdesk-Intro mit Strecken-Lore, Wetterbriefing und Pace-Favoriten vor jedem Rennstart
+- Grid-Briefing-Kamera-Sweeps rotieren Drohnenperspektiven samt City- & Canyon-Minimap-SVGs direkt im Countdown
 - Strenge Gelb-/Safety-Car-Überwachung mit automatischer Positionsrückgabe bei Verstößen und verfeinertem Boxenstopp-Prozess
 - Cinematisches Hauptmenü mit Twitch-Mode- und Stream-Deck-Teaser, neuem Atrium-Backdrop und Sprite-Showcase für Gleiter- und Track-Poster-Assets
 - Neo-Noir-Backdrops rendern pro Strecke individuelle Skyline-Glows, Sternenfelder und Grid-Linien für mehr Retro-Atmosphäre
@@ -43,9 +45,11 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 20 Strecken (u. a. City Grand 
 - Live-Leaderboard-Overlay auf dem Canvas plus Meldungs-Panel mit Zeitstempeln für Überholungen, Flaggen und Specials
 - Battle-Spotlight blendet engste Duelle mit Gap-Trend (schrumpft/wächst) und Teamfarben im Broadcast-HUD ein
 - Incident-/Overtake-Banner-Queue blendet zweizeilige TV-Callouts für Flaggen, Safety-Car-Deployments und Überholmanöver ein
+- KI-Zustandsmaschine (Attack/Defend/Conserve/Follow SC) steuert Pace, Reifenverschleiß & Risiko-Fenster; Incident-Log zeichnet Kontakte für Codex & Diagnostik auf
 - Highlight-Ticker zählt Safety-Laps mit und fasst Pit-Stops als Broadcast-Callouts zusammen, inklusive Service-Gewinnen
 - Mini-Map mit markierten Sektoren, Leader-Halo und Fokus-Ring für klarere TV-Analyse
 - Einstellbare HUD- und Audio-Optionen (Ticker, Race-Control, Fokus, Mini-Map, Broadcast-Sounds) werden pro Profil gespeichert
+- Accessibility-Toggles für reduzierte Animationen und hohen Kontrast verbessern Lesbarkeit und Komfort
 - Skip-Toggle für das Broadcast-Intro erlaubt sofortigen Sprung ins Grid Briefing
 - Anpassbare Simulationsparameter: Renn-Tempo (Entspannt/Standard/Intensiv) und Caution-Regelwerk (Locker/Standard/Strikt) steuern
   Pace, Bunching-Aggressivität und Überholverbots-Kontrollen
