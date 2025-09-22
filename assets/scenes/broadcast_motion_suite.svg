@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="stingerGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0b1f3a" />
+      <stop offset="40%" stop-color="#182f68" />
+      <stop offset="100%" stop-color="#5fffd4" />
+    </linearGradient>
+    <linearGradient id="alertGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ff3666" />
+      <stop offset="100%" stop-color="#ff9c3a" />
+    </linearGradient>
+    <linearGradient id="flagGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1ed1ff" />
+      <stop offset="100%" stop-color="#7c3bff" />
+    </linearGradient>
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <style>
+      .label { font: 24px 'Orbitron', sans-serif; letter-spacing: 3px; fill: #c9e6ff; }
+      .caption { font: 18px 'Rajdhani', sans-serif; fill: #a9b6d6; }
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="#050b18" />
+
+  <!-- Motion Stinger Frames -->
+  <g transform="translate(60,70)">
+    <rect width="460" height="260" rx="18" fill="#0f1f3d" stroke="#5fffd4" stroke-width="2" />
+    <path d="M30 40 h320 l60 90 -60 90 H30 Z" fill="url(#stingerGradient)" opacity="0.9" />
+    <circle cx="380" cy="80" r="48" fill="#101f34" stroke="#6cf7ff" stroke-width="4" />
+    <path d="M380 40 l42 40 -42 40 -42 -40 Z" fill="#6cf7ff" opacity="0.8" />
+    <text x="40" y="205" class="label">STINGER: SECTOR SHIFT</text>
+    <text x="40" y="235" class="caption">3-PHASE FADE • AUDIO HIT • LOWER THIRD HOOK</text>
+  </g>
+
+  <!-- Incident/Flag Overlay Stack -->
+  <g transform="translate(580,70)">
+    <rect width="460" height="260" rx="18" fill="#10162b" stroke="#ff9c3a" stroke-width="2" />
+    <rect x="24" y="40" width="412" height="72" rx="14" fill="url(#alertGradient)" filter="url(#softGlow)" />
+    <text x="40" y="82" class="label">FULL COURSE YELLOW</text>
+    <rect x="24" y="140" width="180" height="72" rx="14" fill="#13294c" stroke="#ff9c3a" stroke-width="2" />
+    <rect x="220" y="140" width="216" height="72" rx="14" fill="#1d3358" stroke="#5fffd4" stroke-width="2" />
+    <text x="50" y="184" class="caption">PACE 60%</text>
+    <text x="250" y="184" class="caption">INCIDENT SECTOR 3</text>
+    <text x="40" y="235" class="caption">ALERT BANNER + SUB PANEL + TIMER SLOT</text>
+  </g>
+
+  <!-- Modular Flag Carousel -->
+  <g transform="translate(1100,70)">
+    <rect width="440" height="260" rx="18" fill="#10162b" stroke="#36c0ff" stroke-width="2" />
+    <g transform="translate(34,38)">
+      <rect width="120" height="120" rx="20" fill="url(#flagGradient)" />
+      <text x="60" y="70" font-size="64" text-anchor="middle" fill="#ffffff">G</text>
+    </g>
+    <g transform="translate(180,38)">
+      <rect width="120" height="120" rx="20" fill="#ffe066" />
+      <text x="60" y="70" font-size="64" text-anchor="middle" fill="#1d1d1d">Y</text>
+    </g>
+    <g transform="translate(326,38)">
+      <rect width="120" height="120" rx="20" fill="#ff5a5a" />
+      <text x="60" y="70" font-size="64" text-anchor="middle" fill="#1d1d1d">S</text>
+    </g>
+    <text x="40" y="210" class="label">FLAG STATE CAROUSEL</text>
+    <text x="40" y="240" class="caption">CYCLIC BANNER • SAFETY STATE • AUDIO CUES</text>
+  </g>
+
+  <!-- Highlight Queue -->
+  <g transform="translate(60,380)">
+    <rect width="720" height="440" rx="26" fill="#0c1329" stroke="#5b69ff" stroke-width="2" />
+    <rect x="40" y="52" width="640" height="90" rx="18" fill="#12234b" stroke="#5fffd4" stroke-width="2" />
+    <text x="70" y="108" class="label">HIGHLIGHT QUEUE</text>
+    <text x="70" y="140" class="caption">MODULAR STACK • TRIPLE CLIP PREVIEW</text>
+    <g transform="translate(70,190)">
+      <rect width="170" height="190" rx="18" fill="#131f38" stroke="#6cf7ff" stroke-width="2" />
+      <text x="85" y="240" class="caption" text-anchor="middle">OVERTAKE</text>
+    </g>
+    <g transform="translate(270,190)">
+      <rect width="170" height="190" rx="18" fill="#131f38" stroke="#ff9c3a" stroke-width="2" />
+      <text x="85" y="240" class="caption" text-anchor="middle">CRASH</text>
+    </g>
+    <g transform="translate(470,190)">
+      <rect width="170" height="190" rx="18" fill="#131f38" stroke="#b585ff" stroke-width="2" />
+      <text x="85" y="240" class="caption" text-anchor="middle">REPLAY</text>
+    </g>
+    <text x="70" y="410" class="caption">INCLUDES TIMELINE TAGS, AUTO-PLAY + MANUAL TRIGGER STATES</text>
+  </g>
+
+  <!-- Stream Deck Actions -->
+  <g transform="translate(860,380)">
+    <rect width="660" height="440" rx="26" fill="#0c1329" stroke="#5fffd4" stroke-width="2" />
+    <text x="60" y="80" class="label">STREAM DECK ACTION GRID</text>
+    <text x="60" y="110" class="caption">SHORTCUTS FOR BUMPERS, FLAGS, CAMERA PRESETS</text>
+    <g transform="translate(60,150)">
+      <rect width="160" height="160" rx="22" fill="#14254b" stroke="#6cf7ff" stroke-width="2" />
+      <text x="80" y="90" font-size="54" text-anchor="middle" fill="#5fffd4">CUT</text>
+    </g>
+    <g transform="translate(260,150)">
+      <rect width="160" height="160" rx="22" fill="#1a1f3c" stroke="#ff9c3a" stroke-width="2" />
+      <text x="80" y="90" font-size="54" text-anchor="middle" fill="#ff9c3a">YEL</text>
+    </g>
+    <g transform="translate(460,150)">
+      <rect width="160" height="160" rx="22" fill="#141b31" stroke="#b585ff" stroke-width="2" />
+      <text x="80" y="90" font-size="54" text-anchor="middle" fill="#b585ff">INT</text>
+    </g>
+    <text x="60" y="350" class="caption">SCENE MACROS • OSC ROUTING • CHAT ALERT HOOKS</text>
+    <rect x="60" y="370" width="540" height="40" rx="12" fill="#141e36" stroke="#5fffd4" stroke-width="1.5" />
+    <text x="330" y="397" class="caption" text-anchor="middle">OBS PROFILE • WEBSOCKET CHANNEL • AUTOMATION STACK</text>
+  </g>
+</svg>

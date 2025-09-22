@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="420" viewBox="0 0 1320 420" role="img" aria-labelledby="title desc">
+  <title id="title">Spacer-X Expansion Track Atmospheres</title>
+  <desc id="desc">Widescreen-Atmosphären für Pulse Convergence, Nebula Thalassa und Eclipse Bastion.</desc>
+  <defs>
+    <linearGradient id="pulseBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#111827"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="pulseAurora" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#4f46e5" stop-opacity="0"/>
+      <stop offset="55%" stop-color="#a855f7" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="thalassaBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#082f2f"/>
+      <stop offset="100%" stop-color="#052e21"/>
+    </linearGradient>
+    <linearGradient id="thalassaGlow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#22d3ee" stop-opacity="0"/>
+      <stop offset="60%" stop-color="#34d399" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#bef264" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="bastionBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a1d0b"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="bastionGlow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#fb923c" stop-opacity="0"/>
+      <stop offset="55%" stop-color="#f97316" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#facc15" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(40 40)">
+    <rect width="380" height="320" rx="28" fill="url(#pulseBg)"/>
+    <rect width="380" height="320" rx="28" fill="url(#pulseAurora)" opacity="0.7"/>
+    <g fill="#22d3ee" opacity="0.5">
+      <path d="M30 220 C120 180 180 210 260 170 S360 180 360 180" stroke="#7c3aed" stroke-width="4" fill="none"/>
+      <rect x="70" y="240" width="240" height="18" rx="9" fill="#0ea5e9" opacity="0.6"/>
+      <rect x="110" y="260" width="156" height="12" rx="6" fill="#22d3ee" opacity="0.5"/>
+    </g>
+    <g fill="#c4b5fd" font-family="'Orbitron', sans-serif" letter-spacing="0.24em">
+      <text x="42" y="92" font-size="28">PULSE CONVERGENCE</text>
+      <text x="42" y="124" font-size="16" letter-spacing="0.32em">HARMONIC ARRAY RIDGE</text>
+    </g>
+  </g>
+  <g transform="translate(460 40)">
+    <rect width="380" height="320" rx="28" fill="url(#thalassaBg)"/>
+    <rect width="380" height="320" rx="28" fill="url(#thalassaGlow)" opacity="0.65"/>
+    <g fill="#34d399" opacity="0.55">
+      <path d="M32 230 C120 184 186 210 246 172 S360 190 360 190" stroke="#22d3ee" stroke-width="4" fill="none"/>
+      <rect x="72" y="248" width="240" height="22" rx="11" fill="#2dd4bf"/>
+      <rect x="108" y="276" width="164" height="12" rx="6" fill="#22d3ee" opacity="0.5"/>
+    </g>
+    <g fill="#bbf7d0" font-family="'Orbitron', sans-serif" letter-spacing="0.24em">
+      <text x="42" y="92" font-size="28">NEBULA THALASSA</text>
+      <text x="42" y="124" font-size="16" letter-spacing="0.32em">ABYSSAL TURBINE COLONNADE</text>
+    </g>
+  </g>
+  <g transform="translate(880 40)">
+    <rect width="380" height="320" rx="28" fill="url(#bastionBg)"/>
+    <rect width="380" height="320" rx="28" fill="url(#bastionGlow)" opacity="0.68"/>
+    <g fill="#fb923c" opacity="0.58">
+      <path d="M40 220 C118 176 186 208 248 162 S360 184 360 184" stroke="#f97316" stroke-width="4" fill="none"/>
+      <rect x="80" y="242" width="240" height="20" rx="10" fill="#f97316"/>
+      <rect x="120" y="268" width="160" height="12" rx="6" fill="#fbbf24" opacity="0.6"/>
+    </g>
+    <g fill="#fed7aa" font-family="'Orbitron', sans-serif" letter-spacing="0.24em">
+      <text x="42" y="92" font-size="28">ECLIPSE BASTION</text>
+      <text x="42" y="124" font-size="16" letter-spacing="0.32em">SOLAR APEX RAMPART</text>
+    </g>
+  </g>
+</svg>
