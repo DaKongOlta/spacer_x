@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1380" height="380" viewBox="0 0 1380 380" role="img" aria-labelledby="title desc">
+  <title id="title">Spacer-X Expansion Track Posters</title>
+  <desc id="desc">Triptychon mit drei neuen Kurspostern der zweiten Expansionswelle.</desc>
+  <defs>
+    <linearGradient id="pulseSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#05081c"/>
+      <stop offset="100%" stop-color="#312e81"/>
+    </linearGradient>
+    <linearGradient id="pulseGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#818cf8" stop-opacity="0"/>
+      <stop offset="60%" stop-color="#6366f1" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="thalassaSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#001f29"/>
+      <stop offset="100%" stop-color="#0f766e"/>
+    </linearGradient>
+    <linearGradient id="thalassaGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22d3ee" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#34d399" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="#bef264" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="bastionSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2d0a0a"/>
+      <stop offset="100%" stop-color="#f97316"/>
+    </linearGradient>
+    <linearGradient id="bastionGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0"/>
+      <stop offset="55%" stop-color="#fb923c" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="posterHighlight" cx="0.5" cy="0.3" r="0.7">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="starfield" width="12" height="12" patternUnits="userSpaceOnUse">
+      <rect width="12" height="12" fill="none"/>
+      <circle cx="2" cy="4" r="1.1" fill="#e0f2fe" opacity="0.6"/>
+      <circle cx="8" cy="6" r="0.8" fill="#bae6fd" opacity="0.55"/>
+      <circle cx="6" cy="10" r="0.7" fill="#c4b5fd" opacity="0.4"/>
+    </pattern>
+  </defs>
+  <g transform="translate(40 40)">
+    <rect width="380" height="300" rx="26" fill="url(#pulseSky)"/>
+    <rect width="380" height="300" rx="26" fill="url(#pulseGlow)" opacity="0.8"/>
+    <rect x="26" y="34" width="328" height="232" rx="20" fill="url(#starfield)" opacity="0.3"/>
+    <g fill="none" stroke="#c7d2fe" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M72 234 C126 120 184 156 222 126 S304 148 320 218" opacity="0.85"/>
+      <path d="M108 220 C150 170 206 162 248 134" stroke-dasharray="12 10" opacity="0.65"/>
+      <circle cx="222" cy="126" r="9" fill="#a5b4fc"/>
+      <circle cx="320" cy="218" r="9" fill="#a5b4fc"/>
+    </g>
+    <text x="40" y="88" fill="#c7d2fe" font-family="'Orbitron', sans-serif" font-size="32" letter-spacing="0.28em">PULSE</text>
+    <text x="40" y="128" fill="#e0e7ff" font-family="'Orbitron', sans-serif" font-size="24" letter-spacing="0.3em">CONVERGENCE</text>
+    <text x="40" y="166" fill="#dbeafe" font-family="'Rajdhani', sans-serif" font-size="15" opacity="0.82">Resonant Gateways · Harmonic Apex · Tri-Singularity Split</text>
+  </g>
+  <g transform="translate(480 40)">
+    <rect width="380" height="300" rx="26" fill="url(#thalassaSky)"/>
+    <rect width="380" height="300" rx="26" fill="url(#thalassaGlow)" opacity="0.75"/>
+    <rect x="26" y="34" width="328" height="232" rx="20" fill="#0f172a" opacity="0.25"/>
+    <g fill="none" stroke="#5eead4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M68 230 C132 150 168 162 220 108 S310 138 326 214" opacity="0.88"/>
+      <path d="M104 216 Q162 164 210 150 T300 184" stroke-dasharray="11 9" opacity="0.6"/>
+      <circle cx="220" cy="108" r="9" fill="#34d399"/>
+      <circle cx="326" cy="214" r="9" fill="#34d399"/>
+    </g>
+    <text x="40" y="88" fill="#99f6e4" font-family="'Orbitron', sans-serif" font-size="32" letter-spacing="0.24em">NEBULA</text>
+    <text x="40" y="128" fill="#a7f3d0" font-family="'Orbitron', sans-serif" font-size="24" letter-spacing="0.32em">THALASSA</text>
+    <text x="40" y="166" fill="#ccfbf1" font-family="'Rajdhani', sans-serif" font-size="15" opacity="0.82">Boreal Tides · Siltfall Basin · Leviathan Vault Loop</text>
+  </g>
+  <g transform="translate(920 40)">
+    <rect width="380" height="300" rx="26" fill="url(#bastionSky)"/>
+    <rect width="380" height="300" rx="26" fill="url(#bastionGlow)" opacity="0.78"/>
+    <rect x="26" y="34" width="328" height="232" rx="20" fill="#ffffff" opacity="0.1"/>
+    <g fill="none" stroke="#fed7aa" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M80 232 C140 130 198 142 236 110 S312 150 324 220" opacity="0.9"/>
+      <path d="M118 216 C168 168 210 164 254 142" stroke-dasharray="10 8" opacity="0.6"/>
+      <circle cx="236" cy="110" r="9" fill="#fb923c"/>
+      <circle cx="324" cy="220" r="9" fill="#fb923c"/>
+    </g>
+    <text x="40" y="88" fill="#fed7aa" font-family="'Orbitron', sans-serif" font-size="32" letter-spacing="0.3em">ECLIPSE</text>
+    <text x="40" y="128" fill="#ffedd5" font-family="'Orbitron', sans-serif" font-size="24" letter-spacing="0.34em">BASTION</text>
+    <text x="40" y="166" fill="#ffe4e6" font-family="'Rajdhani', sans-serif" font-size="15" opacity="0.82">Citadel Canopies · Solar Lance Drop · Ember Phalanx</text>
+  </g>
+</svg>

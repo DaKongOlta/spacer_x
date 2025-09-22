@@ -29,10 +29,17 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 18 Strecken (u. a. Atlas Skywa
 - `assets/dlc_pack/dlc_space_gliders.svg` – Pixel-Garage mit Photon Lynx, Nebula Aegis & Meteor Viper inkl. Spec-Notes
 - `assets/dlc_pack/dlc_broadcast_overlay_kit.svg` – Overlay-Paket (Lower Third, Pit Panel, Intro-Bumper) für TV-Produktionen
 - `assets/dlc_pack/dlc_team_logos.svg` – Neues Crest-Set (Lynx Pulse, Orbit Seraph, Verdant Arrow, Nova Mirror, Quantum Warden, Ember Vector)
+- `assets/expansion_wave2/` – Expansion-Welle-2-Ordner mit neuen Track-Postern, Atmosphären, Pixel-Gleitern, Wappen & Broadcast-Overlays
+- `assets/expansion_wave2/track_posters_wave2.svg` – Poster-Trio für Pulse Convergence, Nebula Thalassa & Eclipse Bastion
+- `assets/expansion_wave2/space_glider_pixelart_wave2.svg` – Pixel-Sheet für Spectral Hydra, Ion Peregrine & Lumen Cyclone
+- `assets/expansion_wave2/team_crests_wave2.svg` – Crest-Suite für Lyra Sentinels, Cygnus Alchemy, Auric Vanguard, Tidal Hermes, Orbit Veil & Photon Virtue
+- `assets/expansion_wave2/broadcast_overlay_wave2.svg` – TV-Overlay-Kit mit Race-Control-, Replay- und Stat-Panels für die Expansionstracks
+- `assets/expansion_wave2/track_atmospheres_wave2.svg` – Skyline-Panels für Pulse Convergence, Nebula Thalassa & Eclipse Bastion
 - `assets/ui/manager_upgrade_icons.svg` – Facility-Icons & Ausbaustufen-Panel für Aero Lab, Dyno Hub, Systems Bay & Pilot Academy
 - `assets/codex/codex_lore_cards.svg` – Codex-Karten für Team-Lore, Fahrerprofile & historische Poster
 - `assets/media/streaming_branding_suite.svg` – Streaming-Bundle mit Musik-Loops, Alert-Frames & Chat-Makros
 - `lore/` – Lore-Bibliothek mit Ursprungschronik, Fraktionsprofilen, Dialogfragmenten, Saisonbriefings und Namenslisten für zukünftige Narrative
+- `lore/expansion_tracks.md` – Hintergrunddossiers zu den neuen Expansion-Tracks, Gleitern und Team-Erweiterungen
 
 ## Steuerung
 - Alles per UI (Start/Pause/Replay/Nächstes Rennen)

@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="540" viewBox="0 0 1440 540" role="img" aria-labelledby="title desc">
+  <title id="title">Spacer-X Wave 2 Broadcast Overlay Kit</title>
+  <desc id="desc">Erweiterte TV-Overlays mit modularen Panels für die Expansionstracks.</desc>
+  <defs>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#1f2937" stop-opacity="0.65"/>
+    </linearGradient>
+    <linearGradient id="accentBlue" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+    <linearGradient id="accentAmber" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#f97316"/>
+    </linearGradient>
+    <linearGradient id="accentTeal" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#2dd4bf"/>
+      <stop offset="100%" stop-color="#0ea5e9"/>
+    </linearGradient>
+    <filter id="panelShadow" x="-10%" y="-15%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#0ea5e9" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <rect width="1440" height="540" rx="40" fill="#020617"/>
+  <g transform="translate(60 60)" fill="url(#glass)" stroke="url(#accentBlue)" stroke-width="3" filter="url(#panelShadow)">
+    <rect width="520" height="160" rx="24"/>
+    <rect x="24" y="24" width="472" height="112" rx="20" fill="#020617" opacity="0.45"/>
+    <rect x="24" y="124" width="472" height="12" rx="6" fill="url(#accentBlue)"/>
+  </g>
+  <g transform="translate(620 60)" fill="url(#glass)" stroke="url(#accentAmber)" stroke-width="3" filter="url(#panelShadow)">
+    <rect width="320" height="160" rx="24"/>
+    <rect x="24" y="24" width="272" height="72" rx="18" fill="#020617" opacity="0.45"/>
+    <rect x="24" y="116" width="160" height="24" rx="12" fill="url(#accentAmber)"/>
+    <rect x="192" y="116" width="104" height="24" rx="12" fill="#fb923c" opacity="0.4"/>
+  </g>
+  <g transform="translate(980 60)" fill="url(#glass)" stroke="url(#accentTeal)" stroke-width="3" filter="url(#panelShadow)">
+    <rect width="360" height="160" rx="24"/>
+    <rect x="24" y="24" width="312" height="80" rx="20" fill="#020617" opacity="0.45"/>
+    <rect x="24" y="120" width="312" height="12" rx="6" fill="url(#accentTeal)"/>
+  </g>
+  <g transform="translate(60 260)" fill="url(#glass)" stroke="url(#accentBlue)" stroke-width="3" filter="url(#panelShadow)">
+    <rect width="820" height="160" rx="28"/>
+    <rect x="28" y="28" width="764" height="68" rx="20" fill="#020617" opacity="0.42"/>
+    <rect x="28" y="112" width="360" height="28" rx="14" fill="url(#accentBlue)"/>
+    <rect x="412" y="112" width="200" height="28" rx="14" fill="#4c1d95" opacity="0.4"/>
+    <rect x="624" y="112" width="168" height="28" rx="14" fill="#312e81" opacity="0.4"/>
+  </g>
+  <g transform="translate(920 260)" fill="url(#glass)" stroke="url(#accentAmber)" stroke-width="3" filter="url(#panelShadow)">
+    <rect width="460" height="160" rx="28"/>
+    <rect x="28" y="28" width="404" height="68" rx="20" fill="#020617" opacity="0.42"/>
+    <rect x="28" y="112" width="404" height="28" rx="14" fill="url(#accentAmber)"/>
+  </g>
+  <g font-family="'Orbitron', sans-serif" fill="#e2e8f0" letter-spacing="0.28em" font-size="22">
+    <text x="88" y="132">RACE CONTROL / INCIDENT FEED</text>
+    <text x="640" y="120">HYPER GRID DELTA</text>
+    <text x="1008" y="120">PULSE CHOIR STATS</text>
+    <text x="108" y="332">NEBULA THALASSA · WEATHER: SPECTRAL STORM</text>
+    <text x="948" y="332">OVERTAKE REPLAY · CAMERA: DRONE-05</text>
+  </g>
+  <g font-family="'Rajdhani', sans-serif" fill="#94a3b8" font-size="18">
+    <text x="640" y="160">BUNCHING DELTA 0.42</text>
+    <text x="1012" y="158">PULSE SYNC 98%</text>
+    <text x="108" y="372">TOP SPEED 812 KPH</text>
+    <text x="108" y="400">OVERTAKES 18</text>
+    <text x="108" y="428">SAFETY CAR 1</text>
+    <text x="948" y="368">TIME INDEX 11:38.220</text>
+    <text x="948" y="396">REPLAY DELTA -00:07.420</text>
+  </g>
+</svg>
