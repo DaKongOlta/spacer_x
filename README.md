@@ -38,7 +38,7 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 20 Strecken (u. a. City Grand 
 - Neo-Noir-Backdrops rendern pro Strecke individuelle Skyline-Glows, Sternenfelder und Grid-Linien für mehr Retro-Atmosphäre
 - 24 Fahrer inklusive Free-Agent-Pool, Manager-Transfermarkt und teambezogenen Chassis-Profilen mit zufällig gerollten Fahrzeug-Stats
 - Manager-Modus mit Wochen-Simulation, Vertragsverwaltung, Upgrades, Export/Import (JSON) sowie persistenter Chassis-Anzeige; ein neues Facility-Panel erlaubt Ausbaustufen für Aero-Lab, Dyno Hub, Systems Bay und Pilot Academy, die Budget kosten, Performance-Boons liefern und Fahrermoral/Form beeinflussen
-- Dynamische Wetterprofile (klar/bewölkt/sturm/nacht/ionensturm) mit Event-Briefing, sendefähigem HUD und gespeicherten Rennen-Settings
+- Dynamische, streckengebundene Wetterprofile (klar/bewölkt/sturm/nacht/ionensturm) mit Event-Briefing, sendefähigem HUD und gespeicherten Rennen-Settings
 - TV-Replay mit Zeitachse, Geschwindigkeitswahl und sofortigem Wiedereinstieg in jede Rennphase inklusive Sieg-Podium-Overlay
 - Live-Leaderboard-Overlay auf dem Canvas plus Meldungs-Panel mit Zeitstempeln für Überholungen, Flaggen und Specials
 - Battle-Spotlight blendet engste Duelle mit Gap-Trend (schrumpft/wächst) und Teamfarben im Broadcast-HUD ein

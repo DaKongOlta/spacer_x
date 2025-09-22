@@ -2638,6 +2638,7 @@
     }
   };
   const defaultWeatherBias = { clear: 0.46, overcast: 0.26, storm: 0.12, night: 0.1, ionstorm: 0.06 };
+  const MIN_WEATHER_WEIGHT = 0.001;
 
   const trackGeometryRegistry = {
     oval(t) {
@@ -3057,6 +3058,28 @@ const fallbackTrackData = [
     }
   }
 
+  function normalizeWeatherBias(source) {
+    if (!source || typeof source !== 'object') {
+      return { ...defaultWeatherBias };
+    }
+    const normalized = {};
+    let hasPositive = false;
+    Object.entries(source).forEach(([key, value]) => {
+      const numeric = Number(value);
+      if (!Number.isFinite(numeric)) {
+        return;
+      }
+      normalized[key] = numeric;
+      if (numeric > 0) {
+        hasPositive = true;
+      }
+    });
+    if (!hasPositive) {
+      return { ...defaultWeatherBias };
+    }
+    return normalized;
+  }
+
   function buildTrackEntry(descriptor) {
     if (!descriptor || !descriptor.id) return null;
     const geometryId = descriptor.geometryId || descriptor.id;
@@ -3070,11 +3093,77 @@ const fallbackTrackData = [
       label: descriptor.label,
       theme: descriptor.theme ? { ...descriptor.theme } : undefined,
       traits: descriptor.traits ? { ...descriptor.traits } : {},
-      weatherBias: descriptor.weatherBias ? { ...defaultWeatherBias, ...descriptor.weatherBias } : { ...defaultWeatherBias },
+      weatherBias: normalizeWeatherBias(descriptor.weatherBias),
       lore: descriptor.lore || '',
       geometry: geometryFn,
       backdrop: buildBackdrop(descriptor.backdrop || {})
     };
+  }
+
+  function getTrackWeatherWeights(trackId) {
+    const track = trackCatalog[trackId];
+    if (track && track.weatherBias) {
+      return track.weatherBias;
+    }
+    return { ...defaultWeatherBias };
+  }
+
+  function refreshWeatherOptions(trackId, { preserveCurrent = true, preferredWeather = null, preferLikely = false } = {}) {
+    if (!raceSettings) return currentWeather || 'clear';
+    const targetId = trackId || currentTrackType || raceSettings.track || 'oval';
+    const weights = getTrackWeatherWeights(targetId);
+    const entries = Object.entries(weights)
+      .filter(([key, weight]) => weatherCatalog[key] && Number(weight) > MIN_WEATHER_WEIGHT)
+      .sort((a, b) => Number(b[1]) - Number(a[1]));
+    if (!entries.length) {
+      Object.entries(defaultWeatherBias)
+        .filter(([key, weight]) => weatherCatalog[key] && Number(weight) > MIN_WEATHER_WEIGHT)
+        .sort((a, b) => Number(b[1]) - Number(a[1]))
+        .forEach(entry => entries.push(entry));
+    }
+    let nextValue = null;
+    if (preferredWeather && entries.some(([key]) => key === preferredWeather)) {
+      nextValue = preferredWeather;
+    } else if (preserveCurrent) {
+      const candidate = raceSettings.weather || currentWeather;
+      if (candidate && entries.some(([key]) => key === candidate)) {
+        nextValue = candidate;
+      }
+    }
+    if (!nextValue) {
+      if (preferLikely && entries.length) {
+        nextValue = entries[0][0];
+      } else if (entries.length) {
+        nextValue = entries[0][0];
+      } else {
+        nextValue = 'clear';
+      }
+    }
+
+    if (weatherSetting) {
+      const fragment = document.createDocumentFragment();
+      entries.forEach(([key]) => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = weatherCatalog[key]?.label || key;
+        if (key === nextValue) option.selected = true;
+        fragment.appendChild(option);
+      });
+      weatherSetting.innerHTML = '';
+      weatherSetting.appendChild(fragment);
+      if (weatherSetting.options.length) {
+        weatherSetting.value = nextValue;
+      }
+    }
+
+    const resolved = nextValue || 'clear';
+    const previous = raceSettings.weather;
+    currentWeather = resolved;
+    raceSettings.weather = resolved;
+    if (previous !== resolved) {
+      persistRaceSettings();
+    }
+    return resolved;
   }
 
   function applyTrackData(trackList) {
@@ -3169,6 +3258,7 @@ const fallbackTrackData = [
       persistRaceSettings();
     }
     populateTrackOptions(currentTrackType);
+    refreshWeatherOptions(currentTrackType, { preserveCurrent: true });
     updateActiveTrackTraits();
     rebuildMini();
     refreshOddsTable();
@@ -3230,6 +3320,7 @@ const fallbackTrackData = [
     startProcedureMode = raceSettings.startProc || 'standing';
     activeTrackTraits = getTrackTraits(currentTrackType);
     populateTrackOptions(currentTrackType);
+    refreshWeatherOptions(currentTrackType, { preserveCurrent: true });
     syncRaceSettingControls();
     updateActiveTrackTraits();
     rebuildMini();
@@ -3244,6 +3335,7 @@ const fallbackTrackData = [
     currentTrackType = trackTypeSelect.value;
     raceSettings.track = currentTrackType;
     persistRaceSettings();
+    refreshWeatherOptions(currentTrackType, { preserveCurrent: true });
     updateActiveTrackTraits();
     rebuildMini();
     refreshOddsTable();
@@ -7053,9 +7145,7 @@ const fallbackTrackData = [
       if (trackTypeSelect) trackTypeSelect.value = trackId;
       raceSettings.track = trackId;
       const rolledWeather = rollEventWeather(trackId);
-      currentWeather = rolledWeather;
-      if (weatherSetting) weatherSetting.value = currentWeather;
-      raceSettings.weather = currentWeather;
+      refreshWeatherOptions(trackId, { preserveCurrent: false, preferredWeather: rolledWeather });
       persistRaceSettings();
       updateActiveTrackTraits();
       rebuildMini();
@@ -7183,6 +7273,7 @@ const fallbackTrackData = [
       trackTypeSelect.value = trackId;
     }
     raceSettings.track = trackId;
+    refreshWeatherOptions(trackId, { preserveCurrent: false, preferLikely: true });
     persistRaceSettings();
     updateActiveTrackTraits();
     rebuildMini();
