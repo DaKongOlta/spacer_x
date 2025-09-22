@@ -39,7 +39,11 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 18 Strecken (u. a. Atlas Skywa
 - `assets/codex/codex_lore_cards.svg` – Codex-Karten für Team-Lore, Fahrerprofile & historische Poster
 - `assets/media/streaming_branding_suite.svg` – Streaming-Bundle mit Musik-Loops, Alert-Frames & Chat-Makros
 - `lore/` – Lore-Bibliothek mit Ursprungschronik, Fraktionsprofilen, Dialogfragmenten, Saisonbriefings und Namenslisten für zukünftige Narrative
+- `lore/world_building.md` – Weltkompendium zur Neon-Renaissance-Ära, Fraktionslandschaft und Stimmung der Spacer-X-Zeitlinie
 - `lore/expansion_tracks.md` – Hintergrunddossiers zu den neuen Expansion-Tracks, Gleitern und Team-Erweiterungen
+- `promo_materials/` – Promo- und Artwork-Hub mit Wiki-Struktur und Marketing-Unterlagen
+- `promo_materials/wiki/README.md` – Startseite des Promo-Wikis für Kampagnenplanung, Messaging und Asset-Verlinkung
+- `promo_materials/spacer_x_promo_brochure.md` – Mehrseitiges Brochure-Draft mit Kern-Features, Zielgruppen und Calls-to-Action
 
 ## Steuerung
 - Alles per UI (Start/Pause/Replay/Nächstes Rennen)
