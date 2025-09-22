@@ -1,22 +1,37 @@
 # ROADMAP (Priorisiert)
-## P1 — GP‑Polish & Race‑Control
-- Startaufstellungen: random/staggered/standing per Rennen
-- State‑Machine: GREEN → YELLOW → (SC) → RESTART → GREEN
-- Bunching‑Parameter & Release‑Trigger; klare Banner/Overlays
 
-## P2 — TV & Broadcast
-- Sektoren‑Splits (S1/S2/S3) mit PB/FL‑Highlight
-- Stetiges Leaderboard‑Widget, Gap‑Bar (+/‑ Farbcode)
-- Mini‑Map: Leader‑Marke, Sector‑Lines
+## P1 — GP‑Polish & Race‑Control (⚙️ In Arbeit)
+- ✅ Rolling/Standing/Staggered Starts inkl. Grid-Briefing
+- ✅ Restart-Hold mit Give-Back-Audits & Race-Control-Logging
+- ✅ State-Machine GREEN → YELLOW → SC → RESTART → GREEN
+- ✅ Bunching-Tuning & automatische Release-Trigger
+- ✅ Sim-Tuning: Renn-Tempo & Caution-Striktheit als Spielereinstellungen
+- ✅ Race-Control-Verstöße werden im Codex-Archiv mitgestempelt
 
-## P3 — Manager‑/Karriere (v1)
-- Budget, Contracts, Upgrades (wirken auf baseSpeed/consistency/corner penalty)
-- Save/Load: localStorage + JSON Export/Import (Datei)
+## P2 — TV & Broadcast (⚙️ In Arbeit)
+- ✅ Permanent Leaderboard mit Gap-Trend & Leader-Halo
+- ✅ Sektor-Splits (S1/S2/S3) mit PB/FL Highlighting
+- ✅ Incident/Overtake-Banner-Queue & erweiterter Live-Ticker
+- ✅ Battle-Spotlight für engste Duelle mit Trend-Indikator
+- ✅ Safety-Lap-Counter & Pit-Stop-Highlights im Broadcast-Ticker
+- ✅ Timing-Overlay & Replay-Marken für Formation/Restarts
 
-## P4 — Special: Race Betting
-- Quotenmodell aus Fahrer‑Rating + Form
-- Credit‑Balance, Gewinn/Verlust in Results
+## P3 — Manager‑/Karriere v1 (🔜 Nächstes)
+- ✅ Budget, Verträge, Upgrades, Transfermarkt, JSON Export/Import
+- ✅ Facility-Upgrades mit Team-Buffs; Staff-Systeme & Wochen-Schedule Vertiefung folgen
+- ⏳ Saison-Langzeitstatistiken, Rekorde & Patch-kompatible Saves
 
-## P5 — Optik/Assets
-- SVG‑Logo & Icons, Theme‑Polish (Neo‑Noir)
-- Strecken-Farbkodierung, weichere Trails (alpha‑decay)
+## P4 — Special: Race Betting (🧪 Preview)
+- ✅ Quotenmodell aus Fahrerform, Einsatzverwaltung & Auszahlungen
+- ⏳ Bonus-Events, Multi-Bet-Queue & Wettarchiv pro Season
+
+## P5 — Optik & Assets (🎨 Aufbau)
+- ✅ Neo-Noir Hero-Szene, Track-Poster-SVGs & Chassis/Flag-Assets, Theme-Polish
+- ✅ Track-Katalog in `assets/data/tracks.json` ausgelagert (Theme, Traits, Lore, Rotation)
+- ⚙️ Dynamische Track-Backdrops (Himmel, Haze, Parallax-Pulse)
+- ⏳ Sponsor-Pakete, Cinematic Camera Paths & Title Theme Layers
+
+## P6 — Streaming & Creator Tools (🛰️ Neu)
+- ⚙️ Twitch Broadcast Mode (Chat Hooks, OBS Overlay, Community Events)
+- ⚙️ Elgato Stream Deck Plugin mit Rennkontroll-Makros
+- ⏳ OBS WebSocket Automation, Highlight Exporter & Event Timeline
