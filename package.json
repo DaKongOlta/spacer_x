@@ -1,0 +1,15 @@
+{
+  "name": "spacer-x",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "smoke": "node tests/full_smoke.mjs"
+  },
+  "devDependencies": {
+    "puppeteer": "^22.6.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

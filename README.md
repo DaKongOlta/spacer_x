@@ -6,6 +6,13 @@ Futuristisches Top‑Down‑Racing mit TV‑UI, 18 Strecken (u. a. Atlas Skywa
 2. `index.html` im Browser öffnen (oder optional: `python3 -m http.server`)
 3. **Einstellungen**: Strecke & Runden wählen → **Schnelles Rennen** oder **Grand Prix** starten
 
+## Automatischer Smoke-Test
+- **Voraussetzungen:** Node.js ≥ 18, npm und Netzwerkausgang (Puppeteer lädt beim ersten Durchlauf eine Headless-Chromium-Binary).
+- **Installation:** `npm install`
+- **Ausführung:** `npm run smoke`
+
+Das Skript `tests/full_smoke.mjs` startet Spacer‑X in einem lokalen Headless-Chromium, setzt die Broadcast-Intros aus, fährt ein Schnellrennen bis ins Ziel, beendet den ersten Grand-Prix-Lauf und simuliert eine Manager-Woche. Währenddessen werden die relevanten UI-Schaltflächen über `window.spacerxDiagnostics.getControlState()` geprüft, damit Fehler in der Race-Control- und Manager-Progression früh auffallen.
+
 ## Ordner & Dateien
 - `index.html` – UI & Screens (Main Menu, Race, Teams, Settings)
 - `styles.css` – Dark/Neo‑Noir Theme, Banner, Ticker, Mini‑Map

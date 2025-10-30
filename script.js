@@ -262,6 +262,7 @@
       const clone = { ...variant };
       clone.summary = describeVariantProfile(clone);
       return clone;
+    }
     const traits = [];
     if (variant.engine > 1.05 || variant.boost > 1.05) traits.push('Top-End Boost');
     if (variant.aero > 1.05 || variant.handling > 1.05) traits.push('Kurvengriff');
@@ -598,10 +599,6 @@
       console.warn('manager state save failed', err);
     }
   }
-  if (toggleFocusPanel) {
-    toggleFocusPanel.checked = uiSettings.showFocusPanel;
-  }
-  applyUiSettings();
 
   function ensureFreeAgentPool() {
     if (!managerState || !managerState.teams) return;
@@ -773,7 +770,14 @@
     const base = defaultChassisSpec.geometry;
     if (!geometry || typeof geometry !== 'object') {
       return { ...base };
-  const gpTrackRotation = ['oval', 'atlas', 'solstice', 'mirage', 'lumen'];
+    }
+    return {
+      length: clamp(Number.isFinite(geometry.length) ? geometry.length : base.length, 20, 40),
+      width: clamp(Number.isFinite(geometry.width) ? geometry.width : base.width, 12, 24),
+      nose: clamp(Number.isFinite(geometry.nose) ? geometry.nose : base.nose, 3, 10),
+      canopy: clamp(Number.isFinite(geometry.canopy) ? geometry.canopy : base.canopy, 8, 18)
+    };
+  }
 
   const mainMenu = document.getElementById('mainMenu');
   const raceScreen = document.getElementById('raceScreen');
@@ -812,18 +816,34 @@
   const raceTimeLabel = document.getElementById('raceTimeLabel');
   const resultsLabel = document.getElementById('resultsLabel');
   const teamsList = document.getElementById('teamsList');
+  const contentRoadmapPanel = document.getElementById('contentRoadmap');
+  const integrationRoadmapPanel = document.getElementById('integrationRoadmap');
   const top3Banner = document.getElementById('top3Banner');
+  const restartHoldBanner = document.getElementById('restartHoldBanner');
+  const broadcastIntro = document.getElementById('broadcastIntro');
+  const broadcastIntroHeadline = document.getElementById('broadcastIntroHeadline');
+  const broadcastIntroSummary = document.getElementById('broadcastIntroSummary');
+  const broadcastIntroLeaders = document.getElementById('broadcastIntroLeaders');
+  const broadcastIntroSkip = document.getElementById('broadcastIntroSkip');
   const raceFlag = document.getElementById('raceFlag');
   const highlightTicker = document.getElementById('highlightTicker');
   const leaderboardHud = document.getElementById('leaderboardHud');
   const leaderboardList = leaderboardHud?.querySelector('ol');
+  const liveTickerPanel = document.querySelector('.liveTickerPanel');
   const liveTickerList = document.getElementById('liveTickerList');
   const sessionInfo = document.getElementById('sessionInfo');
   const leaderGapHud = document.getElementById('leaderGapHud');
   const leaderGapLabel = leaderGapHud?.querySelector('.label');
   const leaderGapDelta = leaderGapHud?.querySelector('.delta');
   const leaderGapFill = leaderGapHud?.querySelector('.gapBar .fill');
+  const startLights = document.getElementById('startLights');
+  const startLightBulbs = startLights ? Array.from(startLights.querySelectorAll('.light')) : [];
+  const marshalOverlay = document.getElementById('marshalOverlay');
+  const marshalMessage = document.getElementById('marshalMessage');
   const cameraHud = document.getElementById('cameraHud');
+  const eventBanner = document.getElementById('eventBanner');
+  const eventBannerPrimary = eventBanner?.querySelector('.primary') || null;
+  const eventBannerSecondary = eventBanner?.querySelector('.secondary') || null;
   const sectorWidget = document.getElementById('sectorWidget');
   const fastestLapLabel = document.getElementById('fastestLapLabel');
   const focusDriverPanel = document.getElementById('focusDriverPanel');
@@ -831,6 +851,7 @@
   const focusDriverMeta = document.getElementById('focusDriverMeta');
   const focusDriverStats = document.getElementById('focusDriverStats');
   const focusDriverTrend = document.getElementById('focusDriverTrend');
+  const toggleFocusPanel = document.getElementById('toggleFocusPanel');
   const raceControlPanel = document.getElementById('raceControlPanel');
   const raceControlLog = document.getElementById('raceControlLog');
   const gridIntroOverlay = document.getElementById('gridIntro');
@@ -838,6 +859,7 @@
   const gridIntroMeta = document.getElementById('gridIntroMeta');
   const gridIntroDismiss = document.getElementById('gridIntroDismiss');
   const gridIntroTimer = document.getElementById('gridIntroTimer');
+  const gpStatusCard = document.getElementById('gpStatusCard');
   const replayControls = document.getElementById('replayControls');
   const replayPlayPauseBtn = document.getElementById('replayPlayPause');
   const replayScrubber = document.getElementById('replayScrubber');
@@ -850,6 +872,10 @@
   function setStartButtonState(enabled, label = 'Rennen starten') {
     if (!startRaceBtn) return;
     startRaceBtn.disabled = !enabled;
+    if (typeof startRaceBtn.toggleAttribute === 'function') {
+      startRaceBtn.toggleAttribute('disabled', !enabled);
+    }
+    startRaceBtn.setAttribute('aria-disabled', String(!enabled));
     if (label) {
       startRaceBtn.textContent = label;
     }
@@ -858,15 +884,13 @@
   function setPauseButtonState(enabled, label = 'Pause') {
     if (!pauseRaceBtn) return;
     pauseRaceBtn.disabled = !enabled;
+    if (typeof pauseRaceBtn.toggleAttribute === 'function') {
+      pauseRaceBtn.toggleAttribute('disabled', !enabled);
+    }
+    pauseRaceBtn.setAttribute('aria-disabled', String(!enabled));
     if (label) {
       pauseRaceBtn.textContent = label;
     }
-    return {
-      length: clamp(Number.isFinite(geometry.length) ? geometry.length : base.length, 20, 40),
-      width: clamp(Number.isFinite(geometry.width) ? geometry.width : base.width, 12, 24),
-      nose: clamp(Number.isFinite(geometry.nose) ? geometry.nose : base.nose, 3, 10),
-      canopy: clamp(Number.isFinite(geometry.canopy) ? geometry.canopy : base.canopy, 8, 18)
-    };
   }
 
   function sanitizeGarageSnapshot(data) {
@@ -1045,143 +1069,8 @@
     const gpSnapshot = sanitizeGpSnapshot(snapshot.gp);
     gpTable.clear();
     gpSnapshot.table.forEach(entry => {
+      if (!entry || typeof entry !== 'object' || typeof entry.driver !== 'string') return;
       gpTable.set(entry.driver, entry);
-  function resetRaceControls() {
-    setPauseButtonState(false, 'Pause');
-    setStartButtonState(true, 'Rennen starten');
-    if (replayRaceBtn) {
-      replayRaceBtn.style.display = 'none';
-      replayRaceBtn.textContent = 'Replay';
-    }
-    if (replayControls) {
-      replayControls.classList.add('hidden');
-      replayControls.setAttribute('aria-hidden', 'true');
-    }
-  }
-
-  function hidePodiumOverlay(clear = false) {
-    if (podiumOverlay) {
-      podiumOverlay.classList.add('hidden');
-      podiumOverlay.setAttribute('aria-hidden', 'true');
-    }
-    if (podiumTimer) {
-      clearTimeout(podiumTimer);
-      podiumTimer = null;
-    }
-    if (clear && podiumList) {
-      podiumList.innerHTML = '';
-    }
-  }
-
-  function showPodium(order) {
-    if (!podiumOverlay || !podiumList) return;
-    podiumList.innerHTML = '';
-    if (!Array.isArray(order) || order.length === 0) {
-      hidePodiumOverlay(true);
-      return;
-    }
-    const leader = order[0];
-    const medals = ['gold', 'silver', 'bronze'];
-    const frag = document.createDocumentFragment();
-    order.slice(0, 3).forEach((car, idx) => {
-      if (!car) return;
-      const li = document.createElement('li');
-      if (medals[idx]) li.classList.add(medals[idx]);
-      const pos = document.createElement('span');
-      pos.className = 'pos';
-      pos.textContent = `${idx + 1}.`;
-      const meta = document.createElement('div');
-      meta.className = 'meta';
-      const name = document.createElement('strong');
-      name.textContent = `#${car.racingNumber} ${car.driver}`;
-      name.style.color = car.color;
-      const team = document.createElement('span');
-      team.textContent = car.team;
-      const detail = document.createElement('span');
-      if (idx === 0) {
-        detail.textContent = car.finishTime != null ? `Gesamt: ${formatTime(car.finishTime)}` : 'Gesamt: --';
-      } else if (leader && leader.finishTime != null && car.finishTime != null) {
-        const gap = Math.max(0, car.finishTime - leader.finishTime);
-        detail.textContent = `Gap: +${formatGap(gap)}s`;
-      } else {
-        detail.textContent = 'Gap: --';
-      }
-      meta.appendChild(name);
-      meta.appendChild(team);
-      meta.appendChild(detail);
-      li.appendChild(pos);
-      li.appendChild(meta);
-      frag.appendChild(li);
-    });
-    podiumList.appendChild(frag);
-    podiumOverlay.classList.remove('hidden');
-    podiumOverlay.setAttribute('aria-hidden', 'false');
-    if (podiumTimer) clearTimeout(podiumTimer);
-    podiumTimer = setTimeout(() => hidePodiumOverlay(false), 8000);
-  }
-
-  function stopReplay(resetView = true) {
-    if (replayRafId) {
-      cancelAnimationFrame(replayRafId);
-      replayRafId = 0;
-    }
-    replayActive = false;
-    replayPlaying = false;
-    replayAccumulator = 0;
-    replayLastTimestamp = 0;
-    if (replayControls) {
-      replayControls.classList.add('hidden');
-      replayControls.setAttribute('aria-hidden', 'true');
-    }
-    if (replayPlayPauseBtn) {
-      replayPlayPauseBtn.textContent = '▶︎';
-      replayPlayPauseBtn.setAttribute('aria-label', 'Replay abspielen');
-    }
-    if (replayRaceBtn) {
-      replayRaceBtn.textContent = 'Replay ansehen';
-    }
-    if (sessionInfo && replaySessionInfoCache) {
-      sessionInfo.textContent = replaySessionInfoCache.text || '';
-      sessionInfo.classList.toggle('hidden', replaySessionInfoCache.hidden);
-      replaySessionInfoCache = null;
-    }
-    if (resetView) {
-      drawScene();
-      updateSessionInfo();
-    }
-  }
-
-  function clearReplayData() {
-    stopReplay(false);
-    replayBuffer.length = 0;
-    replayMeta = new Map();
-    replayCarState = new Map();
-    replayCursor = 0;
-    replayAccumulator = 0;
-    replayAppliedIndex = -1;
-    replayTotalDuration = 0;
-    if (replayScrubber) {
-      replayScrubber.value = '0';
-      replayScrubber.max = '1';
-    }
-    if (replayTimeLabel) {
-      replayTimeLabel.textContent = '0,0s / 0,0s';
-    }
-  }
-
-  function prepareReplayMeta() {
-    replayMeta = new Map();
-    cars.forEach(car => {
-      replayMeta.set(car.id, {
-        id: car.id,
-        driver: car.driver,
-        team: car.team,
-        racingNumber: car.racingNumber,
-        color: car.color,
-        baseSpeed: car.baseSpeed,
-        profile: car.profile,
-        bodyGeometry: car.bodyGeometry || defaultChassisSpec.geometry
-      });
     });
     gpRaceIndex = gpSnapshot.raceIndex;
     gpActive = gpSnapshot.active;
@@ -1253,129 +1142,12 @@
     renderTeams();
   }
 
-  const mainMenu = document.getElementById('mainMenu');
-  const raceScreen = document.getElementById('raceScreen');
-  const teamsScreen = document.getElementById('teamsScreen');
-  const managerScreen = document.getElementById('managerScreen');
-  const bettingScreen = document.getElementById('bettingScreen');
-  const codexScreen = document.getElementById('codexScreen');
-  const settingsScreen = document.getElementById('settingsScreen');
-
-  const newRaceBtn = document.getElementById('newRaceBtn');
-  const grandPrixBtn = document.getElementById('grandPrixBtn');
-  const resumeGrandPrixBtn = document.getElementById('resumeGrandPrixBtn');
-  const gpStatusCard = document.getElementById('grandPrixStatusCard');
-  const gpStatusMeta = document.getElementById('gpStatusMeta');
-  const gpStatusTrack = document.getElementById('gpStatusTrack');
-  const gpStatusWeather = document.getElementById('gpStatusWeather');
-  const gpStatusStandings = document.getElementById('gpStatusStandings');
-  const gpStatusEmpty = document.getElementById('gpStatusEmpty');
-  const managerBtn = document.getElementById('managerBtn');
-  const bettingBtn = document.getElementById('bettingBtn');
-  const teamsBtn = document.getElementById('teamsBtn');
-  const codexBtn = document.getElementById('codexBtn');
-  const settingsBtn = document.getElementById('settingsBtn');
-
-  const backToMenuFromRace = document.getElementById('backToMenuFromRace');
-  const backToMenuFromTeams = document.getElementById('backToMenuFromTeams');
-  const backToMenuFromManager = document.getElementById('backToMenuFromManager');
-  const backToMenuFromBetting = document.getElementById('backToMenuFromBetting');
-  const backToMenuFromCodex = document.getElementById('backToMenuFromCodex');
-  const backToMenuFromSettings = document.getElementById('backToMenuFromSettings');
-
-  const canvas = document.getElementById('raceCanvas');
-  const ctx = canvas.getContext('2d');
-  const miniMap = document.getElementById('miniMapCanvas');
-  const mm = miniMap.getContext('2d');
-  const canvasWrap = document.querySelector('.canvasWrap');
-  const startRaceBtn = document.getElementById('startRaceBtn');
-  const pauseRaceBtn = document.getElementById('pauseRaceBtn');
-  const replayRaceBtn = document.getElementById('replayRaceBtn');
-  const nextRaceBtn = document.getElementById('nextRaceBtn');
-  const telemetryList = document.getElementById('telemetryList');
-  const lapInfoLabel = document.getElementById('lapInfoLabel');
-  const raceTimeLabel = document.getElementById('raceTimeLabel');
-  const resultsLabel = document.getElementById('resultsLabel');
-  const teamsList = document.getElementById('teamsList');
-  const contentRoadmapPanel = document.getElementById('contentRoadmap');
-  const integrationRoadmapPanel = document.getElementById('integrationRoadmap');
-  const top3Banner = document.getElementById('top3Banner');
-  const restartHoldBanner = document.getElementById('restartHoldBanner');
-  const broadcastIntro = document.getElementById('broadcastIntro');
-  const broadcastIntroHeadline = document.getElementById('broadcastIntroHeadline');
-  const broadcastIntroSummary = document.getElementById('broadcastIntroSummary');
-  const broadcastIntroLeaders = document.getElementById('broadcastIntroLeaders');
-  const broadcastIntroSkip = document.getElementById('broadcastIntroSkip');
-  const raceFlag = document.getElementById('raceFlag');
-  const highlightTicker = document.getElementById('highlightTicker');
-  const leaderboardHud = document.getElementById('leaderboardHud');
-  const leaderboardList = leaderboardHud?.querySelector('ol');
-  const liveTickerList = document.getElementById('liveTickerList');
-  const liveTickerPanel = document.querySelector('.liveTickerPanel');
-  const sessionInfo = document.getElementById('sessionInfo');
-  const leaderGapHud = document.getElementById('leaderGapHud');
-  const leaderGapLabel = leaderGapHud?.querySelector('.label');
-  const leaderGapDelta = leaderGapHud?.querySelector('.delta');
-  const leaderGapFill = leaderGapHud?.querySelector('.gapBar .fill');
-  const startLights = document.getElementById('startLights');
-  const startLightBulbs = startLights ? Array.from(startLights.querySelectorAll('.light')) : [];
-  const marshalOverlay = document.getElementById('marshalOverlay');
-  const marshalMessage = document.getElementById('marshalMessage');
-  const cameraHud = document.getElementById('cameraHud');
-  const eventBanner = document.getElementById('eventBanner');
-  const eventBannerPrimary = eventBanner?.querySelector('.primary') || null;
-  const eventBannerSecondary = eventBanner?.querySelector('.secondary') || null;
-  const sectorWidget = document.getElementById('sectorWidget');
-  const fastestLapLabel = document.getElementById('fastestLapLabel');
-  const focusDriverPanel = document.getElementById('focusDriverPanel');
-  const focusDriverName = document.getElementById('focusDriverName');
-  const focusDriverMeta = document.getElementById('focusDriverMeta');
-  const focusDriverStats = document.getElementById('focusDriverStats');
-  const focusDriverTrend = document.getElementById('focusDriverTrend');
-  const raceControlPanel = document.getElementById('raceControlPanel');
-  const raceControlLog = document.getElementById('raceControlLog');
-  const gridIntroOverlay = document.getElementById('gridIntro');
-  const gridIntroList = document.getElementById('gridIntroList');
-  const gridIntroMeta = document.getElementById('gridIntroMeta');
-  const gridIntroDismiss = document.getElementById('gridIntroDismiss');
-  const gridIntroTimer = document.getElementById('gridIntroTimer');
-  const replayControls = document.getElementById('replayControls');
-  const replayPlayPauseBtn = document.getElementById('replayPlayPause');
-  const replayScrubber = document.getElementById('replayScrubber');
-  const replayTimeLabel = document.getElementById('replayTimeLabel');
-  const replaySpeedSelect = document.getElementById('replaySpeed');
-  const podiumOverlay = document.getElementById('podiumOverlay');
-  const podiumList = document.getElementById('podiumList');
-  const podiumCloseBtn = document.getElementById('podiumCloseBtn');
   let marshalHideTimer = null;
+  let startLightClearTimer = null;
   let titleThemeStarted = false;
   let titleThemeArmed = false;
   let titleThemeGain = null;
   let titleThemeSources = [];
-
-  function setStartButtonState(enabled, label = 'Rennen starten') {
-    if (!startRaceBtn) return;
-    startRaceBtn.disabled = !enabled;
-    if (typeof startRaceBtn.toggleAttribute === 'function') {
-      startRaceBtn.toggleAttribute('disabled', !enabled);
-    }
-    startRaceBtn.setAttribute('aria-disabled', String(!enabled));
-    if (label) {
-      startRaceBtn.textContent = label;
-    }
-  }
-
-  function setPauseButtonState(enabled, label = 'Pause') {
-    if (!pauseRaceBtn) return;
-    pauseRaceBtn.disabled = !enabled;
-    if (typeof pauseRaceBtn.toggleAttribute === 'function') {
-      pauseRaceBtn.toggleAttribute('disabled', !enabled);
-    }
-    pauseRaceBtn.setAttribute('aria-disabled', String(!enabled));
-    if (label) {
-      pauseRaceBtn.textContent = label;
-    }
-  }
 
   function clearHighlightTickerClasses() {
     if (!highlightTicker) return;
@@ -2183,7 +1955,6 @@
   const startProc = document.getElementById('startProc');
   const weatherSetting = document.getElementById('weatherSetting');
   const toggleRaceControl = document.getElementById('toggleRaceControl');
-  const toggleFocusPanel = document.getElementById('toggleFocusPanel');
   const toggleMiniMap = document.getElementById('toggleMiniMap');
   const toggleBroadcastIntro = document.getElementById('toggleBroadcastIntro');
   const toggleTicker = document.getElementById('toggleTicker');
@@ -2234,21 +2005,14 @@
   const wipeProfileBtn = document.getElementById('wipeProfileBtn');
   const settingsNotice = document.getElementById('settingsNotice');
 
-  const uiSettings = loadUiSettings();
-  syncUiSettingControls();
-  applyUiSettings();
-  armTitleThemeTrigger();
-  resetLiveTicker();
-  updateLeaderboardHud([]);
-  resetRaceControls();
-
-  let raceSettings = loadRaceSettings();
-  let currentTrackType = raceSettings.track || 'oval';
-  let totalLaps = Number.isFinite(raceSettings.laps) ? raceSettings.laps : 15;
-  let aiLevel = raceSettings.ai || 'normal';
-  let currentWeather = raceSettings.weather || 'clear';
-  let startProcedureMode = raceSettings.startProc || 'standing';
-  let activeTrackTraits = getTrackTraits(currentTrackType);
+  let uiSettings;
+  let raceSettings;
+  let currentTrackType = 'oval';
+  let totalLaps = 15;
+  let aiLevel = 'normal';
+  let currentWeather = 'clear';
+  let startProcedureMode = 'standing';
+  let activeTrackTraits = null;
   let currentVisualTheme = null;
   let lastTelemetryOrder = [];
   const raceControlEvents = [];
@@ -2264,8 +2028,6 @@
   const flowAudit = [];
   const leaderboardGapHistory = new Map();
   let settingsNoticeTimer = null;
-
-  syncRaceSettingControls();
 
   trackTypeSelect?.addEventListener('change', () => {
     currentTrackType = trackTypeSelect.value;
@@ -2516,7 +2278,6 @@
   const jumpStartWarnings = new Set();
   let jumpStartArmed = false;
   let startLightsActiveTotal = 5;
-  let startLightClearTimer = null;
   let audioCtx = null;
 
   function getRacePaceMultiplier() {
@@ -7149,6 +6910,57 @@
     startRace();
   });
 
+  function isElementVisible(element) {
+    if (!element) return false;
+    if (element.hidden) return false;
+    const style = window.getComputedStyle(element);
+    if (style.display === 'none' || style.visibility === 'hidden') return false;
+    if (parseFloat(style.opacity || '1') === 0) return false;
+    if (element.closest('[aria-hidden="true"]')) return false;
+    const rect = element.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
+  }
+
+  function getButtonDiagnostics(element) {
+    if (!element) return null;
+    const text = (element.textContent || '').replace(/\s+/g, ' ').trim();
+    const disabled = !!element.disabled;
+    return {
+      text,
+      disabled,
+      enabled: !disabled,
+      visible: isElementVisible(element)
+    };
+  }
+
+  function initializeAppState() {
+    uiSettings = loadUiSettings();
+    syncUiSettingControls();
+    applyUiSettings();
+    armTitleThemeTrigger();
+    resetLiveTicker();
+
+    raceSettings = loadRaceSettings();
+    currentTrackType = raceSettings.track || 'oval';
+    totalLaps = Number.isFinite(raceSettings.laps) ? raceSettings.laps : 15;
+    aiLevel = raceSettings.ai || 'normal';
+    currentWeather = raceSettings.weather || 'clear';
+    startProcedureMode = raceSettings.startProc || 'standing';
+    activeTrackTraits = getTrackTraits(currentTrackType);
+    currentVisualTheme = null;
+    lastTelemetryOrder = [];
+
+    updateEventBriefing();
+    updateActiveTrackTraits();
+    rebuildMini();
+    refreshOddsTable();
+    updateLeaderboardHud([]);
+    syncRaceSettingControls();
+    resetRaceControls();
+  }
+
+  initializeAppState();
+
   if (typeof window !== 'undefined') {
     window.spacerxDiagnostics = {
       getPhaseTimeline: () => phaseTimeline.map(entry => {
@@ -7173,6 +6985,54 @@
       reset: () => {
         phaseTimeline.length = 0;
         flowAudit.length = 0;
+      },
+      getControlState: () => {
+        const activeScreen = document.querySelector('.screen.active');
+        const managerSnapshot = managerState || {};
+        return {
+          screen: activeScreen?.id || null,
+          mode: currentMode || null,
+          race: {
+            phase: racePhase,
+            active: !!raceActive,
+            countdown: !!countdownRunning,
+            finished: racePhase === 'FINISHED' && !raceActive,
+            totalLaps,
+            lapLabel: lapInfoLabel?.textContent || null,
+            sessionBanner: sessionInfo?.classList.contains('hidden') ? null : (sessionInfo?.textContent || null),
+            timelineEntries: phaseTimeline.length
+          },
+          gp: {
+            active: !!gpActive,
+            raceIndex: gpRaceIndex,
+            totalRaces: GP_RACES,
+            nextRaceReady: !!(getButtonDiagnostics(nextRaceBtn)?.visible),
+            hasProgress: hasGrandPrixProgress()
+          },
+          manager: {
+            seasonYear: managerSnapshot.seasonYear ?? null,
+            week: managerSnapshot.week ?? null,
+            selectedTeam: managerSnapshot.selectedTeam ?? null
+          },
+          buttons: {
+            newRace: getButtonDiagnostics(newRaceBtn),
+            grandPrix: getButtonDiagnostics(grandPrixBtn),
+            resumeGrandPrix: getButtonDiagnostics(resumeGrandPrixBtn),
+            startRace: getButtonDiagnostics(startRaceBtn),
+            pauseRace: getButtonDiagnostics(pauseRaceBtn),
+            replayRace: getButtonDiagnostics(replayRaceBtn),
+            nextRace: getButtonDiagnostics(nextRaceBtn),
+            managerWeek: getButtonDiagnostics(advanceManagerWeekBtn),
+            managerStart: getButtonDiagnostics(managerStartRaceBtn),
+            backToMenuFromRace: getButtonDiagnostics(backToMenuFromRace),
+            backToMenuFromManager: getButtonDiagnostics(backToMenuFromManager)
+          },
+          overlays: {
+            broadcastIntro: isElementVisible(broadcastIntro),
+            gridIntro: isElementVisible(gridIntroOverlay),
+            podium: isElementVisible(podiumOverlay)
+          }
+        };
       }
     };
   }
