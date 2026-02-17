@@ -12,6 +12,7 @@
     history: 'spacerx_race_history'
   };
   const PROFILE_EXPORT_VERSION = '0.9.0-demo';
+  const MANAGER_SAVE_VERSION = 1;
 
   const allTeamNames = [
     "Apex Nova","VoltWorks","Nebula GP","Quantum Edge","Zenith Motors","HyperFlux",
@@ -447,6 +448,14 @@
     };
   }
 
+  function createDefaultSponsors() {
+    return {
+      primary: [],
+      secondary: [],
+      partners: []
+    };
+  }
+
   function clampFacilityLevel(value) {
     return clamp(Math.round(value ?? 0), 0, MAX_FACILITY_LEVEL);
   }
@@ -463,9 +472,22 @@
     return sanitized;
   }
 
+  function sanitizeSponsors(input) {
+    const defaults = createDefaultSponsors();
+    if (!input || typeof input !== 'object') {
+      return { ...defaults };
+    }
+    const sanitized = {};
+    Object.keys(defaults).forEach(key => {
+      sanitized[key] = Array.isArray(input[key]) ? input[key].slice() : [];
+    });
+    return sanitized;
+  }
+
   function createDefaultManagerState() {
     const state = {
       version: 3,
+      saveVersion: MANAGER_SAVE_VERSION,
       seasonYear: 1,
       week: 1,
       selectedTeam: defaultRosters[0].team,
@@ -488,6 +510,7 @@
         budget: template.budget,
         upgrades: { engine: 0, aero: 0, systems: 0 },
         facilities: createDefaultFacilities(),
+        sponsors: createDefaultSponsors(),
         roster,
         form: 0
       };
@@ -502,16 +525,132 @@
     return state;
   }
 
+  const MANAGER_MIGRATIONS = new Map([
+    [
+      0,
+      state => {
+        const defaults = createDefaultManagerState();
+        if (!state || typeof state !== 'object') {
+          return state;
+        }
+        if (!state.teams || typeof state.teams !== 'object') {
+          console.warn('manager migration: teams block missing, injecting defaults');
+          state.teams = JSON.parse(JSON.stringify(defaults.teams));
+        }
+        Object.keys(defaults.teams).forEach(teamName => {
+          const defaultTeam = defaults.teams[teamName];
+          if (!state.teams[teamName] || typeof state.teams[teamName] !== 'object') {
+            console.warn(`manager migration: invalid team payload for ${teamName}, using defaults`);
+            state.teams[teamName] = JSON.parse(JSON.stringify(defaultTeam));
+            return;
+          }
+          const teamData = state.teams[teamName];
+          if (!teamData.facilities || typeof teamData.facilities !== 'object') {
+            console.warn(`manager migration: facilities missing for ${teamName}, applying defaults`);
+            teamData.facilities = { ...defaultTeam.facilities };
+          } else {
+            Object.entries(defaultTeam.facilities).forEach(([key, value]) => {
+              if (!Number.isFinite(teamData.facilities[key])) {
+                console.warn(`manager migration: facility mismatch for ${teamName}.${key}`, teamData.facilities[key]);
+                teamData.facilities[key] = value;
+              } else {
+                teamData.facilities[key] = clampFacilityLevel(teamData.facilities[key]);
+              }
+            });
+          }
+          if (!teamData.sponsors || typeof teamData.sponsors !== 'object') {
+            console.warn(`manager migration: sponsors missing for ${teamName}, applying defaults`);
+            teamData.sponsors = createDefaultSponsors();
+          } else {
+            const defaultSponsors = createDefaultSponsors();
+            Object.keys(defaultSponsors).forEach(slot => {
+              if (!Array.isArray(teamData.sponsors[slot])) {
+                console.warn(`manager migration: sponsor slot mismatch for ${teamName}.${slot}`, teamData.sponsors[slot]);
+                teamData.sponsors[slot] = [];
+              } else {
+                teamData.sponsors[slot] = teamData.sponsors[slot].slice();
+              }
+            });
+            Object.keys(teamData.sponsors).forEach(slot => {
+              if (!(slot in defaultSponsors)) {
+                console.warn(`manager migration: dropping unsupported sponsor slot ${teamName}.${slot}`);
+                delete teamData.sponsors[slot];
+              }
+            });
+          }
+        });
+        state.saveVersion = 1;
+        return state;
+      }
+    ]
+  ]);
+
   function normalizeManagerState(state) {
     const base = createDefaultManagerState();
     if (!state || typeof state !== 'object') {
       return base;
     }
-    base.seasonYear = typeof state.seasonYear === 'number' ? Math.max(1, Math.floor(state.seasonYear)) : base.seasonYear;
-    base.week = typeof state.week === 'number' && state.week >= 1 ? Math.floor(state.week) : base.week;
-    if (state.teams) {
+
+    let working;
+    try {
+      working = JSON.parse(JSON.stringify(state));
+    } catch (err) {
+      console.warn('manager normalize: falling back to shallow clone', err);
+      working = { ...state };
+    }
+
+    let saveVersion = 0;
+    if (Number.isFinite(working.saveVersion)) {
+      saveVersion = Math.max(0, Math.floor(working.saveVersion));
+    } else if (typeof working.saveVersion === 'string') {
+      const parsed = Number.parseInt(working.saveVersion, 10);
+      if (Number.isFinite(parsed)) {
+        saveVersion = Math.max(0, parsed);
+      } else if (working.saveVersion) {
+        console.warn('manager normalize: invalid saveVersion string', working.saveVersion);
+      }
+    } else if (working.saveVersion != null) {
+      console.warn('manager normalize: invalid saveVersion type', typeof working.saveVersion);
+    } else {
+      console.warn('manager normalize: missing saveVersion, defaulting to 0');
+    }
+
+    if (saveVersion > MANAGER_SAVE_VERSION) {
+      console.warn(`manager snapshot (v${saveVersion}) is newer than runtime support (v${MANAGER_SAVE_VERSION})`);
+    }
+
+    for (let version = saveVersion; version < MANAGER_SAVE_VERSION; version += 1) {
+      const migrate = MANAGER_MIGRATIONS.get(version);
+      if (typeof migrate === 'function') {
+        try {
+          migrate(working);
+        } catch (err) {
+          console.warn(`manager migration ${version}→${version + 1} failed`, err);
+        }
+      }
+    }
+
+    working.saveVersion = MANAGER_SAVE_VERSION;
+
+    const managerVersion = Number.isFinite(working.version)
+      ? working.version
+      : typeof working.version === 'string'
+        ? Number.parseInt(working.version, 10)
+        : null;
+    if (Number.isFinite(managerVersion)) {
+      base.version = managerVersion;
+    }
+    base.saveVersion = MANAGER_SAVE_VERSION;
+    base.seasonYear = typeof working.seasonYear === 'number'
+      ? Math.max(1, Math.floor(working.seasonYear))
+      : base.seasonYear;
+    base.week = typeof working.week === 'number' && working.week >= 1
+      ? Math.floor(working.week)
+      : base.week;
+
+    if (working.teams) {
       Object.entries(base.teams).forEach(([team, data]) => {
-        const incoming = state.teams[team];
+        const incoming = working.teams[team];
         if (!incoming) return;
         if (typeof incoming.budget === 'number') data.budget = incoming.budget;
         if (incoming.upgrades) {
@@ -520,6 +659,7 @@
           data.upgrades.systems = clamp(incoming.upgrades.systems ?? data.upgrades.systems, 0, MAX_UPGRADE_LEVEL);
         }
         data.facilities = sanitizeFacilities(incoming.facilities || data.facilities);
+        data.sponsors = sanitizeSponsors(incoming.sponsors || data.sponsors);
         data.form = typeof incoming.form === 'number' ? incoming.form : 0;
         const roster = Array.isArray(incoming.roster) ? incoming.roster : [];
         const baseRoster = data.roster.slice();
@@ -544,29 +684,37 @@
         data.roster = sanitizedRoster.slice(0, MAX_ROSTER_SIZE);
       });
     }
+
     Object.values(base.teams).forEach(team => {
       team.facilities = sanitizeFacilities(team.facilities);
+      team.sponsors = sanitizeSponsors(team.sponsors);
     });
-    if (state.selectedTeam && base.teams[state.selectedTeam]) {
-      base.selectedTeam = state.selectedTeam;
+
+    if (working.selectedTeam && base.teams[working.selectedTeam]) {
+      base.selectedTeam = working.selectedTeam;
     }
+
     const rostered = new Set();
     Object.values(base.teams).forEach(team => {
       (team.roster || []).forEach(contract => rostered.add(contract.driver));
     });
+
     const agents = [];
-    if (Array.isArray(state.freeAgents)) {
-      state.freeAgents.forEach(entry => {
+    if (Array.isArray(working.freeAgents)) {
+      working.freeAgents.forEach(entry => {
         const name = typeof entry === 'string' ? entry : entry?.driver;
         if (!name || rostered.has(name)) return;
         const driverInfo = driverMap.get(name);
         if (!driverInfo) return;
         const morale = clamp(typeof entry?.morale === 'number' ? entry.morale : 0.5, 0.1, 0.95);
-        const askingSalary = typeof entry?.askingSalary === 'number' ? entry.askingSalary : Math.round(driverInfo.salary * 1.1);
+        const askingSalary = typeof entry?.askingSalary === 'number'
+          ? entry.askingSalary
+          : Math.round(driverInfo.salary * 1.1);
         agents.push({ driver: name, morale, askingSalary });
         rostered.add(name);
       });
     }
+
     driverDatabase.forEach(driver => {
       if (rostered.has(driver.name)) return;
       agents.push({
@@ -575,6 +723,7 @@
         askingSalary: Math.round(driver.salary * 1.1)
       });
     });
+
     base.freeAgents = agents;
     return base;
   }
@@ -593,6 +742,12 @@
 
   function persistManagerState() {
     try {
+      if (managerState && typeof managerState === 'object') {
+        managerState.saveVersion = MANAGER_SAVE_VERSION;
+        if (!Number.isFinite(managerState.version)) {
+          managerState.version = createDefaultManagerState().version;
+        }
+      }
       localStorage.setItem(STORAGE_KEYS.manager, JSON.stringify(managerState));
     } catch (err) {
       console.warn('manager state save failed', err);
@@ -1007,10 +1162,46 @@
   }
 
   function collectProfileSnapshot() {
+    const managerSnapshot = (() => {
+      try {
+        return JSON.parse(JSON.stringify(managerState));
+      } catch (err) {
+        console.warn('profile export: failed to clone manager state, using shallow copy', err);
+        return { ...managerState };
+      }
+    })();
+    if (!managerSnapshot || typeof managerSnapshot !== 'object') {
+      throw new Error('Manager-Status nicht verfügbar');
+    }
+    let snapshotSaveVersion = Number.isFinite(managerSnapshot.saveVersion)
+      ? managerSnapshot.saveVersion
+      : typeof managerSnapshot.saveVersion === 'string'
+        ? Number.parseInt(managerSnapshot.saveVersion, 10)
+        : NaN;
+    if (!Number.isFinite(snapshotSaveVersion)) {
+      snapshotSaveVersion = MANAGER_SAVE_VERSION;
+    }
+    snapshotSaveVersion = Math.max(0, Math.floor(snapshotSaveVersion));
+    managerSnapshot.saveVersion = snapshotSaveVersion;
+
+    let snapshotManagerVersion = Number.isFinite(managerSnapshot.version)
+      ? managerSnapshot.version
+      : typeof managerSnapshot.version === 'string'
+        ? Number.parseInt(managerSnapshot.version, 10)
+        : NaN;
+    if (!Number.isFinite(snapshotManagerVersion)) {
+      snapshotManagerVersion = createDefaultManagerState().version;
+    }
+    managerSnapshot.version = snapshotManagerVersion;
+
     return {
       version: PROFILE_EXPORT_VERSION,
       exportedAt: new Date().toISOString(),
-      manager: JSON.parse(JSON.stringify(managerState)),
+      managerMeta: {
+        version: snapshotManagerVersion,
+        saveVersion: snapshotSaveVersion
+      },
+      manager: managerSnapshot,
       gp: {
         active: gpActive,
         raceIndex: gpRaceIndex,
@@ -1028,6 +1219,46 @@
     if (!snapshot || typeof snapshot !== 'object') {
       throw new Error('Ungültiger Profil-Datensatz');
     }
+    const defaultManagerVersion = createDefaultManagerState().version;
+    const managerMeta = snapshot.managerMeta && typeof snapshot.managerMeta === 'object' ? snapshot.managerMeta : {};
+    const parseMetaNumber = value => {
+      if (Number.isFinite(value)) return value;
+      if (typeof value === 'string') {
+        const parsed = Number.parseInt(value, 10);
+        return Number.isFinite(parsed) ? parsed : NaN;
+      }
+      return NaN;
+    };
+
+    let incomingSaveVersion = parseMetaNumber(managerMeta.saveVersion);
+    if (!Number.isFinite(incomingSaveVersion)) {
+      incomingSaveVersion = parseMetaNumber(snapshot?.manager?.saveVersion);
+    }
+    if (!Number.isFinite(incomingSaveVersion)) {
+      console.warn('Profil enthält keine Manager-Speicherversion, setze auf 0.');
+      incomingSaveVersion = 0;
+    }
+    incomingSaveVersion = Math.max(0, Math.floor(incomingSaveVersion));
+
+    if (incomingSaveVersion > MANAGER_SAVE_VERSION) {
+      throw new Error(`Profil benötigt Manager-Speicher v${incomingSaveVersion}, unterstützt wird v${MANAGER_SAVE_VERSION}`);
+    }
+    if (incomingSaveVersion < MANAGER_SAVE_VERSION) {
+      console.info(`Manager-Speicher v${incomingSaveVersion} wird auf v${MANAGER_SAVE_VERSION} aktualisiert.`);
+    }
+
+    const incomingManagerVersion = (() => {
+      const value = parseMetaNumber(managerMeta.version);
+      if (Number.isFinite(value)) return value;
+      const fallback = parseMetaNumber(snapshot?.manager?.version);
+      return Number.isFinite(fallback) ? fallback : NaN;
+    })();
+    if (Number.isFinite(incomingManagerVersion) && incomingManagerVersion !== defaultManagerVersion) {
+      console.warn(
+        `Profil Manager-Version (${incomingManagerVersion}) unterscheidet sich vom aktuellen Standard (${defaultManagerVersion}).`
+      );
+    }
+
     managerState = normalizeManagerState(snapshot.manager);
     ensureFreeAgentPool();
     focusTeam = managerState.selectedTeam;
@@ -1046,6 +1277,39 @@
     gpTable.clear();
     gpSnapshot.table.forEach(entry => {
       gpTable.set(entry.driver, entry);
+    });
+    gpRaceIndex = gpSnapshot.raceIndex;
+    gpActive = gpSnapshot.active;
+    gpSave();
+
+    const uiSnapshot = sanitizeUiSnapshot(snapshot.ui);
+    Object.assign(uiSettings, uiSnapshot);
+    persistUiSettings();
+    applyUiSettings();
+    syncUiSettingControls();
+
+    raceSettings = sanitizeRaceSettingsSnapshot(snapshot.raceSettings);
+    persistRaceSettings();
+    syncRaceSettingControls();
+
+    cachedOdds = [];
+    refreshOddsTable();
+    updateBettingUI();
+    updateManagerView();
+    renderCodex();
+    renderTeams();
+
+    if (gpActive) {
+      prepareGrandPrixRound();
+    }
+
+    return {
+      version: typeof snapshot.version === 'string' ? snapshot.version : PROFILE_EXPORT_VERSION,
+      managerSaveVersion: managerState.saveVersion,
+      managerVersion: managerState.version
+    };
+  }
+
   function resetRaceControls() {
     setPauseButtonState(false, 'Pause');
     setStartButtonState(true, 'Rennen starten');
@@ -6991,7 +7255,13 @@
       try {
         const data = JSON.parse(reader.result);
         const info = applyProfileSnapshot(data);
-        const label = info?.version ? `Profil importiert (v${info.version})` : 'Profil importiert.';
+        let label = 'Profil importiert.';
+        if (info?.version) {
+          const managerLabel = Number.isFinite(info?.managerSaveVersion)
+            ? ` / Manager v${info.managerSaveVersion}`
+            : '';
+          label = `Profil importiert (v${info.version}${managerLabel})`;
+        }
         showSettingsNotice(label, 'success');
       } catch (err) {
         console.warn('profile import failed', err);
