@@ -1053,6 +1053,10 @@
       replayRaceBtn.style.display = 'none';
       replayRaceBtn.textContent = 'Replay';
     }
+    if (nextRaceBtn) {
+      nextRaceBtn.style.display = 'none';
+      nextRaceBtn.setAttribute('aria-hidden', 'true');
+    }
     if (replayControls) {
       replayControls.classList.add('hidden');
       replayControls.setAttribute('aria-hidden', 'true');
@@ -1470,6 +1474,10 @@
     if (replayRaceBtn) {
       replayRaceBtn.style.display = 'none';
       replayRaceBtn.textContent = 'Replay';
+    }
+    if (nextRaceBtn) {
+      nextRaceBtn.style.display = 'none';
+      nextRaceBtn.setAttribute('aria-hidden', 'true');
     }
     if (replayControls) {
       replayControls.classList.add('hidden');
@@ -5821,7 +5829,10 @@
     updateLeaderboardHud([]);
     resultsLabel.textContent = '';
     replayRaceBtn.style.display = 'none';
-    if (nextRaceBtn) nextRaceBtn.style.display = 'none';
+    if (nextRaceBtn) {
+      nextRaceBtn.style.display = 'none';
+      nextRaceBtn.setAttribute('aria-hidden', 'true');
+    }
     setStartButtonState(false);
     setPauseButtonState(false, 'Pause');
     resetMarshalOverlay();
@@ -5959,6 +5970,7 @@
       if (gpRaceIndex < GP_RACES) {
         const nextRaceNumber = Math.min(GP_RACES, gpRaceIndex + 1);
         nextRaceBtn.style.display = 'inline-block';
+        nextRaceBtn.setAttribute('aria-hidden', 'false');
         setStartButtonState(true, `Rennen ${nextRaceNumber} starten`);
       } else {
         gpActive = false;
@@ -7145,6 +7157,7 @@
   });
   nextRaceBtn?.addEventListener('click', () => {
     nextRaceBtn.style.display = 'none';
+    nextRaceBtn.setAttribute('aria-hidden', 'true');
     prepareGrandPrixRound();
     startRace();
   });
